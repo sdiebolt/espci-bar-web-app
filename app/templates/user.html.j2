@@ -1,12 +1,13 @@
-{% extends "base.html" %}
+{% extends "base.html.j2" %}
 
 {% block content %}
     <table>
         <tr valign="top">
             <td><img src="{{ user.avatar() }}"></td>
             <td>
-                <h1>User: {{ user.username }}</h1>
-                {% if user.about_me %}<p>{{ user.about_me }}</p>{% endif %}
+                <h1>User: {% if user.is_barman %}Barman{% endif %}{{ user.username }}</h1>
+                <p>Graduating class: {{ user.promotion }}</p>
+                <p>Balance: {{ user.balance }} </p>
                 {% if user.last_seen %}<p>Last seen on: {{ user.last_seen }}</p>{% endif %}
                 {% if user == current_user %}
                 <p><a href="{{ url_for('edit_profile') }}">Edit your profile</a></p>

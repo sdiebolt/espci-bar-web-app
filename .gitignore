@@ -12,3 +12,6 @@ __pycache__
 
 # Static images
 *.jpg
+
+# Web app databases
+*.db

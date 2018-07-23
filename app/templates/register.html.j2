@@ -1,9 +1,30 @@
-{% extends "base.html" %}
+{% extends "base.html.j2" %}
 
 {% block content %}
     <h1>Register</h1>
     <form action="" method="post">
         {{ form.hidden_tag() }}
+        <p>
+            {{ form.first_name.label }}<br>
+            {{ form.first_name(size=32) }}<br>
+            {% for error in form.first_name.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.last_name.label }}<br>
+            {{ form.last_name(size=32) }}<br>
+            {% for error in form.last_name.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.grad_class.label }}<br>
+            {{ form.grad_class(size=10) }}<br>
+            {% for error in form.grad_class.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
         <p>
             {{ form.username.label }}<br>
             {{ form.username(size=32) }}<br>

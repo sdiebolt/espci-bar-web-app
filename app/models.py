@@ -7,10 +7,20 @@ from datetime import datetime
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
+
+    # Login info
     username = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
-    about_me = db.Column(db.String(140))
+
+    # Personal info
+    first_name = db.Column(db.String(64), index=True)
+    last_name = db.Column(db.String(64), index=True)
+    is_barman = db.Column(db.Boolean, default=False)
+    grad_class = db.Column(db.Integer, index=True, default=0)
+
+    # Technical info
+    balance = db.Column(db.Float, default=0.0)
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __repr__(self):

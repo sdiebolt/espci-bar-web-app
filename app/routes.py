@@ -11,7 +11,7 @@ from datetime import datetime
 @login_required
 def index():
     users = User.query.order_by(User.username).all()
-    return render_template('index.html', title='Home Page', users=users)
+    return render_template('index.html.j2', title='Home Page', users=users)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -28,7 +28,7 @@ def login():
         if not next_page or url_parse(next_page).netloc != '':
             next_page = url_for('index')
         return redirect(next_page)
-    return render_template('login.html', title='Sign In', form=form)
+    return render_template('login.html.j2', title='Sign In', form=form)
 
 @app.route('/logout')
 def logout():
@@ -47,13 +47,13 @@ def register():
         db.session.commit()
         flash('Congratulations, you are now a registered user!')
         return redirect(url_for('login'))
-    return render_template('register.html', title='Register', form=form)
+    return render_template('register.html.j2', title='Register', form=form)
 
 @app.route('/user/<username>')
 @login_required
 def user(username):
     user = User.query.filter_by(username=username).first_or_404()
-    return render_template('user.html', user=user)
+    return render_template('user.html.j2', user=user)
 
 @app.before_request
 def before_request():
@@ -67,12 +67,10 @@ def edit_profile():
     form = EditProfileForm(current_user.username)
     if form.validate_on_submit():
         current_user.username = form.username.data
-        current_user.about_me = form.about_me.data
         db.session.commit()
         flash('Your changes have been saved.')
         return redirect(url_for('edit_profile'))
     elif request.method == 'GET':
         form.username.data = current_user.username
-        form.about_me.data = current_user.about_me
-    return render_template('edit_profile.html', title='Edit Profile',
+    return render_template('edit_profile.html.j2', title='Edit Profile',
                            form=form)

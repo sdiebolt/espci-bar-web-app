@@ -78,3 +78,4 @@ sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such table: user 
 2018-07-23 20:19:46,038 INFO: ESPCI bar webb app startup [in /Users/samuel/Documents/Repositories/espci-bar-web-app/app/__init__.py:42]
 2018-07-23 20:24:39,810 INFO: ESPCI bar webb app startup [in /Users/samuel/Documents/Repositories/espci-bar-web-app/app/__init__.py:42]
 2018-07-23 20:26:50,482 INFO: ESPCI bar webb app startup [in /Users/samuel/Documents/Repositories/espci-bar-web-app/app/__init__.py:42]
+2018-07-23 20:30:40,322 INFO: ESPCI bar webb app startup [in /Users/samuel/Documents/Repositories/espci-bar-web-app/app/__init__.py:42]

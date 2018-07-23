@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base.html.j2" %}
 
 {% block content %}
     <h1>Hi, {{ current_user.username }}!</h1>
@@ -6,8 +6,8 @@
       <div class="row">
         {% for user in users %}
         <div class="col-sm">
-          <img src="{{ user.avatar() }}">
-          <b>{{ user.username }}</b>
+          <a href="{{ url_for('user', username=user.username) }}"><img src="{{ user.avatar() }}">
+          <b>{{ user.username }}</b></a
         </div>
         {% endfor %}
       </div>
