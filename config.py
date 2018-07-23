@@ -16,4 +16,4 @@ class Config(object):
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     ADMINS = ['samuel.diebolt@espci.fr']
 
-    USERS_PER_PAGE = 15
+    USERS_PER_PAGE = 12

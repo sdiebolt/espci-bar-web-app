@@ -16,12 +16,13 @@ class RegistrationForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired()])
     password2 = PasswordField(
         'Repeat password', validators=[DataRequired(), EqualTo('password')])
-    submit = SubmitField('Register')
 
     # Personal info
     first_name = StringField('First name', validators=[DataRequired()])
     last_name = StringField('Last name', validators=[DataRequired()])
     grad_class = IntegerField('Graduating class (empty if non student)')
+
+    submit = SubmitField('Register')
 
     def validate_username(self, username):
         user = User.query.filter_by(username=username.data).first()

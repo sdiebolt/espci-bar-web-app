@@ -12,7 +12,7 @@ from datetime import datetime
 @login_required
 def index():
     page = request.args.get('page', 1, type=int)
-    users = User.query.order_by(User.username).paginate(page,
+    users = User.query.order_by(User.last_name.asc()).paginate(page,
         app.config['USERS_PER_PAGE'], False)
     next_url = url_for('index', page=users.next_num) \
         if users.has_next else None

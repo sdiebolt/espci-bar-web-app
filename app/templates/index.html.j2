@@ -1,21 +1,31 @@
-{% extends "base.html.j2" %}
+{% extends 'base.html.j2' %}
 
-{% block content %}
+{% block app_content %}
     <h1>Hi, {{ current_user.first_name }}!</h1>
-    <div class="users">
+    <div class="container-fluid" align="center">
+      {#% for user_row in users | batch(3, '&nbsp;') %#}
       <div class="row">
         {% for user in users %}
-        <div class="col-sm">
-          <a href="{{ url_for('user', username=user.username) }}"><img src="{{ user.avatar() }}">
-          <b>{{ user.first_name }} {{ user.last_name }}</b></a>
+        <div class="col-lg-2 col-sm-3 col-xs-6">
+          <a href="{{ url_for('user', username=user.username) }}"><img src="{{ user.avatar() }}"><br>
+          <b>{{ user.username }}</b></a>
         </div>
         {% endfor %}
       </div>
+      {#% endfor %#}
     </div>
-    {% if prev_url %}
-    <a href="{{ prev_url }}">Previous page</a>
-    {% endif %}
-    {% if next_url %}
-    <a href="{{ next_url }}">Next page</a>
-    {% endif %}
+    <nav aria-label="...">
+            <ul class="pager">
+                <li class="previous{% if not prev_url %} disabled{% endif %}">
+                    <a href="{{ prev_url or '#' }}">
+                        <span aria-hidden="true">&larr;</span> Previous page
+                    </a>
+                </li>
+                <li class="next{% if not next_url %} disabled{% endif %}">
+                    <a href="{{ next_url or '#' }}">
+                        Next page <span aria-hidden="true">&rarr;</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
 {% endblock %}
