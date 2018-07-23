@@ -1,15 +1,21 @@
 {% extends "base.html.j2" %}
 
 {% block content %}
-    <h1>Hi, {{ current_user.username }}!</h1>
+    <h1>Hi, {{ current_user.first_name }}!</h1>
     <div class="users">
       <div class="row">
         {% for user in users %}
         <div class="col-sm">
           <a href="{{ url_for('user', username=user.username) }}"><img src="{{ user.avatar() }}">
-          <b>{{ user.username }}</b></a
+          <b>{{ user.first_name }} {{ user.last_name }}</b></a>
         </div>
         {% endfor %}
       </div>
     </div>
+    {% if prev_url %}
+    <a href="{{ prev_url }}">Previous page</a>
+    {% endif %}
+    {% if next_url %}
+    <a href="{{ next_url }}">Next page</a>
+    {% endif %}
 {% endblock %}
