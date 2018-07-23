@@ -20,4 +20,4 @@ __pycache__
 add136.py
 
 # Web app logs
-*.log
+logs/
