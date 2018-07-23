@@ -3,3 +3,12 @@ venv
 
 # Python cache
 __pycache__
+
+# Python specific files
+*.pyc
+
+# OS specific files
+.DS_Store
+
+# Static images
+*.jpg
