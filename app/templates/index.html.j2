@@ -1,7 +1,6 @@
 {% extends 'base.html.j2' %}
 
 {% block app_content %}
-    <h1>Hi, {{ current_user.first_name }}!</h1>
     <div class="container-fluid" align="center">
       {#% for user_row in users | batch(3, '&nbsp;') %#}
       <div class="row">
