@@ -6,14 +6,20 @@
             <td><img src="{{ user.avatar() }}"></td>
             <td>
                 <h1>{% if user.is_barman %}Barman {% endif %}{{ user.first_name }} {{ user.last_name}}</h1>
-                <p>Username: {{ user.username }}</p>
-                <p>Graduating class: {{ user.grad_class }}</p>
-                <p>Balance: {{ user.balance }} </p>
+                <p class="font-weight-bold">Username: {{ user.username }}</p>
+                {% if user.grad_class != 0 %}
+                  <p class="font-weight-bold">Graduating class: {{ user.grad_class }}</p>
+                {% else %}
+                  <p class="font-weight-bold">Extern</p>
+                {% endif %}
+                <p class="font-weight-bold">Balance: {{ user.balance }} </p>
                 {% if user.last_seen %}
-                <p>Last seen on: {{ moment(user.last_seen).format('LLL') }}</p>
+                <p class="font-weight-bold">Last seen on: {{ moment(user.last_seen).format('LLL') }}</p>
                 {% endif %}
                 {% if user == current_user %}
-                <p><a href="{{ url_for('main.edit_profile') }}">Edit your profile</a></p>
+                <p class="font-weight-bold"><a href="{{ url_for('main.edit_profile', username=user.username) }}">Edit your profile</a></p>
+                {% elif current_user.is_barman %}
+                <p class="font-weight-bold"><a href="{{ url_for('main.edit_profile', username=user.username) }}">Edit this profile</a></p>
                 {% endif %}
             </td>
         </tr>

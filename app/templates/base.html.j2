@@ -10,49 +10,28 @@
     {{ moment.include_moment() }}
 
     <script>
-    $(function () {
-            var timer = null;
-            var xhr = null;
-            $('.user_popup').hover(
-                function(event) {
-                    // mouse in event handler
-                    var elem = $(event.currentTarget);
-                    timer = setTimeout(function() {
-                        timer = null;
-                        xhr = $.ajax(
-                            '/user/' + elem.first().text().trim() + '/popup').done(
-                                function(data) {
-                                    xhr = null;
-                                    elem.popover({
-                                        trigger: 'manual',
-                                        html: true,
-                                        animation: false,
-                                        container: elem,
-                                        content: data
-                                    }).popover('show');
-                                    flask_moment_render_all();
-                                }
-                            );
-                    }, 700);
-                },
-                function(event) {
-                    // mouse out event handler
-                    var elem = $(event.currentTarget);
-                    if (timer) {
-                        clearTimeout(timer);
-                        timer = null;
-                    }
-                    else if (xhr) {
-                        xhr.abort();
-                        xhr = null;
-                    }
-                    else {
-                        elem.popover('destroy');
-                    }
-                }
-            );
+    // Change drop direction for dropdown menus
+    function determineDropDirection(){
+      $(".dropdown-menu").each( function(){
+        $(this).css({
+          visibility: "hidden",
+          display: "block"
         });
-        </script>
+
+        $(this).parent().removeClass("dropup");
+
+        if ($(this).offset().top + $(this).outerHeight() > $(window).innerHeight() + $(window).scrollTop()){
+          $(this).parent().addClass("dropup");
+        }
+
+        $(this).removeAttr("style");
+      });
+    }
+
+    determineDropDirection();
+
+    $(window).scroll(determineDropDirection);
+    </script>
 {% endblock %}
 
 {% block title %}
@@ -69,18 +48,26 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="{{ url_for('main.index') }}">ESPCI Bar</a>
+                {% if current_user.is_barman %}
+                <a class="navbar-brand" href="{{ url_for('main.index') }}"><span class="glyphicon glyphicon-glass"></span> ESPCI Bar</a>
+                {% elif current_user.is_anonymous %}
+                <a class="navbar-brand" href="{{ url_for('auth.login') }}"><span class="glyphicon glyphicon-glass"></span> ESPCI Bar</a>
+                {% else %}
+                <a class="navbar-brand" href="{{ url_for('main.user', username=current_user.username) }}"><span class="glyphicon glyphicon-glass"></span> ESPCI Bar</a>
+                {% endif %}
             </div>
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav">
-                    <li><a href="{{ url_for('main.index') }}">Customers</a></li>
+                    {% if current_user.is_barman %}
+                    <li><a href="{{ url_for('main.index') }}"><span class="glyphicon glyphicon-shopping-cart"></span> Customers</a></li>
+                    {% endif %}
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                     {% if current_user.is_anonymous %}
-                    <li><a href="{{ url_for('auth.login') }}">Login</a></li>
+                    <li><a href="{{ url_for('auth.login') }}"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
                     {% else %}
-                    <li><a href="{{ url_for('main.user', username=current_user.username) }}">Profile</a></li>
-                    <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
+                    <li><a href="{{ url_for('main.user', username=current_user.username) }}"><span class="glyphicon glyphicon-user"></span> Profile</a></li>
+                    <li><a href="{{ url_for('auth.logout') }}"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
                     {% endif %}
                 </ul>
             </div>
@@ -90,10 +77,13 @@
 
 {% block content %}
     <div class="container">
-        {% with messages = get_flashed_messages() %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-            {% for message in messages %}
-            <div class="alert alert-info" role="alert">{{ message }}</div>
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible" role="alert">
+              {{ message }}
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
             {% endfor %}
         {% endif %}
         {% endwith %}

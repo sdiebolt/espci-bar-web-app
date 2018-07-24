@@ -18,6 +18,8 @@ def before_request():
 @bp.route('/index', methods=['GET', 'POST'])
 @login_required
 def index():
+    if not current_user.is_barman:
+        return redirect(url_for('main.user', username=current_user.username))
     page = request.args.get('page', 1, type=int)
     users = User.query.order_by(User.last_name.asc()).paginate(page,
         current_app.config['USERS_PER_PAGE'], False)
@@ -35,22 +37,17 @@ def user(username):
     user = User.query.filter_by(username=username).first_or_404()
     return render_template('user.html.j2', user=user)
 
-@bp.route('/user/<username>/popup')
+@bp.route('/edit_profile/<username>', methods=['GET', 'POST'])
 @login_required
-def user_popup(username):
+def edit_profile(username):
     user = User.query.filter_by(username=username).first_or_404()
-    return render_template('user_popup.html.j2', user=user)
-
-@bp.route('/edit_profile', methods=['GET', 'POST'])
-@login_required
-def edit_profile():
-    form = EditProfileForm(current_user.username)
+    form = EditProfileForm(user.username)
     if form.validate_on_submit():
-        current_user.username = form.username.data
+        user.username = form.username.data
         db.session.commit()
         flash('Your changes have been saved.')
-        return redirect(url_for('main.edit_profile'))
+        return redirect(url_for('main.edit_profile', username=user.username))
     elif request.method == 'GET':
-        form.username.data = current_user.username
+        form.username.data = user.username
     return render_template('edit_profile.html.j2', title='Edit Profile',
                            form=form)

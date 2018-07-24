@@ -1,17 +1,47 @@
 {% extends 'base.html.j2' %}
 
 {% block app_content %}
-    <div class="container-fluid" align="center">
-      {#% for user_row in users | batch(3, '&nbsp;') %#}
+    <div class="container-fluid">
       <div class="row">
         {% for user in users %}
-        <div class="col-lg-2 col-sm-3 col-xs-6">
-            <span class="user_popup"><span hidden>{{ user.username }}</span hidden><img src="{{ user.avatar() }}"></span><br>
-            <b>{{ user.username }}</b>
+        <div class="col-lg-3 col-sm-3 col-xs-6">
+            <div class="thumbnail">
+              <a href="{{ url_for('main.user', username=user.username) }}">
+                <span hidden>{{ user.username }}</span hidden>
+                <img src="{{ user.avatar() }}" alt="{{ user.username }}">
+              </a>
+              <div class="caption">
+                <h4>{{ user.first_name|capitalize }}<br>{{ user.last_name|upper }}</h4>
+                <div class="btn-group">
+                  <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Pay <span class="glyphicon glyphicon-euro"></span>
+                  </button>
+                  <ul class="dropdown-menu">
+                    <li><a href="#">Action</a></li>
+                    <li><a href="#">Another action</a></li>
+                    <li><a href="#">Something else here</a></li>
+                    <li role="separator" class="divider"></li>
+                    <li><a href="#">Separated link</a></li>
+                  </ul>
+                </div>
+
+                <div class="btn-group">
+                  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Top up <span class="glyphicon glyphicon-piggy-bank"></span>
+                  </button>
+                  <ul class="dropdown-menu">
+                    <li><a href="#">Action</a></li>
+                    <li><a href="#">Another action</a></li>
+                    <li><a href="#">Something else here</a></li>
+                    <li role="separator" class="divider"></li>
+                    <li><a href="#">Separated link</a></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
         </div>
         {% endfor %}
       </div>
-      {#% endfor %#}
     </div>
     <nav aria-label="...">
             <ul class="pager">
