@@ -1,11 +1,5 @@
-# Python Virtual Env
-venv
-
-# Python cache
-__pycache__
-
 # Python specific files
-*.pyc
+*.py[cod]
 
 # OS specific files
 .DS_Store
@@ -13,11 +7,39 @@ __pycache__
 # Static images
 *.jpg
 
-# Web app databases
-*.db
-
 # Helper scripts
 add136.py
 
-# Web app logs
-logs/
+# Environment variables
+*.env
+
+# C extensions
+*.so
+
+# Packages
+*.egg
+*.egg-info
+dist
+build
+eggs
+parts
+bin
+var
+sdist
+develop-eggs
+.installed.cfg
+lib
+lib64
+__pycache__
+
+# Installer logs
+pip-log.txt
+
+# Unit test / coverage reports
+.coverage
+.tox
+nosetests.xml
+
+venv
+app.db
+espci-bar-web-app.log*

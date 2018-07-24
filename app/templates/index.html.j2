@@ -6,7 +6,7 @@
       <div class="row">
         {% for user in users %}
         <div class="col-lg-2 col-sm-3 col-xs-6">
-          <a href="{{ url_for('user', username=user.username) }}"><img src="{{ user.avatar() }}"><br>
+          <a href="{{ url_for('main.user', username=user.username) }}"><img src="{{ user.avatar() }}"><br>
           <b>{{ user.username }}</b></a>
         </div>
         {% endfor %}

@@ -1,11 +1,10 @@
-import os
-import jwt
-from flask import url_for
-from flask_login import UserMixin
-from werkzeug.security import generate_password_hash, check_password_hash
-from app import app, db, login
 from datetime import datetime
 from time import time
+from flask import current_app, url_for
+from flask_login import UserMixin
+from werkzeug.security import generate_password_hash, check_password_hash
+import jwt
+from app import db, login
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
