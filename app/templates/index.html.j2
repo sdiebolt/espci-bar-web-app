@@ -1,12 +1,13 @@
 {% extends 'base.html.j2' %}
+{% import 'bootstrap/wtf.html' as wtf %}
 
 {% block app_content %}
 
   <!-- User sorting -->
   <div class="well">
     <div class="btn-group">
-      <a href="{{ url_for('main.index', sort='asc', grad_class=grad_class) }}" data-original-title="Sort By Alphabet" data-toggle="tolltip" type="button" class="btn btn-info"><span class="glyphicon glyphicon-sort-by-alphabet"></span></a>
-      <a href="{{ url_for('main.index', sort='desc', grad_class=grad_class) }}" data-original-title="Sort By Alphabet" data-toggle="tolltip" type="button" class="btn btn-info"><span class="glyphicon glyphicon-sort-by-alphabet-alt"></span></a>
+      <a href="{{ url_for('main.index', sort='asc', grad_class=grad_class) }}" data-original-title="Sort By Alphabet" type="button" class="btn btn-info"><span class="glyphicon glyphicon-sort-by-alphabet"></span></a>
+      <a href="{{ url_for('main.index', sort='desc', grad_class=grad_class) }}" data-original-title="Sort By Alphabet" type="button" class="btn btn-info"><span class="glyphicon glyphicon-sort-by-alphabet-alt"></span></a>
     </div>
     <div class="btn-group">
     </div>
@@ -29,7 +30,7 @@
 
     <div class="container-fluid">
       <div class="row">
-        {% for user in users %}
+        {% for user in users.items %}
         <div class="col-lg-3 col-md-3 col-sm-4 col-xs-6">
           <div class="caption">
             <div class="panel panel-info">
@@ -66,11 +67,14 @@
                   </button>
 
                   <ul class="dropdown-menu dropdown-menu-index">
-                    <li><a href="#">Action</a></li>
-                    <li><a href="#">Another action</a></li>
-                    <li><a href="#">Something else here</a></li>
-                    <li role="separator" class="divider"></li>
-                    <li><a href="#">Separated link</a></li>
+                    <form action="{{ url_for('main.top_up', username=user.username) }}" method="post">
+                    <div class="input-group top-up-form" style="padding: 4px;">
+                      <input type="text" name="amount" class="form-control" placeholder="Amount">
+                      <span class="input-group-btn">
+                        <button class="btn btn-default" type="submit">Go!</button>
+                      </span>
+                    </div>
+                    </form>
                   </ul>
                 </div>
               </div>
@@ -81,18 +85,21 @@
       </div>
     </div>
 
-    <nav aria-label="...">
-            <ul class="pager">
-                <li class="previous{% if not prev_url %} disabled{% endif %}">
-                    <a href="{{ prev_url or '#' }}">
-                        <span aria-hidden="true">&larr;</span> Previous page
-                    </a>
-                </li>
-                <li class="next{% if not next_url %} disabled{% endif %}">
-                    <a href="{{ next_url or '#' }}">
-                        Next page <span aria-hidden="true">&rarr;</span>
-                    </a>
-                </li>
-            </ul>
-        </nav>
+    <div class="pager">
+      <div class="btn-group" role="group">
+        {%- for page in users.iter_pages() %}
+        <a href="{{ url_for('main.index', page=page, sort=sort, grad_class=grad_class) }}" type="button" class="btn btn-default">
+          {% if page %}
+          {% if page != users.page %}
+          {{ page }}
+          {% else %}
+          <strong>{{ page }}</strong>
+          {% endif %}
+          {% else %}
+          <span class=ellipsis>…</span>
+          {% endif %}
+        </a>
+        {%- endfor %}
+      </div>
+    </div>
 {% endblock %}

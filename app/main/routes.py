@@ -31,20 +31,14 @@ def index():
     # Sort users alphabetically
     if sort == 'asc':
         users = User.query.filter_by(grad_class=grad_class).order_by(User.last_name.asc()).paginate(page,
-            current_app.config['USERS_PER_PAGE'], False)
+            current_app.config['USERS_PER_PAGE'], True)
     else:
         users = User.query.filter_by(grad_class=grad_class).order_by(User.last_name.desc()).paginate(page,
-            current_app.config['USERS_PER_PAGE'], False)
-
-    next_url = url_for('main.index', page=users.next_num, sort=sort,
-        grad_class=grad_class) if users.has_next else None
-    prev_url = url_for('main.index', page=users.prev_num, sort=sort,
-        grad_class=grad_class) if users.has_prev else None
+            current_app.config['USERS_PER_PAGE'], True)
 
     return render_template('index.html.j2', title='Home Page',
-                            users=users.items, next_url=next_url,
-                            prev_url=prev_url, grad_class=grad_class,
-                            grad_classes=grad_classes)
+                            users=users, sort=sort,
+                            grad_class=grad_class, grad_classes=grad_classes)
 
 @bp.route('/user/<username>')
 @login_required
@@ -90,3 +84,28 @@ def delete_user(username):
     db.session.commit()
     flash('The user ' + username + ' has been deleted.', 'success')
     return redirect(url_for('main.index'))
+
+
+@bp.route('/top_up/<username>', methods=['GET', 'POST'])
+def top_up(username):
+    if not current_user.is_barman:
+        flash('Only bartenders can top up your account.', 'danger')
+        redirect(url_for('main.index'))
+
+    try:
+        amount = float(request.form.get('amount', 0, type=str))
+    except ValueError:
+        flash('Please enter a numerical value.', 'warning')
+        return redirect(request.referrer)
+
+    if amount < 0:
+        flash('Please enter a positive value.', 'warning')
+        return redirect(request.referrer)
+
+    user = User.query.filter_by(username=username).first_or_404()
+    user.balance += amount
+    db.session.commit()
+
+    flash('You added ' + str(amount) + '€ to ' + user.first_name + ' ' + \
+            user.last_name + "'s account.", 'info')
+    return redirect(request.referrer)
