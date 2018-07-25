@@ -13,6 +13,7 @@ from app.main import bp
 @login_required
 def index():
     if not current_user.is_barman:
+        flash('You do not have the rights to access this page.', 'danger')
         return redirect(url_for('main.user', username=current_user.username))
 
     # Get arguments
@@ -24,7 +25,7 @@ def index():
     grad_classes_query = db.session.query(User.grad_class.distinct().label('grad_class'))
     grad_classes = [str(row.grad_class) for row in grad_classes_query.all()]
     if '0' in grad_classes:
-        grad_classes.remove(0)
+        grad_classes.remove('0')
         grad_classes.append('Extern')
 
     # Sort users alphabetically
