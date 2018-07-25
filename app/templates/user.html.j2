@@ -1,28 +1,76 @@
 {% extends 'base.html.j2' %}
 
 {% block app_content %}
-    <table>
-        <tr valign="top">
-            <td><img src="{{ user.avatar() }}"></td>
-            <td>
-                <h1>{% if user.is_barman %}Barman {% endif %}{{ user.first_name }} {{ user.last_name}}</h1>
-                <p class="font-weight-bold">Username: {{ user.username }}</p>
-                {% if user.grad_class != 0 %}
-                  <p class="font-weight-bold">Graduating class: {{ user.grad_class }}</p>
-                {% else %}
-                  <p class="font-weight-bold">Extern</p>
+    <div class="container">
+      </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xs-offset-0 col-sm-offset-0 col-md-offset-0 col-lg-offset-0 toppad" >
+          <div class="panel panel-info">
+
+            <div class="panel-heading">
+              <h3 class="panel-title">{{ user.first_name }} {{ user.last_name }}{% if user.is_barman %} – Barman{% endif %}</h3>
+            </div>
+
+            <div class="panel-body">
+              <div class="row">
+                <div class="col-md-3 col-lg-3 " align="center"> <img alt="User Pic" src="{{ user.avatar() }}" class="img-rounded img-responsive"> </div>
+                <div class=" col-md-9 col-lg-9 ">
+                  <table class="table table-user-information">
+                    <tbody>
+                      <tr>
+                        <td>Username:</td>
+                        <td>{{ user.username }}</td>
+                      </tr>
+                      <tr>
+                        <td>Email:</td>
+                        <td><a href="mailto:{{ user.email }}">{{ user.email }}</a></td>
+                      </tr>
+                      <tr>
+                        <td>Graduating class:</td>
+                        <td>{% if user.grad_class != 0 %}{{ user.grad_class }}{% else %}Extern{% endif %}</td>
+                      </tr>
+                      <tr>
+                        <td>Last drink:</td>
+                        <td>{{ moment(user.last_seen).format('LLL') }}</td>
+                      </tr>
+                      <tr>
+                        <td>Balance:</td>
+                        <td>
+                          <div class="progress">
+                            <div class="progress-bar progress-bar-{% if user.balance < 5.0 %}danger{% elif user.balance < 10 %}warning{% else %}success{% endif %} progress-bar-striped active" role="progressbar" aria-valuenow="{{ user.balance }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ user.balance }}%; min-width: 3em;">
+                              {{ user.balance }}€
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+
+                  <!-- <a href="#" class="btn btn-primary">My Sales Performance</a> -->
+                  <!-- <a href="#" class="btn btn-primary">Team Sales Performance</a> -->
+                </div>
+              </div>
+            </div>
+
+            <div class="panel-footer">
+              <a data-original-title="Broadcast Message" data-toggle="tooltip" type="button" class="btn btn-sm btn-primary"><i class="glyphicon glyphicon-envelope"></i></a>
+              <span class="pull-right">
+                <a href="{{ url_for('main.edit_profile', username=user.username) }}" data-original-title="Edit this user" data-toggle="tooltip" type="button" class="btn btn-sm btn-warning"><i class="glyphicon glyphicon-edit"></i></a>
+                {% if current_user.is_barman %}
+                <div class="btn-group">
+                  <button type="button" class="btn btn-sm btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span class="glyphicon glyphicon-remove"></span>
+                  </button>
+                  <ul class="dropdown-menu dropdown-menu-right">
+                    <li class="dropdown-header">Delete this user?</li>
+                    <li><a href="{{ url_for('main.delete_user', username=user.username) }}">Yes</a></li>
+                    <li><a href="#">No</a></li>
+                  </ul>
+                </div>
                 {% endif %}
-                <p class="font-weight-bold">Balance: {{ user.balance }} </p>
-                {% if user.last_seen %}
-                <p class="font-weight-bold">Last seen on: {{ moment(user.last_seen).format('LLL') }}</p>
-                {% endif %}
-                {% if user == current_user %}
-                <p class="font-weight-bold"><a href="{{ url_for('main.edit_profile', username=user.username) }}">Edit your profile</a></p>
-                {% elif current_user.is_barman %}
-                <p class="font-weight-bold"><a href="{{ url_for('main.edit_profile', username=user.username) }}">Edit this profile</a></p>
-                {% endif %}
-            </td>
-        </tr>
-    </table>
-    <hr>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 {% endblock %}

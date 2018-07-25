@@ -4,18 +4,27 @@
     <div class="container-fluid">
       <div class="row">
         {% for user in users %}
-        <div class="col-lg-3 col-sm-3 col-xs-6">
-            <div class="thumbnail">
-              <a href="{{ url_for('main.user', username=user.username) }}">
+        <div class="col-lg-3 col-md-3 col-sm-4 col-xs-6">
+          <div class="caption">
+            <div class="panel panel-info">
+
+              <div class="panel-heading text-center">
+                <a href="{{ url_for('main.user', username=user.username) }}">
                 <span hidden>{{ user.username }}</span hidden>
-                <img src="{{ user.avatar() }}" alt="{{ user.username }}">
-              </a>
-              <div class="caption">
-                <h4>{{ user.first_name|capitalize }}<br>{{ user.last_name|upper }}</h4>
+                <img src="{{ user.avatar() }}" alt="{{ user.username }}" class="img-rounded">
+                </a>
+              </div>
+
+              <div class="panel-body">
+                <h4 class="panel-title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ user.first_name|capitalize }}<br>{{ user.last_name|upper }}</h4>
+              </div>
+
+              <div class="panel-footer">
                 <div class="btn-group">
                   <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Pay <span class="glyphicon glyphicon-euro"></span>
                   </button>
+
                   <ul class="dropdown-menu">
                     <li><a href="#">Action</a></li>
                     <li><a href="#">Another action</a></li>
@@ -29,6 +38,7 @@
                   <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Top up <span class="glyphicon glyphicon-piggy-bank"></span>
                   </button>
+
                   <ul class="dropdown-menu">
                     <li><a href="#">Action</a></li>
                     <li><a href="#">Another action</a></li>
@@ -39,10 +49,12 @@
                 </div>
               </div>
             </div>
+          </div>
         </div>
         {% endfor %}
       </div>
     </div>
+
     <nav aria-label="...">
             <ul class="pager">
                 <li class="previous{% if not prev_url %} disabled{% endif %}">
