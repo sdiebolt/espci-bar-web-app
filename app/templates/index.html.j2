@@ -1,6 +1,32 @@
 {% extends 'base.html.j2' %}
 
 {% block app_content %}
+
+  <!-- User sorting -->
+  <div class="well">
+    <div class="btn-group">
+      <a href="{{ url_for('main.index', sort='asc', grad_class=grad_class) }}" data-original-title="Sort By Alphabet" data-toggle="tolltip" type="button" class="btn btn-info"><span class="glyphicon glyphicon-sort-by-alphabet"></span></a>
+      <a href="{{ url_for('main.index', sort='desc', grad_class=grad_class) }}" data-original-title="Sort By Alphabet" data-toggle="tolltip" type="button" class="btn btn-info"><span class="glyphicon glyphicon-sort-by-alphabet-alt"></span></a>
+    </div>
+    <div class="btn-group">
+    </div>
+
+    <div class="pull-right">
+      <div class="btn-group">
+        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          {{ grad_class }}{% if grad_class != 'Extern' %}<sup>th</sup> graduating class{% else %}Extern{% endif %} <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-right">
+          {% for g in grad_classes %}
+          <li><a href="{{ url_for('main.index', grad_class=g) }}">{{ g }}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:10px"></div>
+
     <div class="container-fluid">
       <div class="row">
         {% for user in users %}
@@ -25,7 +51,7 @@
                     Pay <span class="glyphicon glyphicon-euro"></span>
                   </button>
 
-                  <ul class="dropdown-menu">
+                  <ul class="dropdown-menu dropdown-menu-index">
                     <li><a href="#">Action</a></li>
                     <li><a href="#">Another action</a></li>
                     <li><a href="#">Something else here</a></li>
@@ -39,7 +65,7 @@
                     Top up <span class="glyphicon glyphicon-piggy-bank"></span>
                   </button>
 
-                  <ul class="dropdown-menu">
+                  <ul class="dropdown-menu dropdown-menu-index">
                     <li><a href="#">Action</a></li>
                     <li><a href="#">Another action</a></li>
                     <li><a href="#">Something else here</a></li>

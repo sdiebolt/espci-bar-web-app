@@ -22,8 +22,7 @@ class User(UserMixin, db.Model):
 
     # Technical info
     balance = db.Column(db.Float, default=0.0)
-    # last_drink = db.Column(db.DateTime, default=datetime.utcnow)
-    last_seen = db.Column(db.DateTime, default=datetime.utcnow)
+    last_drink = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
@@ -35,7 +34,8 @@ class User(UserMixin, db.Model):
         return check_password_hash(self.password_hash, password)
 
     def avatar(self):
-        avatar_filename = url_for('static', filename='img/'+self.username+'.jpg')
+        avatar_filename = url_for('static',
+            filename='img/'+str(self.grad_class)+'/'+self.username+'.jpg')
         return avatar_filename
 
     def get_reset_password_token(self, expires_in=600):

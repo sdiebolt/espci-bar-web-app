@@ -12,31 +12,31 @@
 
             <div class="panel-body">
               <div class="row">
-                <div class="col-md-3 col-lg-3 " align="center"> <img alt="User Pic" src="{{ user.avatar() }}" class="img-rounded img-responsive"> </div>
+                <div class="col-md-3 col-lg-3 " align="center"> <img alt="User picture" src="{{ user.avatar() }}" class="img-rounded img-responsive"> </div>
                 <div class=" col-md-9 col-lg-9 ">
                   <table class="table table-user-information">
                     <tbody>
                       <tr>
-                        <td>Username:</td>
+                        <td><strong>Username:</strong></td>
                         <td>{{ user.username }}</td>
                       </tr>
                       <tr>
-                        <td>Email:</td>
+                        <td><strong>Email:</strong></td>
                         <td><a href="mailto:{{ user.email }}">{{ user.email }}</a></td>
                       </tr>
                       <tr>
-                        <td>Graduating class:</td>
+                        <td><strong>Graduating class:</strong></td>
                         <td>{% if user.grad_class != 0 %}{{ user.grad_class }}{% else %}Extern{% endif %}</td>
                       </tr>
                       <tr>
-                        <td>Last drink:</td>
-                        <td>{{ moment(user.last_seen).format('LLL') }}</td>
+                        <td><strong>Last drink:</strong></td>
+                        <td>{{ moment(user.last_drink).format('LLL') }}</td>
                       </tr>
                       <tr>
-                        <td>Balance:</td>
+                        <td><strong>Balance:</strong></td>
                         <td>
                           <div class="progress">
-                            <div class="progress-bar progress-bar-{% if user.balance < 5.0 %}danger{% elif user.balance < 10 %}warning{% else %}success{% endif %} progress-bar-striped active" role="progressbar" aria-valuenow="{{ user.balance }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ user.balance }}%; min-width: 3em;">
+                            <div class="progress-bar progress-bar-{% if user.balance < 5.0 %}danger{% elif user.balance < 10 %}warning{% else %}success{% endif %} progress-bar-striped active" role="progressbar" aria-valuenow="{{ user.balance }}" aria-valuemin="0" aria-valuemax="50" style="width: {{ user.balance }}%; min-width: 3em;">
                               {{ user.balance }}€
                             </div>
                           </div>

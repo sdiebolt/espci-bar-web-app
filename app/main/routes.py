@@ -8,28 +8,42 @@ from app.models import User
 from app.main import bp
 
 
-@bp.before_app_request
-def before_request():
-    if current_user.is_authenticated:
-        current_user.last_seen = datetime.utcnow()
-        db.session.commit()
-
 @bp.route('/', methods=['GET', 'POST'])
 @bp.route('/index', methods=['GET', 'POST'])
 @login_required
 def index():
     if not current_user.is_barman:
         return redirect(url_for('main.user', username=current_user.username))
+
+    # Get arguments
     page = request.args.get('page', 1, type=int)
-    users = User.query.order_by(User.last_name.asc()).paginate(page,
-        current_app.config['USERS_PER_PAGE'], False)
-    next_url = url_for('main.index', page=users.next_num) \
-        if users.has_next else None
-    prev_url = url_for('main.index', page=users.prev_num) \
-        if users.has_prev else None
+    sort = request.args.get('sort', 'asc', type=str)
+    grad_class = request.args.get('grad_class', str(current_app.config['CURRENT_GRAD_CLASS']), type=str)
+
+    # Get graduating classes from database
+    grad_classes_query = db.session.query(User.grad_class.distinct().label('grad_class'))
+    grad_classes = [str(row.grad_class) for row in grad_classes_query.all()]
+    if '0' in grad_classes:
+        grad_classes.remove(0)
+        grad_classes.append('Extern')
+
+    # Sort users alphabetically
+    if sort == 'asc':
+        users = User.query.filter_by(grad_class=grad_class).order_by(User.last_name.asc()).paginate(page,
+            current_app.config['USERS_PER_PAGE'], False)
+    else:
+        users = User.query.filter_by(grad_class=grad_class).order_by(User.last_name.desc()).paginate(page,
+            current_app.config['USERS_PER_PAGE'], False)
+
+    next_url = url_for('main.index', page=users.next_num, sort=sort,
+        grad_class=grad_class) if users.has_next else None
+    prev_url = url_for('main.index', page=users.prev_num, sort=sort,
+        grad_class=grad_class) if users.has_prev else None
+
     return render_template('index.html.j2', title='Home Page',
                             users=users.items, next_url=next_url,
-                            prev_url=prev_url)
+                            prev_url=prev_url, grad_class=grad_class,
+                            grad_classes=grad_classes)
 
 @bp.route('/user/<username>')
 @login_required

@@ -3,6 +3,7 @@
 
 # OS specific files
 .DS_Store
+Thumbs.db
 
 # Static images
 *.jpg
@@ -42,4 +43,4 @@ nosetests.xml
 
 venv
 app.db
-espci-bar-web-app.log*
+*.log*
