@@ -13,7 +13,6 @@ from app.main import bp
 @login_required
 def index():
     if not current_user.is_barman:
-        flash('You do not have the rights to access this page.', 'danger')
         return redirect(url_for('main.user', username=current_user.username))
 
     # Get arguments
@@ -90,7 +89,7 @@ def delete_user(username):
 def top_up(username):
     if not current_user.is_barman:
         flash('Only bartenders can top up your account.', 'danger')
-        redirect(url_for('main.index'))
+        return redirect(url_for('main.index'))
 
     try:
         amount = float(request.form.get('amount', 0, type=str))
