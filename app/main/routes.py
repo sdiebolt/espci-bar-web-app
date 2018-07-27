@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask import render_template, flash, redirect, url_for, request, g, \
     jsonify, current_app
 from flask_login import current_user, login_required
@@ -86,6 +86,7 @@ def delete_user(username):
 
 
 @bp.route('/top_up/<username>', methods=['GET', 'POST'])
+@login_required
 def top_up(username):
     if not current_user.is_barman:
         flash('Only bartenders can top up your account.', 'danger')
@@ -108,3 +109,20 @@ def top_up(username):
     flash('You added ' + str(amount) + '€ to ' + user.first_name + ' ' + \
             user.last_name + "'s account.", 'info')
     return redirect(request.referrer)
+
+@bp.route('/statistics')
+@login_required
+def statistics():
+    if not current_user.is_barman:
+        flash("You don't have the rights to access this page.", 'danger')
+        return redirect(url_for('main.index'))
+
+    # Number of clients
+    nb_users = User.query.count()
+    # Number of bartenders
+    nb_bartenders = User.query.filter_by(is_barman=True).count()
+    # Number of active users
+    nb_active_users = User.query.filter(User.last_drink > (datetime.today() - timedelta(days=3))).count()
+    return render_template('statistics.html.j2', title='Statistics',
+                            nb_users=nb_users, nb_active_users=nb_active_users,
+                            nb_bartenders=nb_bartenders)

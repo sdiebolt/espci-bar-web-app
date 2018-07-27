@@ -1,0 +1,40 @@
+{% extends 'base.html.j2' %}
+
+{% block app_content %}
+<div class="panel-group">
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h4 class="panel-title">
+        <a data-toggle="collapse" href="#collapse1">
+          Clients
+        </a>
+      </h4>
+    </div>
+    <div id="collapse1" class="panel-collapse collapse in">
+      <ul class="list-group">
+        <li class="list-group-item"><span class="badge">{{ nb_users }}</span> Total</li>
+        <li class="list-group-item"><span class="badge">{{ nb_active_users }}</span><span class="glyphicon glyphicon-chevron-right"></span> Active</li>
+        <li class="list-group-item"><span class="badge">{{ nb_users - nb_active_users }}</span><span class="glyphicon glyphicon-chevron-right"></span> Inactive</li>
+        <li class="list-group-item"><span class="badge">{{ nb_bartenders }}</span><span class="glyphicon glyphicon-chevron-right"></span> Bartenders</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h4 class="panel-title">
+        <a data-toggle="collapse" href="#collapse2">
+          Transactions
+        </a>
+      </h4>
+    </div>
+    <div id="collapse2" class="panel-collapse collapse in">
+      <ul class="list-group">
+        <li class="list-group-item"><span class="badge">253</span> New</li>
+        <li class="list-group-item"><span class="badge">17</span> Deleted</li>
+        <li class="list-group-item"><span class="badge">3</span> Reported</li>
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -39,7 +39,7 @@
 {% endblock %}
 
 {% block navbar %}
-    <nav class="navbar-fixed-top navbar-inverse">
+    <nav class="navbar-inverse navbar-fixed-top">
         <div class="container">
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
@@ -59,16 +59,16 @@
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav">
                     {% if current_user.is_barman %}
-                    <li><a href="{{ url_for('main.index') }}"><span class="glyphicon glyphicon-credit-card"></span> Customers</a></li>
-                    <li><a href="{{ url_for('main.index') }}"><span class="glyphicon glyphicon-stats"></span> Statistics</a></li>
+                    <li {% if (request.path == '/index' or request.path == '/') and current_user.is_barman %}class="active"{% endif %}><a href="{{ url_for('main.index') }}"><span class="glyphicon glyphicon-credit-card"></span> Customers</a></li>
+                    <li {% if request.path == '/statistics' and current_user.is_barman %}class="active"{% endif %}><a href="{{ url_for('main.statistics') }}"><span class="glyphicon glyphicon-stats"></span> Statistics</a></li>
                     <li><a href="{{ url_for('main.index') }}"><span class="glyphicon glyphicon-wrench"></span> Tools</a></li>
                     {% endif %}
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                     {% if current_user.is_anonymous %}
-                    <li><a href="{{ url_for('auth.login') }}"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+                    <li class="active"><a href="{{ url_for('auth.login') }}"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
                     {% else %}
-                    <li><a href="{{ url_for('main.user', username=current_user.username) }}"><span class="glyphicon glyphicon-user"></span> Profile</a></li>
+                    <li {% if '/user' in request.path or '/edit_profile' in request.path %}class="active"{% endif %}><a href="{{ url_for('main.user', username=current_user.username) }}"><span class="glyphicon glyphicon-user"></span> Profile</a></li>
                     <li><a href="{{ url_for('auth.logout') }}"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
                     {% endif %}
                 </ul>
