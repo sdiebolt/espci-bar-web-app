@@ -87,5 +87,9 @@ class Transaction(db.Model):
     date = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     client_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
+    # type can be 'Top up', 'Pay <Item>' or 'Edit balance'
+    type = db.Column(db.String(64), index=True)
+    balance_change = db.Column(db.Float)
+
     def __repr__(self):
         return '<Transaction {}>'.format(self.date)

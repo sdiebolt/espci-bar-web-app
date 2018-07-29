@@ -30,9 +30,9 @@
     </div>
     <div id="collapse2" class="panel-collapse collapse in">
       <ul class="list-group">
-        <li class="list-group-item"><span class="badge">253</span> New</li>
-        <li class="list-group-item"><span class="badge">17</span> Deleted</li>
-        <li class="list-group-item"><span class="badge">3</span> Reported</li>
+        <li class="list-group-item"><span class="badge">{{ nb_transactions }}</span> Total</li>
+        <li class="list-group-item"><span class="badge">{{ '%0.2f' | format(amount_paid) }}€</span><span class="glyphicon glyphicon-chevron-right"></span> Amount paid</li>
+        <li class="list-group-item"><span class="badge">{{ '%0.2f' | format(amount_topped_up) }}€</span><span class="glyphicon glyphicon-chevron-right"></span> Amount topped up</li>
       </ul>
     </div>
   </div>

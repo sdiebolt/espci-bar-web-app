@@ -61,7 +61,7 @@
                     {% if current_user.is_barman %}
                     <li {% if (request.path == '/index' or request.path == '/') and current_user.is_barman %}class="active"{% endif %}>
                       <a href="{{ url_for('main.index') }}">
-                        <span class="glyphicon glyphicon-credit-card"></span> Customers
+                        <span class="glyphicon glyphicon-credit-card"></span> Checkout
                       </a>
                     </li>
                     <li {% if (request.path == '/inventory') and current_user.is_barman %}class="active"{% endif %}>
@@ -69,14 +69,14 @@
                         <span class="glyphicon glyphicon-shopping-cart"></span> Inventory
                       </a>
                     </li>
+                    <li {% if request.path == '/logs' and current_user.is_barman %}class="active"{% endif %}>
+                      <a href="{{ url_for('main.index') }}">
+                        <span class="glyphicon glyphicon-list-alt"></span> Transactions
+                      </a>
+                    </li>
                     <li {% if request.path == '/statistics' and current_user.is_barman %}class="active"{% endif %}>
                       <a href="{{ url_for('main.statistics') }}">
                         <span class="glyphicon glyphicon-stats"></span> Statistics
-                      </a>
-                    </li>
-                    <li {% if request.path == '/logs' and current_user.is_barman %}class="active"{% endif %}>
-                      <a href="{{ url_for('main.index') }}">
-                        <span class="glyphicon glyphicon-console"></span> Logs
                       </a>
                     </li>
                     <li class="dropdown {% if request.path == '/settings' and current_user.is_barman %}active{% endif %}">

@@ -2,9 +2,10 @@ from datetime import datetime, timedelta
 from flask import render_template, flash, redirect, url_for, request, g, \
     jsonify, current_app
 from flask_login import current_user, login_required
+from sqlalchemy.sql.expression import and_
 from app import db
 from app.main.forms import EditProfileForm, EditItemForm, AddItemForm
-from app.models import User, Item
+from app.models import User, Item, Transaction
 from app.main import bp
 
 
@@ -49,13 +50,22 @@ def user(username):
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.user', username=current_user.username))
 
+    # Get user
     user = User.query.filter_by(username=username).first_or_404()
+
+    # Get transactions statistics
+    transaction_paid = Transaction.query.filter(and_(Transaction.client_id == user.id, Transaction.type.like('Pay%'))).all()
+    amount_paid = sum([abs(t.balance_change) for t in transaction_paid])
+    transactions_top_up = Transaction.query.filter(and_(Transaction.client_id == user.id, Transaction.type == 'Top up')).all()
+    amount_topped_up = sum([abs(t.balance_change) for t in transactions_top_up])
 
     # Get inventory
     inventory = Item.query.order_by(Item.name.asc()).all()
 
     return render_template('user.html.j2', title=username + ' profile',
-        user=user, inventory=inventory)
+                            user=user, inventory=inventory,
+                            amount_paid=amount_paid,
+                            amount_topped_up=amount_topped_up)
 
 @bp.route('/edit_profile/<username>', methods=['GET', 'POST'])
 @login_required
@@ -111,9 +121,22 @@ def statistics():
     nb_bartenders = User.query.filter_by(is_barman=True).count()
     # Number of active users
     nb_active_users = User.query.filter(User.last_drink > (datetime.utcnow() - timedelta(days=current_app.config['DAYS_BEFORE_INACTIVE']))).count()
+
+    # Number of transactions
+    nb_transactions = Transaction.query.count()
+    # Amount of money paid
+    transactions_paid = Transaction.query.filter(Transaction.type.like('Pay%')).all()
+    amount_paid = sum([abs(t.balance_change) for t in transactions_paid])
+
+    # Amount of money topped up
+    transactions_top_up = Transaction.query.filter_by(type='Top up').all()
+    amount_topped_up = sum([abs(t.balance_change) for t in transactions_top_up])
     return render_template('statistics.html.j2', title='Statistics',
                             nb_users=nb_users, nb_active_users=nb_active_users,
-                            nb_bartenders=nb_bartenders)
+                            nb_bartenders=nb_bartenders,
+                            nb_transactions=nb_transactions,
+                            amount_paid=amount_paid,
+                            amount_topped_up=amount_topped_up)
 
 @bp.route('/inventory')
 @login_required
@@ -217,12 +240,16 @@ def top_up():
 
     amount = request.form.get('amount', 0, type=float)
 
-    if amount < 0:
-        flash('Please enter a positive value.', 'warning')
+    if amount <= 0:
+        flash('Please enter a strictly positive value.', 'warning')
         return redirect(request.referrer)
 
     user = User.query.filter_by(username=username).first_or_404()
     user.balance += amount
+
+    transaction = Transaction(client_id=user.id, date=datetime.utcnow(),
+                            type='Top up', balance_change=amount)
+    db.session.add(transaction)
     db.session.commit()
 
     flash('You added ' + str(amount) + '€ to ' + user.first_name + ' ' + \
@@ -238,9 +265,9 @@ def pay():
         return redirect(url_for('main.index'))
 
     username = request.args.get('username', 'none', type=str)
-    user = User.query.filter_by(username=username).first_or_404()
-
     item_name = request.args.get('item_name', 0, type=str)
+
+    user = User.query.filter_by(username=username).first_or_404()
     item = Item.query.filter_by(name=item_name).first_or_404()
 
     if not user.can_buy(item):
@@ -252,9 +279,13 @@ def pay():
         return redirect(request.referrer)
 
     user.balance -= item.price
+    item.quantity -= 1
     if item.is_alcohol:
         user.last_drink = datetime.utcnow()
-    item.quantity -= 1
+
+    transaction = Transaction(client_id=user.id, date=datetime.utcnow(),
+                            type='Pay '+item.name, balance_change=-item.price)
+    db.session.add(transaction)
     db.session.commit()
 
     flash(user.username+' successfully bought '+item.name \
