@@ -1,3 +1,4 @@
+import os.path
 from datetime import datetime
 from time import time
 from flask import current_app, url_for
@@ -34,9 +35,12 @@ class User(UserMixin, db.Model):
         return check_password_hash(self.password_hash, password)
 
     def avatar(self):
-        avatar_filename = url_for('static',
-            filename='img/'+str(self.grad_class)+'/'+self.username+'.jpg')
-        return avatar_filename
+        avatar_path = 'img/'+str(self.grad_class)+'/'+self.username+'.jpg'
+        if os.path.isfile(os.path.join('app', 'static', avatar_path)):
+            avatar_filename = url_for('static', filename=avatar_path)
+            return avatar_filename
+        else:
+            return url_for('static', filename='img/avatar_placeholder.png')
 
     def get_reset_password_token(self, expires_in=600):
         return jwt.encode(
@@ -55,3 +59,23 @@ class User(UserMixin, db.Model):
 @login.user_loader
 def load_user(id):
     return User.query.get(int(id))
+
+class Item(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    name = db.Column(db.String(64), index=True, unique=True)
+    is_alcohol = db.Column(db.Boolean)
+    price = db.Column(db.Float)
+    quantity = db.Column(db.Integer, default=0)
+
+    def __repr__(self):
+        return '<Item {}>'.format(self.name)
+
+class Transaction(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    date = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    client_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+    def __repr__(self):
+        return '<Transaction {}>'.format(self.date)

@@ -59,9 +59,37 @@
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav">
                     {% if current_user.is_barman %}
-                    <li {% if (request.path == '/index' or request.path == '/') and current_user.is_barman %}class="active"{% endif %}><a href="{{ url_for('main.index') }}"><span class="glyphicon glyphicon-credit-card"></span> Customers</a></li>
-                    <li {% if request.path == '/statistics' and current_user.is_barman %}class="active"{% endif %}><a href="{{ url_for('main.statistics') }}"><span class="glyphicon glyphicon-stats"></span> Statistics</a></li>
-                    <li><a href="{{ url_for('main.index') }}"><span class="glyphicon glyphicon-wrench"></span> Tools</a></li>
+                    <li {% if (request.path == '/index' or request.path == '/') and current_user.is_barman %}class="active"{% endif %}>
+                      <a href="{{ url_for('main.index') }}">
+                        <span class="glyphicon glyphicon-credit-card"></span> Customers
+                      </a>
+                    </li>
+                    <li {% if (request.path == '/inventory') and current_user.is_barman %}class="active"{% endif %}>
+                      <a href="{{ url_for('main.inventory')}}">
+                        <span class="glyphicon glyphicon-shopping-cart"></span> Inventory
+                      </a>
+                    </li>
+                    <li {% if request.path == '/statistics' and current_user.is_barman %}class="active"{% endif %}>
+                      <a href="{{ url_for('main.statistics') }}">
+                        <span class="glyphicon glyphicon-stats"></span> Statistics
+                      </a>
+                    </li>
+                    <li {% if request.path == '/logs' and current_user.is_barman %}class="active"{% endif %}>
+                      <a href="{{ url_for('main.index') }}">
+                        <span class="glyphicon glyphicon-console"></span> Logs
+                      </a>
+                    </li>
+                    <li class="dropdown {% if request.path == '/tools' and current_user.is_barman %}active{% endif %}">
+                      <a href="{{ url_for('main.index') }}" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                        <span class="glyphicon glyphicon-wrench"></span> Tools
+                        <ul class="dropdown-menu">
+                          <li><a href="#">Users list</a></li>
+                          <li><a href="#">Items list</a></li>
+                          <li role="separator" class="divider"></li>
+                          <li><a href="#">Web app settings</a></li>
+                        </ul>
+                      </a>
+                    </li>
                     {% endif %}
                 </ul>
                 <ul class="nav navbar-nav navbar-right">

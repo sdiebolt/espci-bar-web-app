@@ -1,15 +1,17 @@
 {% extends 'base.html.j2' %}
 {% import 'bootstrap/wtf.html' as wtf %}
 
+{% block scripts %}
+{{ super() }}
+{% endblock %}
+
 {% block app_content %}
 
   <!-- User sorting -->
   <div class="well">
     <div class="btn-group">
-      <a href="{{ url_for('main.index', sort='asc', grad_class=grad_class) }}" data-original-title="Sort By Alphabet" type="button" class="btn btn-info"><span class="glyphicon glyphicon-sort-by-alphabet"></span></a>
-      <a href="{{ url_for('main.index', sort='desc', grad_class=grad_class) }}" data-original-title="Sort By Alphabet" type="button" class="btn btn-info"><span class="glyphicon glyphicon-sort-by-alphabet-alt"></span></a>
-    </div>
-    <div class="btn-group">
+      <a href="{{ url_for('main.index', sort='asc', grad_class=grad_class) }}" data-original-title="Sort By Alphabet" type="button" class="btn btn-info {% if sort == 'asc' %}active{% endif %}"><span class="glyphicon glyphicon-sort-by-alphabet"></span></a>
+      <a href="{{ url_for('main.index', sort='desc', grad_class=grad_class) }}" data-original-title="Sort By Alphabet" type="button" class="btn btn-info {% if sort == 'desc' %}active{% endif %}"><span class="glyphicon glyphicon-sort-by-alphabet-alt"></span></a>
     </div>
 
     <div class="pull-right">
@@ -32,51 +34,46 @@
       <div class="row">
         {% for user in users.items %}
         <div class="col-lg-3 col-md-3 col-sm-4 col-xs-6">
-          <div class="caption">
-            <div class="panel panel-info">
-
-              <div class="panel-heading text-center">
-                <a href="{{ url_for('main.user', username=user.username) }}">
+          <div class="panel panel-info">
+            <div class="panel-heading text-center">
+              <a href="{{ url_for('main.user', username=user.username) }}">
                 <span hidden>{{ user.username }}</span hidden>
                 <img src="{{ user.avatar() }}" alt="{{ user.username }}" class="img-rounded">
-                </a>
+              </a>
+            </div>
+
+            <div class="panel-body">
+              <h4 class="panel-title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ user.first_name|capitalize }}<br>{{ user.last_name|upper }}</h4>
+            </div>
+
+            <div class="panel-footer">
+              <div class="btn-group">
+                <button type="button" class="btn btn-primary dropdown-toggle {% if user.balance <= 0 %}disabled{% endif %}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  Pay <span class="glyphicon glyphicon-euro"></span>
+                </button>
+
+                <ul class="dropdown-menu dropdown-menu-index scrollable-menu">
+                  {% for item in inventory %}
+                  <li><a href="#">{{ item.name }} ({{ item.price }}€)</a></li>
+                  {% endfor %}
+                </ul>
               </div>
 
-              <div class="panel-body">
-                <h4 class="panel-title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ user.first_name|capitalize }}<br>{{ user.last_name|upper }}</h4>
-              </div>
+              <div class="btn-group">
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  Top up <span class="glyphicon glyphicon-piggy-bank"></span>
+                </button>
 
-              <div class="panel-footer">
-                <div class="btn-group">
-                  <button type="button" class="btn btn-primary dropdown-toggle {% if user.balance <= 0 %}disabled{% endif %}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Pay <span class="glyphicon glyphicon-euro"></span>
-                  </button>
-
-                  <ul class="dropdown-menu dropdown-menu-index">
-                    <li><a href="#">Action</a></li>
-                    <li><a href="#">Another action</a></li>
-                    <li><a href="#">Something else here</a></li>
-                    <li role="separator" class="divider"></li>
-                    <li><a href="#">Separated link</a></li>
-                  </ul>
-                </div>
-
-                <div class="btn-group">
-                  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Top up <span class="glyphicon glyphicon-piggy-bank"></span>
-                  </button>
-
-                  <ul class="dropdown-menu dropdown-menu-index">
-                    <form action="{{ url_for('main.top_up', username=user.username) }}" method="post">
-                    <div class="input-group top-up-form" style="padding: 4px;">
-                      <input type="text" name="amount" class="form-control" placeholder="Amount">
-                      <span class="input-group-btn">
-                        <button class="btn btn-default" type="submit"><span class="glyphicon glyphicon-ok"</button>
-                      </span>
-                    </div>
-                    </form>
-                  </ul>
-                </div>
+                <ul class="dropdown-menu dropdown-menu-index">
+                  <form action="{{ url_for('main.top_up', username=user.username) }}" method="post">
+                  <div class="input-group top-up-form" style="padding: 4px;">
+                    <input type="text" name="amount" class="form-control" placeholder="Amount">
+                    <span class="input-group-btn">
+                      <button class="btn btn-default" type="submit"><span class="glyphicon glyphicon-ok"</button>
+                    </span>
+                  </div>
+                  </form>
+                </ul>
               </div>
             </div>
           </div>

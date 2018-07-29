@@ -19,5 +19,6 @@ class Config(object):
     ADMINS = ['samuel.diebolt@espci.fr']
 
     USERS_PER_PAGE = 12
+    ITEMS_PER_PAGE = 10
 
     CURRENT_GRAD_CLASS = int(os.environ.get('CURRENT_GRAD_CLASS') or 136)
