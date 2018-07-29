@@ -35,7 +35,7 @@
         </thead>
         <tbody>
           {% for item in inventory.items %}
-          <tr {% if item.quantity == 0 %}class="danger"{% endif %}>
+          <tr {% if item.quantity <= 0 %}class="danger"{% endif %}>
             <td style="vertical-align: middle;">{{ item.name }}</td>
             <td style="vertical-align: middle;">{{ item.quantity }}</td>
             <td style="vertical-align: middle;">{{ item.price }} €</td>
@@ -68,7 +68,7 @@
 
     <div class="pager">
       <div class="btn-group" role="group">
-        {%- for page in inventory.iter_pages() %}
+        {% for page in inventory.iter_pages() %}
         <a href="{{ url_for('main.inventory', page=page, sort=sort) }}" type="button" class="btn btn-default {% if not page %}disabled{% endif %}">
           {% if page %}
           {% if page != inventory.page %}
@@ -80,7 +80,7 @@
           <span class=ellipsis>…</span>
           {% endif %}
         </a>
-        {%- endfor %}
+        {% endfor %}
       </div>
     </div>
     </div>

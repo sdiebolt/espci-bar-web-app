@@ -106,11 +106,7 @@ def top_up(username):
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.index'))
 
-    try:
-        amount = float(request.form.get('amount', 0, type=str))
-    except ValueError:
-        flash('Please enter a numerical value.', 'warning')
-        return redirect(request.referrer)
+    amount = request.form.get('amount', 0, type=float)
 
     if amount < 0:
         flash('Please enter a positive value.', 'warning')
@@ -137,7 +133,7 @@ def statistics():
     # Number of bartenders
     nb_bartenders = User.query.filter_by(is_barman=True).count()
     # Number of active users
-    nb_active_users = User.query.filter(User.last_drink > (datetime.today() - timedelta(days=30))).count()
+    nb_active_users = User.query.filter(User.last_drink > (datetime.utcnow() - timedelta(days=current_app.config['DAYS_BEFORE_INACTIVE']))).count()
     return render_template('statistics.html.j2', title='Statistics',
                             nb_users=nb_users, nb_active_users=nb_active_users,
                             nb_bartenders=nb_bartenders)
@@ -229,4 +225,36 @@ def delete_item(item_name):
     db.session.delete(item)
     db.session.commit()
     flash('The item ' + item_name + ' has been deleted.', 'success')
+    return redirect(request.referrer)
+
+@bp.route('/pay', methods=['GET', 'POST'])
+@login_required
+def pay():
+    """ Substract the item price to username's balance. """
+    if not current_user.is_barman:
+        flash("You don't have the rights to access this page.", 'danger')
+        return redirect(url_for('main.index'))
+
+    username = request.args.get('username', 'none', type=str)
+    user = User.query.filter_by(username=username).first_or_404()
+
+    item_name = request.args.get('item_name', 0, type=str)
+    item = Item.query.filter_by(name=item_name).first_or_404()
+
+    if not user.can_buy(item):
+        flash(user.username+" can't buy "+item.name+'.', 'warning')
+        return redirect(request.referrer)
+
+    if item.quantity <= 0:
+        flash('No '+item.name+' left.', 'warning')
+        return redirect(request.referrer)
+
+    user.balance -= item.price
+    if item.is_alcohol:
+        user.last_drink = datetime.utcnow()
+    item.quantity -= 1
+    db.session.commit()
+
+    flash(user.username+' successfully bought '+item.name \
+            +'. Balance: {:.2f}'.format(user.balance)+'€', 'success')
     return redirect(request.referrer)

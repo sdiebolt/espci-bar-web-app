@@ -1,7 +1,7 @@
 import os.path
 from datetime import datetime, timedelta
 from time import time
-from flask import current_app, url_for
+from flask import current_app, url_for, flash
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
@@ -45,24 +45,26 @@ class User(UserMixin, db.Model):
     def get_reset_password_token(self, expires_in=600):
         return jwt.encode(
             {'reset_password': self.id, 'exp': time() + expires_in},
-            app.config['SECRET_KEY'], algorithm='HS256').decode('utf-8')
+            current_app.config['SECRET_KEY'], algorithm='HS256').decode('utf-8')
+
+    def can_buy(self, item):
+        """ Return the user's right to buy the item depending on his balance
+            and the time since his last drink if the item is alcohol. """
+        if item.is_alcohol and self.last_drink > (datetime.utcnow() - timedelta(minutes=30)):
+            return False
+        elif self.balance < item.price:
+            return False
+        else:
+            return True
 
     @staticmethod
     def verify_reset_password_token(token):
         try:
-            id = jwt.decode(token, app.config['SECRET_KEY'],
+            id = jwt.decode(token, current_app.config['SECRET_KEY'],
                             algorithm=['HS256'])['reset_password']
         except:
             return
         return User.query.get(id)
-
-    def can_drink(self):
-        """ Returns the user's right to drink depending the time since his last
-            drink. """
-        if self.last_drink < (datetime.today() - timedelta(minutes=app.config['MINUTES_BEFORE_NEXT_DRINK'])):
-            return True
-        else:
-            return False
 
 @login.user_loader
 def load_user(id):

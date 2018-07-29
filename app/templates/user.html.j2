@@ -40,7 +40,7 @@
                         <td>
                           <div class="progress">
                             <div class="progress-bar progress-bar-{% if user.balance < 5.0 %}danger{% elif user.balance < 10 %}warning{% else %}success{% endif %} progress-bar-striped active" role="progressbar" aria-valuenow="{{ user.balance }}" aria-valuemin="0" aria-valuemax="50" style="width: {{ user.balance }}%; min-width: 3em; max-width: 100%">
-                              {{ user.balance }}€
+                              {{ '%0.2f' | format(user.balance) }}€
                             </div>
                           </div>
                         </td>

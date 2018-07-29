@@ -79,15 +79,9 @@
                         <span class="glyphicon glyphicon-console"></span> Logs
                       </a>
                     </li>
-                    <li class="dropdown {% if request.path == '/tools' and current_user.is_barman %}active{% endif %}">
-                      <a href="{{ url_for('main.index') }}" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                        <span class="glyphicon glyphicon-wrench"></span> Tools
-                        <ul class="dropdown-menu">
-                          <li><a href="#">Users list</a></li>
-                          <li><a href="#">Items list</a></li>
-                          <li role="separator" class="divider"></li>
-                          <li><a href="#">Web app settings</a></li>
-                        </ul>
+                    <li class="dropdown {% if request.path == '/settings' and current_user.is_barman %}active{% endif %}">
+                      <a href="{{ url_for('main.index') }}">
+                        <span class="glyphicon glyphicon-cog"></span> Settings
                       </a>
                     </li>
                     {% endif %}
