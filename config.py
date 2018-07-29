@@ -22,3 +22,5 @@ class Config(object):
     ITEMS_PER_PAGE = 10
 
     CURRENT_GRAD_CLASS = int(os.environ.get('CURRENT_GRAD_CLASS') or 136)
+
+    MINUTES_BEFORE_NEXT_DRINK = os.environ.get('MINUTES_BEFORE_NEXT_DRINK') or 30

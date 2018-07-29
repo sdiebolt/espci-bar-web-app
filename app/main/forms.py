@@ -1,7 +1,7 @@
 from flask import request
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, PasswordField, FloatField, IntegerField, BooleanField
-from wtforms.validators import ValidationError, DataRequired, Length, Email, EqualTo, NumberRange
+from wtforms.validators import ValidationError, DataRequired, Length, Email, EqualTo, NumberRange, optional
 from app.models import User, Item
 
 
@@ -30,7 +30,7 @@ class EditProfileForm(FlaskForm):
 
 class EditItemForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired()])
-    quantity = IntegerField('Quantity')
+    quantity = IntegerField('Quantity', [optional()])
     price = FloatField('Price', validators=[DataRequired()])
     is_alcohol = BooleanField('Alcohol')
 
@@ -56,7 +56,7 @@ class EditItemForm(FlaskForm):
 
 class AddItemForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired()])
-    quantity = IntegerField('Quantity')
+    quantity = IntegerField('Quantity', [optional()])
     price = FloatField('Price', validators=[DataRequired()])
     is_alcohol = BooleanField('Alcohol')
 

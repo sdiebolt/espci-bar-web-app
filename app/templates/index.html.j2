@@ -17,11 +17,19 @@
     <div class="pull-right">
       <div class="btn-group">
         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          {{ grad_class }}{% if grad_class != 'Extern' %}<sup>th</sup> graduating class{% else %}Extern{% endif %} <span class="caret"></span>
+          {% if grad_class != 0 %}{{ grad_class }}<sup>th</sup> graduating class{% else %}Extern{% endif %} <span class="caret"></span>
         </button>
         <ul class="dropdown-menu dropdown-menu-right">
           {% for g in grad_classes %}
-          <li><a href="{{ url_for('main.index', grad_class=g) }}">{{ g }}</a></li>
+          <li>
+            <a href="{{ url_for('main.index', grad_class=g) }}">
+              {% if g != 0 %}
+              {{ g }}
+              {% else %}
+              Extern
+              {% endif %}
+            </a>
+          </li>
           {% endfor %}
         </ul>
       </div>

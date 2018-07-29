@@ -1,5 +1,5 @@
 import os.path
-from datetime import datetime
+from datetime import datetime, timedelta
 from time import time
 from flask import current_app, url_for
 from flask_login import UserMixin
@@ -55,6 +55,14 @@ class User(UserMixin, db.Model):
         except:
             return
         return User.query.get(id)
+
+    def can_drink(self):
+        """ Returns the user's right to drink depending the time since his last
+            drink. """
+        if self.last_drink < (datetime.today() - timedelta(minutes=app.config['MINUTES_BEFORE_NEXT_DRINK'])):
+            return True
+        else:
+            return False
 
 @login.user_loader
 def load_user(id):

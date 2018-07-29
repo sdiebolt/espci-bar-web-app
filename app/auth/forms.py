@@ -1,7 +1,8 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, \
     IntegerField
-from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
+from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, \
+    optional
 from app.models import User
 
 
@@ -22,7 +23,8 @@ class RegistrationForm(FlaskForm):
     # Personal info
     first_name = StringField('First name', validators=[DataRequired()])
     last_name = StringField('Last name', validators=[DataRequired()])
-    grad_class = IntegerField('Graduating class (empty if non student)')
+    grad_class = IntegerField('Graduating class (empty if non student)',
+                                [optional()])
 
     submit = SubmitField('Register')
 
@@ -37,6 +39,10 @@ class RegistrationForm(FlaskForm):
 
         if user is not None:
             raise ValidationError('Please use a different email address.')
+
+    def validate_grad_class(self, grad_class):
+        if grad_class.data is not None and grad_class.data < 0:
+            raise ValidationError('Please enter a valid graduating class or nothing if non student.')
 
 class ResetPasswordRequestForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])

@@ -42,13 +42,16 @@ def register():
         return redirect(url_for('main.index'))
     form = RegistrationForm()
     if form.validate_on_submit():
+        grad_class = form.grad_class.data
+        if grad_class is None:
+            grad_class = 0
         user = User(first_name=form.first_name.data, last_name=form.last_name.data,
                     grad_class=form.grad_class.data, username=form.username.data,
                     email=form.email.data)
         user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()
-        flash('Congratulations, you are now a registered user!')
+        flash('Congratulations, you are now a registered user!', 'success')
         return redirect(url_for('auth.login'))
     return render_template('auth/register.html.j2', title='Register', form=form)
 

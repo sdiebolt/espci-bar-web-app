@@ -8,8 +8,8 @@ from app.models import User, Item
 from app.main import bp
 
 
-@bp.route('/', methods=['GET', 'POST'])
-@bp.route('/index', methods=['GET', 'POST'])
+@bp.route('/', methods=['GET'])
+@bp.route('/index', methods=['GET'])
 @login_required
 def index():
     """ View index page. For barmen, it's the customers page and for clients,
@@ -20,14 +20,11 @@ def index():
     # Get arguments
     page = request.args.get('page', 1, type=int)
     sort = request.args.get('sort', 'asc', type=str)
-    grad_class = request.args.get('grad_class', str(current_app.config['CURRENT_GRAD_CLASS']), type=str)
+    grad_class = request.args.get('grad_class', str(current_app.config['CURRENT_GRAD_CLASS']), type=int)
 
     # Get graduating classes from database
     grad_classes_query = db.session.query(User.grad_class.distinct().label('grad_class'))
-    grad_classes = [str(row.grad_class) for row in grad_classes_query.all()]
-    if '0' in grad_classes:
-        grad_classes.remove('0')
-        grad_classes.append('Extern')
+    grad_classes = [row.grad_class for row in grad_classes_query.all()]
 
     # Sort users alphabetically
     if sort == 'asc':
@@ -38,7 +35,7 @@ def index():
             current_app.config['USERS_PER_PAGE'], True)
 
     # Get inventory
-    inventory = Item.query.all()
+    inventory = Item.query.order_by(Item.name.asc()).all()
 
     return render_template('index.html.j2', title='Home page',
                             users=users, sort=sort, inventory=inventory,
@@ -174,7 +171,10 @@ def add_item():
 
     form = AddItemForm()
     if form.validate_on_submit():
-        item = Item(name=form.name.data, quantity=form.quantity.data,
+        quantity = form.quantity.data
+        if quantity is None:
+            quantity = 0
+        item = Item(name=form.name.data, quantity=quantity,
                     price=form.price.data, is_alcohol=form.is_alcohol.data)
         db.session.add(item)
         db.session.commit()
@@ -193,8 +193,11 @@ def edit_item(item_name):
     item = Item.query.filter_by(name=item_name).first_or_404()
     form = EditItemForm(item.name)
     if form.validate_on_submit():
+        quantity = form.quantity.data
+        if quantity is None:
+            quantity = 0
         item.name = form.name.data
-        item.quantity = form.quantity.data
+        item.quantity = quantity
         item.price = form.price.data
         item.is_alcohol = form.is_alcohol.data
         db.session.commit()
