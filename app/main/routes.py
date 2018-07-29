@@ -97,29 +97,6 @@ def delete_user(username):
     flash('The user ' + username + ' has been deleted.', 'success')
     return redirect(url_for('main.index'))
 
-
-@bp.route('/top_up/<username>', methods=['GET', 'POST'])
-@login_required
-def top_up(username):
-    """ Top up user and redirect to last page. """
-    if not current_user.is_barman:
-        flash("You don't have the rights to access this page.", 'danger')
-        return redirect(url_for('main.index'))
-
-    amount = request.form.get('amount', 0, type=float)
-
-    if amount < 0:
-        flash('Please enter a positive value.', 'warning')
-        return redirect(request.referrer)
-
-    user = User.query.filter_by(username=username).first_or_404()
-    user.balance += amount
-    db.session.commit()
-
-    flash('You added ' + str(amount) + '€ to ' + user.first_name + ' ' + \
-            user.last_name + "'s account.", 'info')
-    return redirect(request.referrer)
-
 @bp.route('/statistics')
 @login_required
 def statistics():
@@ -225,6 +202,31 @@ def delete_item(item_name):
     db.session.delete(item)
     db.session.commit()
     flash('The item ' + item_name + ' has been deleted.', 'success')
+    return redirect(request.referrer)
+
+@bp.route('/top_up', methods=['GET', 'POST'])
+@login_required
+def top_up():
+    """ Top up user and redirect to last page. """
+    if not current_user.is_barman:
+        flash("You don't have the rights to access this page.", 'danger')
+        return redirect(url_for('main.index'))
+
+    username = request.args.get('username', 'none', type=str)
+    user = User.query.filter_by(username=username).first_or_404()
+
+    amount = request.form.get('amount', 0, type=float)
+
+    if amount < 0:
+        flash('Please enter a positive value.', 'warning')
+        return redirect(request.referrer)
+
+    user = User.query.filter_by(username=username).first_or_404()
+    user.balance += amount
+    db.session.commit()
+
+    flash('You added ' + str(amount) + '€ to ' + user.first_name + ' ' + \
+            user.last_name + "'s account.", 'info')
     return redirect(request.referrer)
 
 @bp.route('/pay', methods=['GET', 'POST'])

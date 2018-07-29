@@ -6,7 +6,7 @@ load_dotenv(os.path.join(basedir, '.env'))
 
 
 class Config(object):
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'you-will-never-guess'
+    SECRET_KEY = os.environ.get('SECRET_KEY')
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
         'sqlite:///' + os.path.join(basedir, 'app.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
@@ -18,8 +18,8 @@ class Config(object):
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     ADMINS = ['samuel.diebolt@espci.fr']
 
-    USERS_PER_PAGE = 12
-    ITEMS_PER_PAGE = 10
+    USERS_PER_PAGE = int(os.environ.get('USERS_PER_PAGE') or 12)
+    ITEMS_PER_PAGE = int(os.environ.get('ITEMS_PER_PAGE') or 10)
 
     CURRENT_GRAD_CLASS = int(os.environ.get('CURRENT_GRAD_CLASS') or 136)
 
