@@ -55,34 +55,9 @@
             </div>
 
             <div class="panel-footer">
-              <div class="btn-group">
-                <button type="button" class="btn btn-primary dropdown-toggle {% if user.balance <= 0 %}disabled{% endif %}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  Pay <span class="glyphicon glyphicon-euro"></span>
-                </button>
+              {% include '_pay.html.j2' %}
 
-                <ul class="dropdown-menu dropdown-menu-index scrollable-menu">
-                  {% for item in inventory %}
-                  <li><a href="#">{{ item.name }} ({{ item.price }}€)</a></li>
-                  {% endfor %}
-                </ul>
-              </div>
-
-              <div class="btn-group">
-                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  Top up <span class="glyphicon glyphicon-piggy-bank"></span>
-                </button>
-
-                <ul class="dropdown-menu dropdown-menu-index">
-                  <form action="{{ url_for('main.top_up', username=user.username) }}" method="post">
-                  <div class="input-group top-up-form" style="padding: 4px;">
-                    <input type="text" name="amount" class="form-control" placeholder="Amount">
-                    <span class="input-group-btn">
-                      <button class="btn btn-default" type="submit"><span class="glyphicon glyphicon-ok"</button>
-                    </span>
-                  </div>
-                  </form>
-                </ul>
-              </div>
+              {% include '_top_up.html.j2' %}
             </div>
           </div>
         </div>

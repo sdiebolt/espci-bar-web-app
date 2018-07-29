@@ -64,44 +64,17 @@
           </div>
 
             <div class="panel-footer">
-              <a data-original-title="Broadcast Message" data-toggle="tooltip" type="button" class="btn btn-sm btn-primary"><i class="glyphicon glyphicon-envelope"></i></a>
+              <a data-original-title="Broadcast Message" data-toggle="tooltip" type="button" class="btn btn-md btn-primary"><i class="glyphicon glyphicon-envelope"></i></a>
               {% if current_user.is_barman %}
-              <div class="btn-group">
-                <button type="button" class="btn btn-primary btn-sm dropdown-toggle {% if user.balance <= 0 %}disabled{% endif %}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  Pay <span class="glyphicon glyphicon-euro"></span>
-                </button>
+              {% include '_pay.html.j2' %}
 
-                <ul class="dropdown-menu dropdown-menu-index">
-                  <li><a href="#">Action</a></li>
-                  <li><a href="#">Another action</a></li>
-                  <li><a href="#">Something else here</a></li>
-                  <li role="separator" class="divider"></li>
-                  <li><a href="#">Separated link</a></li>
-                </ul>
-              </div>
-
-              <div class="btn-group">
-                <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  Top up <span class="glyphicon glyphicon-piggy-bank"></span>
-                </button>
-
-                <ul class="dropdown-menu dropdown-menu-index">
-                  <form action="{{ url_for('main.top_up', username=user.username) }}" method="post">
-                  <div class="input-group top-up-form" style="padding: 4px;">
-                    <input type="text" name="amount" class="form-control" placeholder="Amount">
-                    <span class="input-group-btn">
-                      <button class="btn btn-default" type="submit">Go!</button>
-                    </span>
-                  </div>
-                  </form>
-                </ul>
-              </div>
+              {% include '_top_up.html.j2' %}
               {% endif %}
               <span class="pull-right">
-                <a href="{{ url_for('main.edit_profile', username=user.username) }}" data-original-title="Edit this user" data-toggle="tooltip" type="button" class="btn btn-sm btn-warning"><i class="glyphicon glyphicon-edit"></i></a>
+                <a href="{{ url_for('main.edit_profile', username=user.username) }}" data-original-title="Edit this user" data-toggle="tooltip" type="button" class="btn btn-md btn-warning"><i class="glyphicon glyphicon-edit"></i></a>
                 {% if current_user.is_barman %}
                 <div class="btn-group">
-                  <button type="button" class="btn btn-sm btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  <button type="button" class="btn btn-md btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <span class="glyphicon glyphicon-remove"></span>
                   </button>
                   <ul class="dropdown-menu dropdown-menu-right">

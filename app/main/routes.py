@@ -50,8 +50,12 @@ def user(username):
         return redirect(url_for('main.user', username=current_user.username))
 
     user = User.query.filter_by(username=username).first_or_404()
+
+    # Get inventory
+    inventory = Item.query.order_by(Item.name.asc()).all()
+
     return render_template('user.html.j2', title=username + ' profile',
-        user=user)
+        user=user, inventory=inventory)
 
 @bp.route('/edit_profile/<username>', methods=['GET', 'POST'])
 @login_required
