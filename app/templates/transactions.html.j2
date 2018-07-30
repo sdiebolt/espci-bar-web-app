@@ -49,7 +49,7 @@
     <div class="pager">
       <div class="btn-group" role="group">
         {% for page in transactions.iter_pages() %}
-        <a href="{{ url_for('main.transactions', page=page) }}" type="button" class="btn btn-default {% if not page %}disabled{% endif %}">
+        <a href="{{ url_for('main.transactions', page=page) }}" type="button" class="btn {% if page == transactions.page %}btn-primary{% else %}btn-default{% endif %} {% if not page %}disabled{% endif %}">
           {% if page %}
           {% if page != transactions.page %}
           {{ page }}

@@ -77,7 +77,7 @@
     <div class="pager">
       <div class="btn-group" role="group">
         {%- for page in users.iter_pages() %}
-        <a href="{{ url_for('main.index', page=page, sort=sort, grad_class=grad_class) }}" type="button" class="btn btn-default {% if not page %}disabled{% endif %}">
+        <a href="{{ url_for('main.index', page=page, sort=sort, grad_class=grad_class) }}" type="button" class="btn {% if page == users.page %}btn-primary{% else %}btn-default{% endif %} {% if not page %}disabled{% endif %}">
           {% if page %}
           {% if page != users.page %}
           {{ page }}
