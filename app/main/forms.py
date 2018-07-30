@@ -75,3 +75,13 @@ class AddItemForm(FlaskForm):
     def validate_price(self, price):
         if price.data < 0:
             raise ValidationError('Please enter a positive price.')
+
+class SearchForm(FlaskForm):
+    q = StringField('Search', validators=[DataRequired()])
+
+    def __init__(self, *args, **kwargs):
+        if 'formdata' not in kwargs:
+            kwargs['formdata'] = request.args
+        if 'csrf_enabled' not in kwargs:
+            kwargs['csrf_enabled'] = False
+        super(SearchForm, self).__init__(*args, **kwargs)

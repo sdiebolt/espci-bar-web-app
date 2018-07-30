@@ -9,41 +9,24 @@
 
   <!-- User sorting -->
   <!-- Padding to correct some weird grad_class dropdown menu bug -->
-  <div class="well">
+  <div class="well" style="padding-right: 45px;">
     <div class="container-fluid">
       <div class="row">
-        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+        <div class="col-lg-2">
           <div class="btn-group">
-            <a href="{{ url_for('main.index', sort='asc', grad_class=grad_class) }}" data-original-title="Sort By Alphabet" type="button" class="btn btn-info {% if sort == 'asc' %}active{% endif %}"><span class="glyphicon glyphicon-sort-by-alphabet"></span></a>
-            <a href="{{ url_for('main.index', sort='desc', grad_class=grad_class) }}" data-original-title="Sort By Alphabet" type="button" class="btn btn-info {% if sort == 'desc' %}active{% endif %}"><span class="glyphicon glyphicon-sort-by-alphabet-alt"></span></a>
+            <a href="{{ url_for('main.search', q=g.search_form.q.data, sort='asc') }}" data-original-title="Sort By Alphabet" type="button" class="btn btn-info {% if sort == 'asc' %}active{% endif %}"><span class="glyphicon glyphicon-sort-by-alphabet"></span></a>
+            <a href="{{ url_for('main.search', q=g.search_form.q.data, sort='desc') }}" data-original-title="Sort By Alphabet" type="button" class="btn btn-info {% if sort == 'desc' %}active{% endif %}"><span class="glyphicon glyphicon-sort-by-alphabet-alt"></span></a>
           </div>
         </div>
 
-        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+        <div class="col-lg-4 col-lg-offset-2">
           <form class="form-search" method="get" action="{{ url_for('main.search') }}">
             {{ g.search_form.q(size=20, class='form-control', placeholder=g.search_form.q.label.text) }}
           </form>
         </div>
 
-        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
-          <div class="btn-group pull-right">
-            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              {% if grad_class != 0 %}{{ grad_class }}<sup>th</sup> class{% else %}Extern{% endif %} <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu dropdown-menu-right scrollable-menu">
-              {% for g in grad_classes %}
-              <li>
-                <a href="{{ url_for('main.index', grad_class=g) }}">
-                  {% if g != 0 %}
-                  {{ g }}
-                  {% else %}
-                  Extern
-                  {% endif %}
-                </a>
-              </li>
-              {% endfor %}
-            </ul>
-          </div>
+        <div class="col-lg-2 col-lg-offset-2">
+          <h5><span class="label label-info pull-right">Results: {{ total }}</span></h5>
         </div>
       </div>
     </div>
@@ -81,7 +64,7 @@
     <div class="pager">
       <div class="btn-group" role="group">
         {%- for page in users.iter_pages() %}
-        <a href="{{ url_for('main.index', page=page, sort=sort, grad_class=grad_class) }}" type="button" class="btn btn-default {% if not page %}disabled{% endif %}">
+        <a href="{{ url_for('main.search', q=g.search_form.q.data, page=page) }}" type="button" class="btn btn-default {% if not page %}disabled{% endif %}">
           {% if page %}
           {% if page != users.page %}
           {{ page }}

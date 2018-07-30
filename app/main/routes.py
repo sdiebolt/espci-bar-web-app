@@ -4,10 +4,16 @@ from flask import render_template, flash, redirect, url_for, request, g, \
 from flask_login import current_user, login_required
 from sqlalchemy.sql.expression import and_
 from app import db
-from app.main.forms import EditProfileForm, EditItemForm, AddItemForm
+from app.main.forms import EditProfileForm, EditItemForm, AddItemForm, \
+    SearchForm
 from app.models import User, Item, Transaction
 from app.main import bp
 
+
+@bp.before_app_request
+def before_request():
+    if current_user.is_barman:
+        g.search_form = SearchForm()
 
 @bp.route('/', methods=['GET'])
 @bp.route('/index', methods=['GET'])
@@ -23,9 +29,12 @@ def index():
     sort = request.args.get('sort', 'asc', type=str)
     grad_class = request.args.get('grad_class', str(current_app.config['CURRENT_GRAD_CLASS']), type=int)
 
-    # Get graduating classes from database
+    # Get graduating classes
     grad_classes_query = db.session.query(User.grad_class.distinct().label('grad_class'))
     grad_classes = [row.grad_class for row in grad_classes_query.all()]
+
+    # Get inventory
+    inventory = Item.query.order_by(Item.name.asc()).all()
 
     # Sort users alphabetically
     if sort == 'asc':
@@ -35,12 +44,44 @@ def index():
         users = User.query.filter_by(grad_class=grad_class).order_by(User.last_name.desc()).paginate(page,
             current_app.config['USERS_PER_PAGE'], True)
 
+    return render_template('index.html.j2', title='Checkout',
+                            users=users, sort=sort, inventory=inventory,
+                            grad_class=grad_class, grad_classes=grad_classes)
+
+@bp.route('/search')
+@login_required
+def search():
+    """ View search page. """
+    if not current_user.is_barman:
+        flash("You don't have the rights to access this page.", 'danger')
+        return redirect(url_for('main.index'))
+    if not g.search_form.validate():
+        return redirect(url_for('main.index'))
+
+    # Get arguments
+    page = request.args.get('page', 1, type=int)
+    sort = request.args.get('sort', 'asc', type=str)
+
     # Get inventory
     inventory = Item.query.order_by(Item.name.asc()).all()
 
-    return render_template('index.html.j2', title='Home page',
-                            users=users, sort=sort, inventory=inventory,
-                            grad_class=grad_class, grad_classes=grad_classes)
+    # Get users corresponding to the query
+    users, total = User.search(g.search_form.q.data, 1, 9000)
+
+    # Sort users alphabetically
+    if sort == 'asc':
+        users = users.order_by(User.last_name.asc()).paginate(page,
+            current_app.config['USERS_PER_PAGE'], True)
+    else:
+        users = users.order_by(User.last_name.desc()).paginate(page,
+            current_app.config['USERS_PER_PAGE'], True)
+
+    # If only one user, redirect to his profile
+    if total == 1:
+        return redirect(url_for('main.user', username=users.items[0].username))
+
+    return render_template('search.html.j2', title='Search', users=users,
+                            sort=sort, inventory=inventory, total=total)
 
 @bp.route('/user/<username>')
 @login_required
@@ -148,12 +189,18 @@ def transactions():
 
     # Get arguments
     page = request.args.get('page', 1, type=int)
+    sort = request.args.get('sort', 'desc', type=str)
 
-    transactions = Transaction.query.order_by(Transaction.id.desc()).paginate(page,
-        current_app.config['ITEMS_PER_PAGE'], True)
+    # Sort transactions alphabetically
+    if sort == 'asc':
+        transactions = Transaction.query.order_by(Transaction.id.asc()).paginate(page,
+            current_app.config['ITEMS_PER_PAGE'], True)
+    else:
+        transactions = Transaction.query.order_by(Transaction.id.desc()).paginate(page,
+            current_app.config['ITEMS_PER_PAGE'], True)
 
     return render_template('transactions.html.j2', title='Transactions',
-        transactions=transactions)
+        transactions=transactions, sort=sort)
 
 @bp.route('/inventory')
 @login_required
