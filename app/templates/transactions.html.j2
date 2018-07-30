@@ -5,9 +5,15 @@
 
   <!-- Transactions sorting -->
   <div class="well">
-    <div class="btn-group">
-      <a href="{{ url_for('main.transactions', sort='asc') }}" data-original-title="Sort by order" type="button" class="btn btn-info {% if sort == 'asc' %}active{% endif %}"><span class="glyphicon glyphicon-sort-by-order"></span></a>
-      <a href="{{ url_for('main.transactions', sort='desc') }}" data-original-title="Sort by order" type="button" class="btn btn-info {% if sort == 'desc' %}active{% endif %}"><span class="glyphicon glyphicon-sort-by-order-alt"></span></a>
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+          <div class="btn-group">
+            <a href="{{ url_for('main.transactions', sort='asc') }}" data-original-title="Sort by order" type="button" class="btn btn-info {% if sort == 'asc' %}active{% endif %}"><span class="glyphicon glyphicon-sort-by-order"></span></a>
+            <a href="{{ url_for('main.transactions', sort='desc') }}" data-original-title="Sort by order" type="button" class="btn btn-info {% if sort == 'desc' %}active{% endif %}"><span class="glyphicon glyphicon-sort-by-order-alt"></span></a>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 

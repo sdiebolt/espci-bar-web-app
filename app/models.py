@@ -116,9 +116,7 @@ class User(SearchableMixin, UserMixin, db.Model):
 def load_user(id):
     return User.query.get(int(id))
 
-class Item(SearchableMixin, db.Model):
-    __searchable__ = ['name']
-
+class Item(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     name = db.Column(db.String(64), index=True, unique=True)

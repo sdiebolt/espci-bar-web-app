@@ -5,14 +5,22 @@
 
   <!-- Items sorting -->
   <div class="well">
-    <div class="btn-group">
-      <a href="{{ url_for('main.inventory', sort='asc') }}" data-original-title="Sort by alphabet" type="button" class="btn btn-info {% if sort == 'asc' %}active{% endif %}"><span class="glyphicon glyphicon-sort-by-alphabet"></span></a>
-      <a href="{{ url_for('main.inventory', sort='desc') }}" data-original-title="Sort by alphabet" type="button" class="btn btn-info {% if sort == 'desc' %}active{% endif %}"><span class="glyphicon glyphicon-sort-by-alphabet-alt"></span></a>
-    </div>
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+          <div class="btn-group">
+            <a href="{{ url_for('main.inventory', sort='asc') }}" data-original-title="Sort by alphabet" type="button" class="btn btn-info {% if sort == 'asc' %}active{% endif %}"><span class="glyphicon glyphicon-sort-by-alphabet"></span></a>
+            <a href="{{ url_for('main.inventory', sort='desc') }}" data-original-title="Sort by alphabet" type="button" class="btn btn-info {% if sort == 'desc' %}active{% endif %}"><span class="glyphicon glyphicon-sort-by-alphabet-alt"></span></a>
+          </div>
+        </div>
 
-    <div class="pull-right">
-      <div class="btn-group">
-        <a href="{{ url_for('main.add_item') }}" data-original-title="Add item" type="button" class="btn btn-default"><span class="glyphicon glyphicon-plus"></span> Add item</a>
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+          <div class="pull-right">
+            <div class="btn-group">
+              <a href="{{ url_for('main.add_item') }}" data-original-title="Add item" type="button" class="btn btn-default"><span class="glyphicon glyphicon-plus"></span> Add item</a>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>

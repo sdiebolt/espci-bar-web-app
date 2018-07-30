@@ -12,8 +12,9 @@ from app.main import bp
 
 @bp.before_app_request
 def before_request():
-    if current_user.is_barman:
-        g.search_form = SearchForm()
+    if not current_user.is_anonymous:
+        if current_user.is_barman:
+            g.search_form = SearchForm()
 
 @bp.route('/', methods=['GET'])
 @bp.route('/index', methods=['GET'])
@@ -355,3 +356,13 @@ def pay():
     flash(user.username+' successfully bought '+item.name \
             +'. Balance: {:.2f}'.format(user.balance)+'€', 'success')
     return redirect(request.referrer)
+
+@bp.route('/scanqrcode')
+@login_required
+def scanqrcode():
+    """ QR code scan to easily find a user. """
+    if not current_user.is_barman:
+        flash("You don't have the rights to access this page.", 'danger')
+        return redirect(url_for('main.index'))
+
+    return render_template('scanqrcode.html.j2', title='Scan QR code')
