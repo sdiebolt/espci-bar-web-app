@@ -54,9 +54,9 @@ def user(username):
     user = User.query.filter_by(username=username).first_or_404()
 
     # Get transactions statistics
-    transaction_paid = Transaction.query.filter(and_(Transaction.client_id == user.id, Transaction.type.like('Pay%'))).all()
+    transaction_paid = user.transactions.filter(Transaction.type.like('Pay%')).all()
     amount_paid = sum([abs(t.balance_change) for t in transaction_paid])
-    transactions_top_up = Transaction.query.filter(and_(Transaction.client_id == user.id, Transaction.type == 'Top up')).all()
+    transactions_top_up = user.transactions.filter(Transaction.type == 'Top up').all()
     amount_topped_up = sum([abs(t.balance_change) for t in transactions_top_up])
 
     # Get inventory
@@ -138,6 +138,23 @@ def statistics():
                             amount_paid=amount_paid,
                             amount_topped_up=amount_topped_up)
 
+@bp.route('/transactions')
+@login_required
+def transactions():
+    """ View transactions page. """
+    if not current_user.is_barman:
+        flash("You don't have the rights to access this page.", 'danger')
+        return redirect(url_for('main.index'))
+
+    # Get arguments
+    page = request.args.get('page', 1, type=int)
+
+    transactions = Transaction.query.order_by(Transaction.id.desc()).paginate(page,
+        current_app.config['ITEMS_PER_PAGE'], True)
+
+    return render_template('transactions.html.j2', title='Transactions',
+        transactions=transactions)
+
 @bp.route('/inventory')
 @login_required
 def inventory():
@@ -158,7 +175,7 @@ def inventory():
         inventory = Item.query.order_by(Item.name.desc()).paginate(page,
             current_app.config['ITEMS_PER_PAGE'], True)
 
-    return render_template('inventory.html.j2', title='Home page',
+    return render_template('inventory.html.j2', title='Inventory',
         inventory=inventory, sort=sort)
 
 @bp.route('/add_item', methods=['GET', 'POST'])

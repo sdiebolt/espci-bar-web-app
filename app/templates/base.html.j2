@@ -69,8 +69,8 @@
                         <span class="glyphicon glyphicon-shopping-cart"></span> Inventory
                       </a>
                     </li>
-                    <li {% if request.path == '/logs' and current_user.is_barman %}class="active"{% endif %}>
-                      <a href="{{ url_for('main.index') }}">
+                    <li {% if request.path == '/transactions' and current_user.is_barman %}class="active"{% endif %}>
+                      <a href="{{ url_for('main.transactions') }}">
                         <span class="glyphicon glyphicon-list-alt"></span> Transactions
                       </a>
                     </li>

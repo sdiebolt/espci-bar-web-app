@@ -24,6 +24,8 @@ class User(UserMixin, db.Model):
     # Technical info
     balance = db.Column(db.Float, default=0.0)
     last_drink = db.Column(db.DateTime, default=datetime.utcnow)
+    transactions = db.relationship('Transaction', backref='client',
+                                    lazy='dynamic')
 
     def __repr__(self):
         return '<User {}>'.format(self.username)

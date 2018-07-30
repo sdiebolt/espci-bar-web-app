@@ -1,0 +1,53 @@
+{% extends 'base.html.j2' %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block app_content %}
+
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xs-offset-0 col-sm-offset-0 col-md-offset-0 col-lg-offset-0" >
+    <div class="panel panel-default">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Date</th>
+            <th>User</th>
+            <th>Type</th>
+            <th>Balance change</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for transaction in transactions.items %}
+          <tr>
+            <th>{{ transaction.id }}
+            <td>{{ moment(transaction.date).format('LLL') }}</td>
+            <td>{{ transaction.client.username }}
+            <td>{{ transaction.type }}</td>
+            <td>{{ '%0.2f' | format(transaction.balance_change) }} €</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+    <div class="pager">
+      <div class="btn-group" role="group">
+        {% for page in transactions.iter_pages() %}
+        <a href="{{ url_for('main.transactions', page=page) }}" type="button" class="btn btn-default {% if not page %}disabled{% endif %}">
+          {% if page %}
+          {% if page != transactions.page %}
+          {{ page }}
+          {% else %}
+          <strong>{{ page }}</strong>
+          {% endif %}
+          {% else %}
+          <span class=ellipsis>…</span>
+          {% endif %}
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+    </div>
+{% endblock %}
