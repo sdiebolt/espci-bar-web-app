@@ -8,7 +8,6 @@
             <h1>Sign in</h1>
               {{ wtf.quick_form(form, button_map={'submit': 'primary'}) }}
               <br>
-              <p>New user? <a href="{{ url_for('auth.register') }}">Click to register!</a></p>
               <p>Forgot your password? <a href="{{ url_for('auth.reset_password_request') }}">Click to reset it</a></p>
           </div>
       </div>

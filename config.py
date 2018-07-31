@@ -21,6 +21,7 @@ class Config(object):
     ADMINS = ['samuel.diebolt@espci.fr']
 
     ELASTICSEARCH_URL = os.environ.get('ELASTICSEARCH_URL')
+    NO_SEARCH_SSL = os.environ.get('NO_SEARCH_SSL')
 
     USERS_PER_PAGE = int(os.environ.get('USERS_PER_PAGE') or 12)
     ITEMS_PER_PAGE = int(os.environ.get('ITEMS_PER_PAGE') or 10)
