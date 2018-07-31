@@ -75,7 +75,9 @@
                       </a>
                     </li>
                     <li class="dropdown {% if (request.path == '/transactions' or request.path == '/statistics') and current_user.is_barman %}active{% endif %}">
-                      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-tasks"></span> Logs</a>
+                      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                        <span class="glyphicon glyphicon-tasks"></span> Logs
+                      </a>
                       <ul class="dropdown-menu">
                         <li>
                           <a href="{{ url_for('main.transactions') }}">
@@ -88,10 +90,18 @@
                           </a>
                         </li>
                       </ul>
-                    <li class="dropdown {% if request.path == '/settings' and current_user.is_barman %}active{% endif %}">
-                      <a href="{{ url_for('main.index') }}">
+                    </li>
+                    <li class="dropdown {% if (request.path == '/settings' or request.path == '/register') and current_user.is_barman %}active{% endif %}">
+                      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
                         <span class="glyphicon glyphicon-cog"></span> Settings
                       </a>
+                      <ul class="dropdown-menu">
+                        <li>
+                          <a href="{{ url_for('auth.register') }}">
+                            <span class="glyphicon glyphicon-plus"></span> Add user
+                          </a>
+                        </li>
+                      </ul>
                     </li>
                     {% endif %}
                 </ul>

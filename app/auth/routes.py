@@ -36,9 +36,10 @@ def logout():
     return redirect(url_for('auth.login'))
 
 @bp.route('/register', methods=['GET', 'POST'])
+@login_required
 def register():
-    if current_user.is_authenticated:
-        flash("You can't access this page while being logged in.", 'danger')
+    if not current_user.is_barman:
+        flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.index'))
     form = RegistrationForm()
     if form.validate_on_submit():
@@ -51,8 +52,9 @@ def register():
         user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()
-        flash('Congratulations, you are now a registered user!', 'success')
-        return redirect(url_for('auth.login'))
+        flash('Congratulations, the user '+user.username+' has been added.',
+                'success')
+        return redirect(url_for('main.index'))
     return render_template('auth/register.html.j2', title='Register', form=form)
 
 @bp.route('/reset_password_request', methods=['GET', 'POST'])
@@ -65,7 +67,8 @@ def reset_password_request():
         user = User.query.filter_by(email=form.email.data).first()
         if user:
             send_password_reset_email(user)
-        flash('Check your email for the instructions to reset your password')
+        flash('Check your email for the instructions to reset your password',
+                'success')
         return redirect(url_for('auth.login'))
     return render_template('auth/reset_password_request.html.j2',
                             title='Reset Password', form=form)
@@ -82,6 +85,6 @@ def reset_password(token):
     if form.validate_on_submit():
         user.set_password(form.password.data)
         db.session.commit()
-        flash('Your password has been reset.')
+        flash('Your password has been reset.', 'success')
         return redirect(url_for('auth.login'))
     return render_template('auth/reset_password.html.j2', form=form)

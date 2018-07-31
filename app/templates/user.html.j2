@@ -1,93 +1,89 @@
 {% extends 'base.html.j2' %}
 
 {% block app_content %}
-    <div class="row">
-        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xs-offset-0 col-sm-offset-0 col-md-offset-0 col-lg-offset-0" >
-          <div class="panel panel-info">
+<div class="row">
+  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xs-offset-0 col-sm-offset-0 col-md-offset-0 col-lg-offset-0" >
+    <div class="panel panel-info">
+      <div class="panel-heading">
+        <h3 class="panel-title">{{ user.first_name }} {{ user.last_name }}{% if user.is_barman %} – Barman{% endif %}</h3>
+      </div>
 
-            <div class="panel-heading">
-              <h3 class="panel-title">{{ user.first_name }} {{ user.last_name }}{% if user.is_barman %} – Barman{% endif %}</h3>
-            </div>
-
-            <div class="panel-body">
-              <div class="row">
-                <div class="col-md-3 col-lg-3 " align="center">
-                  <!-- User picture -->
-                  <img alt="User picture" src="{{ user.avatar() }}" class="img-rounded img-responsive">
-                </div>
-
-                <div class=" col-md-9 col-lg-9 ">
-                  <table class="table table-user-information">
-                    <tbody>
-                      <tr>
-                        <td><strong>Username:</strong></td>
-                        <td>{{ user.username }}</td>
-                      </tr>
-                      <tr>
-                        <td><strong>Email:</strong></td>
-                        <td><a href="mailto:{{ user.email }}">{{ user.email }}</a></td>
-                      </tr>
-                      <tr>
-                        <td><strong>Graduating class:</strong></td>
-                        <td>{% if user.grad_class != 0 %}{{ user.grad_class }}{% else %}Extern{% endif %}</td>
-                      </tr>
-                      <tr>
-                        <td><strong>Last drink:</strong></td>
-                        <td>{{ moment(user.last_drink).format('LLL') }}</td>
-                      </tr>
-                      <tr>
-                        <td><strong>Balance:</strong></td>
-                        <td>
-                          <div class="progress">
-                            <div class="progress-bar progress-bar-{% if user.balance < 5.0 %}danger{% elif user.balance < 10 %}warning{% else %}success{% endif %} progress-bar-striped active" role="progressbar" aria-valuenow="{{ user.balance }}" aria-valuemin="0" aria-valuemax="50" style="width: {{ user.balance }}%; min-width: 3em; max-width: 100%">
-                              {{ '%0.2f' | format(user.balance) }}€
-                            </div>
-                          </div>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-
-            <!-- User statistics -->
-            <div class="container-fluid">
-            <div class="panel panel-default" align="left">
-              <div class="panel-heading">
-                <h4 class="panel-title">Statistics</h4>
-              </div>
-                <ul class="list-group">
-                  <li class="list-group-item"><span class="badge">{{ '%0.2f' | format(amount_paid) }}€</span>Amount paid</li>
-                  <li class="list-group-item"><span class="badge">{{ '%0.2f' | format(amount_topped_up) }}€</span>Amount topped up</li>
-                </ul>
-            </div>
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-md-3 col-lg-3 " align="center">
+            <!-- User picture -->
+            <img alt="User picture" src="{{ user.avatar() }}" class="img-rounded img-responsive">
           </div>
 
-            <div class="panel-footer">
-              <a data-original-title="Broadcast Message" data-toggle="tooltip" type="button" class="btn btn-md btn-primary"><i class="glyphicon glyphicon-envelope"></i></a>
-              {% if current_user.is_barman %}
-              {% include '_pay.html.j2' %}
-
-              {% include '_top_up.html.j2' %}
-              {% endif %}
-              <span class="pull-right">
-                <a href="{{ url_for('main.edit_profile', username=user.username) }}" data-original-title="Edit this user" data-toggle="tooltip" type="button" class="btn btn-md btn-warning"><i class="glyphicon glyphicon-edit"></i></a>
-                {% if current_user.is_barman %}
-                <div class="btn-group">
-                  <button type="button" class="btn btn-md btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <span class="glyphicon glyphicon-remove"></span>
-                  </button>
-                  <ul class="dropdown-menu dropdown-menu-right">
-                    <li class="dropdown-header">Delete this user?</li>
-                    <li><a href="{{ url_for('main.delete_user', username=user.username) }}">Yes</a></li>
-                    <li><a href="#">No</a></li>
-                  </ul>
-                </div>
-                {% endif %}
-              </span>
-            </div>
+          <div class=" col-md-9 col-lg-9 ">
+            <table class="table table-user-information">
+              <tbody>
+                <tr>
+                  <td><strong>Username:</strong></td>
+                  <td>{{ user.username }}</td>
+                </tr>
+                <tr>
+                  <td><strong>Email:</strong></td>
+                  <td><a href="mailto:{{ user.email }}">{{ user.email }}</a></td>
+                </tr>
+                <tr>
+                  <td><strong>Graduating class:</strong></td>
+                  <td>{% if user.grad_class != 0 %}{{ user.grad_class }}{% else %}Extern{% endif %}</td>
+                </tr>
+                <tr>
+                  <td><strong>Last drink:</strong></td>
+                  <td>{{ moment(user.last_drink).format('LLL') }}</td>
+                </tr>
+                <tr>
+                  <td><strong>Balance:</strong></td>
+                  <td>
+                    <div class="progress">
+                      <div class="progress-bar progress-bar-{% if user.balance < 5.0 %}danger{% elif user.balance < 10 %}warning{% else %}success{% endif %} progress-bar-striped active" role="progressbar" aria-valuenow="{{ user.balance }}" aria-valuemin="0" aria-valuemax="50" style="width: {{ user.balance }}%; min-width: 3em; max-width: 100%">
+                        {{ '%0.2f' | format(user.balance) }}€
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
+
+      <!-- User statistics -->
+      <div class="container-fluid">
+        <div class="panel panel-default" align="left">
+          <div class="panel-heading">
+            <h4 class="panel-title">Statistics</h4>
+          </div>
+          <ul class="list-group">
+            <li class="list-group-item"><span class="badge">{{ '%0.2f' | format(amount_paid) }}€</span>Amount paid</li>
+            <li class="list-group-item"><span class="badge">{{ '%0.2f' | format(amount_topped_up) }}€</span>Amount topped up</li>
+          </ul>
+        </div>
+      </div>
+
+      {% if current_user.is_barman %}
+      <div class="panel-footer">
+        <a data-original-title="Broadcast Message" data-toggle="tooltip" type="button" class="btn btn-md btn-primary"><i class="glyphicon glyphicon-envelope"></i></a>
+        {% include '_pay.html.j2' %}
+        {% include '_top_up.html.j2' %}
+        <span class="pull-right">
+          <a href="{{ url_for('main.edit_profile', username=user.username) }}" data-original-title="Edit this user" data-toggle="tooltip" type="button" class="btn btn-md btn-warning"><i class="glyphicon glyphicon-edit"></i></a>
+          <div class="btn-group">
+            <button type="button" class="btn btn-md btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <span class="glyphicon glyphicon-remove"></span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-right">
+              <li class="dropdown-header">Delete this user?</li>
+              <li><a href="{{ url_for('main.delete_user', username=user.username) }}">Yes</a></li>
+              <li><a href="#">No</a></li>
+            </ul>
+          </div>
+        </span>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
 {% endblock %}

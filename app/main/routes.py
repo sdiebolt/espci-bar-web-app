@@ -113,7 +113,7 @@ def user(username):
 @login_required
 def edit_profile(username):
     """ Edit user. """
-    if current_user.username != username and (not current_user.is_barman):
+    if not current_user.is_barman:
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.index'))
 
