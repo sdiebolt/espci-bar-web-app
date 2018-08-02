@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from flask import render_template, flash, redirect, url_for, request, g, \
     jsonify, current_app
-from flask_login import current_user, login_required
+from flask_login import current_user, login_required, fresh_login_required
 from sqlalchemy.sql.expression import and_
 from app import db
 from app.main.forms import EditProfileForm, EditItemForm, AddItemForm, \
@@ -110,7 +110,7 @@ def user(username):
                             amount_topped_up=amount_topped_up)
 
 @bp.route('/edit_profile/<username>', methods=['GET', 'POST'])
-@login_required
+@fresh_login_required
 def edit_profile(username):
     """ Edit user. """
     if not current_user.is_barman:
@@ -136,7 +136,7 @@ def edit_profile(username):
                            form=form)
 
 @bp.route('/delete_user/<username>')
-@login_required
+@fresh_login_required
 def delete_user(username):
     """ Delete user. """
     if not current_user.is_barman:
@@ -248,7 +248,7 @@ def add_item():
     return render_template('add_item.html.j2', title='Add item', form=form)
 
 @bp.route('/edit_item/<item_name>', methods=['GET', 'POST'])
-@login_required
+@fresh_login_required
 def edit_item(item_name):
     """ Edit item. """
     if not current_user.is_barman:

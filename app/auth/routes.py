@@ -1,13 +1,22 @@
 from flask import render_template, redirect, url_for, flash, request
 from werkzeug.urls import url_parse
-from flask_login import login_user, logout_user, current_user, login_required
-from app import db
+from flask_login import login_user, logout_user, current_user, \
+    login_required, fresh_login_required
+from app import db, login
 from app.auth import bp
 from app.auth.forms import LoginForm, RegistrationForm, \
     ResetPasswordRequestForm, ResetPasswordForm
 from app.models import User
 from app.auth.email import send_password_reset_email
 
+
+@login.needs_refresh_handler
+@login_required
+def refresh():
+    logout_user()
+    flash('To protect your account, please reauthenticate to access this '
+        'page.', 'warning')
+    return redirect(url_for('auth.login'))
 
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
@@ -36,7 +45,7 @@ def logout():
     return redirect(url_for('auth.login'))
 
 @bp.route('/register', methods=['GET', 'POST'])
-@login_required
+@fresh_login_required
 def register():
     if not current_user.is_barman:
         flash("You don't have the rights to access this page.", 'danger')
