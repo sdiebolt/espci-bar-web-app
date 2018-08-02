@@ -3,6 +3,7 @@
 {% block styles %}
   {{ super() }}
   <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
+  <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
 {% endblock %}
 
 {% block scripts %}
@@ -49,11 +50,11 @@
                     <span class="icon-bar"></span>
                 </button>
                 {% if current_user.is_barman %}
-                <a class="navbar-brand" href="{{ url_for('main.index') }}"><span class="glyphicon glyphicon-glass"></span> ESPCI Bar</a>
+                <a class="navbar-brand" href="{{ url_for('main.index') }}">ESPCI Bar</a>
                 {% elif current_user.is_anonymous %}
-                <a class="navbar-brand" href="{{ url_for('auth.login') }}"><span class="glyphicon glyphicon-glass"></span> ESPCI Bar</a>
+                <a class="navbar-brand" href="{{ url_for('auth.login') }}">ESPCI Bar</a>
                 {% else %}
-                <a class="navbar-brand" href="{{ url_for('main.user', username=current_user.username) }}"><span class="glyphicon glyphicon-glass"></span> ESPCI Bar</a>
+                <a class="navbar-brand" href="{{ url_for('main.user', username=current_user.username) }}">ESPCI Bar</a>
                 {% endif %}
             </div>
             <div class="collapse navbar-collapse" id="global-navbar-collapse">

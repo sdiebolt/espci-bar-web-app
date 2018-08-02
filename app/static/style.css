@@ -7,3 +7,8 @@ body {
   max-height: 150px;
   overflow-x: hidden;
 }
+
+.avatar {
+  width: 160px;
+  height: 200px;
+}

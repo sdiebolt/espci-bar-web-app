@@ -81,9 +81,12 @@ class User(SearchableMixin, UserMixin, db.Model):
         return check_password_hash(self.password_hash, password)
 
     def avatar(self):
-        avatar_path = 'img/'+str(self.grad_class)+'/'+self.username+'.jpg'
-        if os.path.isfile(os.path.join('app', 'static', avatar_path)):
-            avatar_filename = url_for('static', filename=avatar_path)
+        avatar_path = 'img/'+str(self.grad_class)+'/'+self.username
+        if os.path.isfile(os.path.join('app', 'static', avatar_path+'.jpg')):
+            avatar_filename = url_for('static', filename=avatar_path+'.jpg')
+            return avatar_filename
+        elif os.path.isfile(os.path.join('app', 'static', avatar_path+'.png')):
+            avatar_filename = url_for('static', filename=avatar_path+'.png')
             return avatar_filename
         else:
             return url_for('static', filename='img/avatar_placeholder.png')
