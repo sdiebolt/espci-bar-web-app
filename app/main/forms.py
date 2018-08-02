@@ -30,9 +30,10 @@ class EditProfileForm(FlaskForm):
 
 class EditItemForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired()])
-    quantity = IntegerField('Quantity', [optional()])
+    quantity = IntegerField('Quantity (empty if not quantifiable)', [optional()])
     price = FloatField('Price', validators=[DataRequired()])
     is_alcohol = BooleanField('Alcohol')
+    is_quantifiable = BooleanField('Quantifiable')
 
     submit = SubmitField('Submit')
 
@@ -56,9 +57,10 @@ class EditItemForm(FlaskForm):
 
 class AddItemForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired()])
-    quantity = IntegerField('Quantity', [optional()])
+    quantity = IntegerField('Quantity (empty if not quantifiable)', [optional()])
     price = FloatField('Price', validators=[DataRequired()])
     is_alcohol = BooleanField('Alcohol')
+    is_quantifiable = BooleanField('Quantifiable')
 
     submit = SubmitField('Submit')
 

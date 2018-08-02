@@ -262,17 +262,21 @@ def edit_item(item_name):
         if quantity is None:
             quantity = 0
         item.name = form.name.data
-        item.quantity = quantity
+        if item.is_quantifiable:
+            item.quantity = quantity
         item.price = form.price.data
         item.is_alcohol = form.is_alcohol.data
+        item.is_quantifiable = form.is_quantifiable.data
         db.session.commit()
         flash('Your changes have been saved.', 'success')
         return redirect(url_for('main.inventory'))
     elif request.method == 'GET':
         form.name.data = item.name
-        form.quantity.data = item.quantity
+        if item.is_quantifiable:
+            form.quantity.data = item.quantity
         form.price.data = item.price
         form.is_alcohol.data = item.is_alcohol
+        form.is_quantifiable.data = item.is_quantifiable
     return render_template('edit_item.html.j2', title='Edit item',
                            form=form)
 
@@ -344,7 +348,8 @@ def pay():
         return redirect(request.referrer)
 
     user.balance -= item.price
-    item.quantity -= 1
+    if item.is_quantifiable:
+        item.quantity -= 1
     if item.is_alcohol:
         user.last_drink = datetime.utcnow()
 

@@ -43,9 +43,15 @@
         </thead>
         <tbody>
           {% for item in inventory.items %}
-          <tr {% if item.quantity <= 0 %}class="danger"{% endif %}>
+          <tr {% if item.quantity <= 0 and item.is_quantifiable %}class="danger"{% endif %}>
             <td style="vertical-align: middle;">{{ item.name }}</td>
-            <td style="vertical-align: middle;">{{ item.quantity }}</td>
+            <td style="vertical-align: middle;">
+              {% if item.is_quantifiable %}
+              {{ item.quantity }}
+              {% else %}
+              Not quantifiable
+              {% endif %}
+            </td>
             <td style="vertical-align: middle;">{{ item.price }} €</td>
             <td style="vertical-align: middle;">
               {% if item.is_alcohol %}

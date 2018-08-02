@@ -122,6 +122,7 @@ class Item(db.Model):
     name = db.Column(db.String(64), index=True, unique=True)
     is_alcohol = db.Column(db.Boolean)
     price = db.Column(db.Float)
+    is_quantifiable = db.Column(db.Boolean)
     quantity = db.Column(db.Integer, default=0)
 
     def __repr__(self):
