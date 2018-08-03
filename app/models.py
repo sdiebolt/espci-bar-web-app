@@ -90,7 +90,7 @@ class User(SearchableMixin, UserMixin, db.Model):
             avatar_filename = url_for('static', filename=avatar_path+'.png')
             return avatar_filename
         else:
-            return url_for('static', filename='img/avatar_placeholder.png')
+            return url_for('static', filename='img/avatar/avatar_placeholder.png')
 
     def qr(self):
         qr_path = 'img/qr/'+self.username+'_qr'
