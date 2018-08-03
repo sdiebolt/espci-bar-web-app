@@ -50,7 +50,7 @@ db.event.listen(db.session, 'after_commit', SearchableMixin.after_commit)
 
 class User(SearchableMixin, UserMixin, db.Model):
     __searchable__ = ['username', 'email', 'first_name', 'last_name',
-                        'grad_class']
+                        'nickname', 'grad_class']
 
     id = db.Column(db.Integer, primary_key=True)
 
@@ -62,6 +62,7 @@ class User(SearchableMixin, UserMixin, db.Model):
     # Personal info
     first_name = db.Column(db.String(64), index=True)
     last_name = db.Column(db.String(64), index=True)
+    nickname = db.Column(db.String(64), index=True)
     is_barman = db.Column(db.Boolean, default=False)
     grad_class = db.Column(db.Integer, index=True, default=0)
 

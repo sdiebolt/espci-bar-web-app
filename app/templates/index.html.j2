@@ -56,8 +56,14 @@
               </a>
             </div>
 
-            <div class="panel-body">
-              <h4 class="panel-title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ user.first_name|capitalize }}<br>{{ user.last_name|upper }}</h4>
+            <div class="panel-body" style="min-height: 67px; max-height: 67px">
+              <h4 class="panel-title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">
+                {% if user.nickname %}
+                "{{ user.nickname }}"<br>{{ user.last_name|upper }}
+                {% else %}
+                {{ user.first_name|capitalize }}<br>{{ user.last_name|upper }}
+                {% endif %}
+              </h4>
             </div>
 
             <div class="panel-footer">

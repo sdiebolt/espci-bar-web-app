@@ -122,6 +122,7 @@ def edit_profile(username):
     if form.validate_on_submit():
         user.first_name = form.first_name.data
         user.last_name = form.last_name.data
+        user.nickname = form.nickname.data
         user.email = form.email.data
         user.is_barman = form.is_barman.data
         if (form.password.data != ''):
@@ -132,6 +133,7 @@ def edit_profile(username):
     elif request.method == 'GET':
         form.first_name.data = user.first_name
         form.last_name.data = user.last_name
+        form.nickname.data = user.nickname
         form.email.data = user.email
         form.is_barman.data = user.is_barman
     return render_template('edit_profile.html.j2', title='Edit profile',
