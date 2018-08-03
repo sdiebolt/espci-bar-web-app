@@ -82,7 +82,7 @@ class User(SearchableMixin, UserMixin, db.Model):
         return check_password_hash(self.password_hash, password)
 
     def avatar(self):
-        avatar_path = 'img/'+str(self.grad_class)+'/'+self.username
+        avatar_path = 'img/avatar/'+str(self.grad_class)+'/'+self.username
         if os.path.isfile(os.path.join('app', 'static', avatar_path+'.jpg')):
             avatar_filename = url_for('static', filename=avatar_path+'.jpg')
             return avatar_filename
@@ -91,6 +91,15 @@ class User(SearchableMixin, UserMixin, db.Model):
             return avatar_filename
         else:
             return url_for('static', filename='img/avatar_placeholder.png')
+
+    def qr(self):
+        qr_path = 'img/qr/'+self.username+'_qr'
+        if os.path.isfile(os.path.join('app', 'static', qr_path+'.jpg')):
+            qr_filename = url_for('static', filename=qr_path+'.jpg')
+            return qr_filename
+        elif os.path.isfile(os.path.join('app', 'static', qr_path+'.png')):
+            qr_filename = url_for('static', filename=qr_path+'.png')
+            return qr_filename
 
     def get_reset_password_token(self, expires_in=600):
         return jwt.encode(

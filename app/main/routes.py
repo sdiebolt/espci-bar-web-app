@@ -90,7 +90,7 @@ def user(username):
     """ View user profile page. """
     if current_user.username != username and (not current_user.is_barman):
         flash("You don't have the rights to access this page.", 'danger')
-        return redirect(url_for('main.user', username=current_user.username))
+        return redirect(url_for('main.index'))
 
     # Get user
     user = User.query.filter_by(username=username).first_or_404()
@@ -375,3 +375,15 @@ def scanqrcode():
         return redirect(url_for('main.index'))
 
     return render_template('scanqrcode.html.j2', title='Scan QR code')
+
+@bp.route('/qrcode/<username>')
+@login_required
+def qrcode(username):
+    """ View user's QR code. """
+    if current_user.username != username and (not current_user.is_barman):
+        flash("You don't have the rights to access this page.", 'danger')
+        return redirect(url_for('main.index'))
+
+    user = User.query.filter_by(username=username).first_or_404()
+
+    return render_template('qrcode.html.j2', title='QR code', user=user)

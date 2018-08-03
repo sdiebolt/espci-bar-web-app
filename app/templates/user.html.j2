@@ -65,7 +65,7 @@
 
       {% if current_user.is_barman %}
       <div class="panel-footer">
-        <a data-original-title="Broadcast Message" data-toggle="tooltip" type="button" class="btn btn-md btn-primary"><i class="glyphicon glyphicon-envelope"></i></a>
+        <a href="{{ url_for('main.qrcode', username=user.username) }}" data-original-title="QR code" data-toggle="tooltip" type="button" class="btn btn-md btn-primary"><span class="glyphicon glyphicon-qrcode"></span></a>
         {% include '_pay.html.j2' %}
         {% include '_top_up.html.j2' %}
         <span class="pull-right">

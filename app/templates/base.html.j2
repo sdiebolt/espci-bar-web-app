@@ -67,7 +67,7 @@
                     </li>
                     <li {% if request.path == '/scanqrcode' and current_user.is_barman %}class="active"{% endif %}>
                       <a href="{{ url_for('main.scanqrcode') }}">
-                        <span class="glyphicon glyphicon-qrcode"></span> QR code
+                        <span class="glyphicon glyphicon-qrcode"></span> Scan QR
                       </a>
                     </li>
                     <li {% if (request.path == '/inventory') and current_user.is_barman %}class="active"{% endif %}>
