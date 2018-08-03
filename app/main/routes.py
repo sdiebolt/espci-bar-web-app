@@ -320,8 +320,9 @@ def top_up():
     user = User.query.filter_by(username=username).first_or_404()
     user.balance += amount
 
-    transaction = Transaction(client_id=user.id, date=datetime.utcnow(),
-                            type='Top up', balance_change=amount)
+    transaction = Transaction(client_id=user.id, barman=current_user.username,
+                            date=datetime.utcnow(), type='Top up',
+                            balance_change=amount)
     db.session.add(transaction)
     db.session.commit()
 
@@ -357,8 +358,9 @@ def pay():
     if item.is_alcohol:
         user.last_drink = datetime.utcnow()
 
-    transaction = Transaction(client_id=user.id, date=datetime.utcnow(),
-                            type='Pay '+item.name, balance_change=-item.price)
+    transaction = Transaction(client_id=user.id, barman=current_user.username,
+                            date=datetime.utcnow(), type='Pay '+item.name,
+                            balance_change=-item.price)
     db.session.add(transaction)
     db.session.commit()
 

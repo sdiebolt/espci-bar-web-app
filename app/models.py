@@ -68,7 +68,7 @@ class User(SearchableMixin, UserMixin, db.Model):
 
     # Technical info
     balance = db.Column(db.Float, default=0.0)
-    last_drink = db.Column(db.DateTime, default=datetime.utcnow)
+    last_drink = db.Column(db.DateTime, default=None)
     transactions = db.relationship('Transaction', backref='client',
                                     lazy='dynamic')
 
@@ -109,7 +109,7 @@ class User(SearchableMixin, UserMixin, db.Model):
     def can_buy(self, item):
         """ Return the user's right to buy the item depending on his balance
             and the time since his last drink if the item is alcohol. """
-        if item.is_alcohol and self.last_drink > (datetime.utcnow() - timedelta(minutes=30)):
+        if item.is_alcohol and (self.last_drink and self.last_drink > (datetime.utcnow() - timedelta(minutes=30))):
             return False
         elif self.balance < item.price:
             return False
@@ -145,6 +145,7 @@ class Transaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     date = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    barman = db.Column(db.String(64), index=True)
     client_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     # type can be 'Top up', 'Pay <Item>' or 'Edit balance'

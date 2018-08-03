@@ -26,7 +26,8 @@
           <tr>
             <th>#</th>
             <th>Date</th>
-            <th>User</th>
+            <th>Barman</th>
+            <th>Client</th>
             <th>Type</th>
             <th>Balance change</th>
           </tr>
@@ -36,6 +37,7 @@
           <tr>
             <th>{{ transaction.id }}
             <td>{{ moment(transaction.date).format('LLL') }}</td>
+            <td>{{ transaction.barman }}</td>
             <td>{{ transaction.client.username }}
             <td>{{ transaction.type }}</td>
             <td>{{ '%0.2f' | format(transaction.balance_change) }} €</td>

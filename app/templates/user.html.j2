@@ -32,7 +32,13 @@
                 </tr>
                 <tr>
                   <td><strong>Last drink:</strong></td>
-                  <td>{{ moment(user.last_drink).format('LLL') }}</td>
+                  <td>
+                    {% if user.last_drink %}
+                    {{ moment(user.last_drink).format('LLL') }}
+                    {% else %}
+                    None
+                    {% endif %}
+                  </td>
                 </tr>
                 <tr>
                   <td><strong>Balance:</strong></td>
@@ -63,9 +69,9 @@
         </div>
       </div>
 
-      {% if current_user.is_barman %}
       <div class="panel-footer">
         <a href="{{ url_for('main.qrcode', username=user.username) }}" data-original-title="QR code" data-toggle="tooltip" type="button" class="btn btn-md btn-primary"><span class="glyphicon glyphicon-qrcode"></span></a>
+        {% if current_user.is_barman %}
         {% include '_pay.html.j2' %}
         {% include '_top_up.html.j2' %}
         <span class="pull-right">
@@ -81,8 +87,8 @@
             </ul>
           </div>
         </span>
+        {% endif %}
       </div>
-      {% endif %}
     </div>
   </div>
 </div>
