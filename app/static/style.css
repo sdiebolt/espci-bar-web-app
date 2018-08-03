@@ -1,6 +1,7 @@
 body {
   padding-top: 60px;
   padding-bottom: 47px;
+  -webkit-padding-after: 100px;
 }
 
 .scrollable-menu {
