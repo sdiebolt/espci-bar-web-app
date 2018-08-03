@@ -123,6 +123,7 @@ def edit_profile(username):
         user.first_name = form.first_name.data
         user.last_name = form.last_name.data
         user.email = form.email.data
+        user.is_barman = form.is_barman.data
         if (form.password.data != ''):
             user.set_password(form.password.data)
         db.session.commit()
@@ -132,6 +133,7 @@ def edit_profile(username):
         form.first_name.data = user.first_name
         form.last_name.data = user.last_name
         form.email.data = user.email
+        form.is_barman.data = user.is_barman
     return render_template('edit_profile.html.j2', title='Edit profile',
                            form=form)
 

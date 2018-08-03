@@ -8,7 +8,16 @@ body {
   overflow-x: hidden;
 }
 
-.avatar {
-  width: 160px;
-  height: 200px;
+@media (max-width: 768px) {
+  .transaction {
+    display: none;
+  }
+}
+
+@media (max-width: 992px) {
+  .btn-responsive {
+    padding:4px 9px;
+    font-size:90%;
+    line-height: 1.2;
+  }
 }

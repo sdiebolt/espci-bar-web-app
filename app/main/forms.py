@@ -16,6 +16,8 @@ class EditProfileForm(FlaskForm):
     password2 = PasswordField('Repeat password',
                                 validators=[EqualTo('password')])
 
+    is_barman = BooleanField('Barman')
+
     submit = SubmitField('Submit')
 
     def __init__(self, original_email, *args, **kwargs):
