@@ -345,7 +345,7 @@ def pay():
         flash(user.username+" can't buy "+item.name+'.', 'warning')
         return redirect(request.referrer)
 
-    if item.quantity <= 0:
+    if item.is_quantifiable and item.quantity <= 0:
         flash('No '+item.name+' left.', 'warning')
         return redirect(request.referrer)
 
