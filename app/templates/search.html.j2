@@ -9,30 +9,25 @@
 
   <!-- User sorting -->
   <!-- Padding to correct some weird grad_class dropdown menu bug -->
-  <div class="well" style="padding-right: 45px;">
+  <div class="well">
     <div class="container-fluid">
       <div class="row">
-        <div class="col-lg-2">
+        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
           <div class="btn-group">
             <a href="{{ url_for('main.search', q=g.search_form.q.data, sort='asc') }}" data-original-title="Sort By Alphabet" type="button" class="btn btn-info {% if sort == 'asc' %}active{% endif %}"><span class="glyphicon glyphicon-sort-by-alphabet"></span></a>
             <a href="{{ url_for('main.search', q=g.search_form.q.data, sort='desc') }}" data-original-title="Sort By Alphabet" type="button" class="btn btn-info {% if sort == 'desc' %}active{% endif %}"><span class="glyphicon glyphicon-sort-by-alphabet-alt"></span></a>
           </div>
         </div>
 
-        <div class="col-lg-4 col-lg-offset-2">
-          <form class="form-search" method="get" action="{{ url_for('main.search') }}">
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-8 col-lg-offset-2 col-md-offset-2 col-sm-offset-2">
+          <form class="form-search input-group pull-right" method="get" action="{{ url_for('main.search') }}">
             {{ g.search_form.q(size=20, class='form-control', placeholder=g.search_form.q.label.text) }}
+            <span class="input-group-addon"><strong>#{{ total }}</strong></span>
           </form>
-        </div>
-
-        <div class="col-lg-2 col-lg-offset-2">
-          <h5><span class="label label-info pull-right">Results: {{ total }}</span></h5>
         </div>
       </div>
     </div>
   </div>
-
-  <div style="margin-top:10px"></div>
 
     <div class="container-fluid">
       <div class="row">
@@ -42,7 +37,7 @@
             <div class="panel-heading text-center">
               <a href="{{ url_for('main.user', username=user.username) }}">
                 <span hidden>{{ user.username }}</span hidden>
-                <img src="{{ user.avatar() }}" alt="{{ user.username }}" class="img-rounded">
+                <img src="{{ user.avatar() }}" alt="{{ user.username }}" class="img-rounded img-responsive center-block">
               </a>
             </div>
 
@@ -51,9 +46,17 @@
             </div>
 
             <div class="panel-footer">
-              {% include '_pay.html.j2' %}
+              <div class="row">
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                  {% include '_pay.html.j2' %}
+                </div>
 
-              {% include '_top_up.html.j2' %}
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                  <div class="pull-right">
+                    {% include '_top_up.html.j2' %}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

@@ -20,7 +20,7 @@
             {{ g.search_form.q(size=20, class='form-control', placeholder=g.search_form.q.label.text) }}
             <div class="input-group-btn">
             <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              {% if grad_class != 0 %}{{ grad_class }}<sup>th</sup> class{% else %}Extern{% endif %} <span class="caret"></span>
+              {% if grad_class != 0 %}{{ grad_class }}<sup>th</sup>{% else %}Extern{% endif %} <span class="caret"></span>
             </button>
             <ul class="dropdown-menu dropdown-menu-right scrollable-menu">
               {% for g in grad_classes %}
@@ -52,7 +52,7 @@
             <div class="panel-heading">
               <a href="{{ url_for('main.user', username=user.username) }}">
                 <span hidden>{{ user.username }}</span hidden>
-                <img src="{{ user.avatar() }}" alt="{{ user.username }}" class="img-rounded img-responsive center-block avatar">
+                <img src="{{ user.avatar() }}" alt="{{ user.username }}" class="img-rounded img-responsive center-block">
               </a>
             </div>
 
