@@ -144,11 +144,13 @@ class Item(db.Model):
 class Transaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
+    is_reverted = db.Column(db.Boolean, default=False)
+
     date = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     barman = db.Column(db.String(64), index=True)
     client_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
-    # type can be 'Top up', 'Pay <Item>' or 'Edit balance'
+    # type can be 'Top up', 'Pay <Item>' or 'Revert #<id>'
     type = db.Column(db.String(64), index=True)
     balance_change = db.Column(db.Float)
 

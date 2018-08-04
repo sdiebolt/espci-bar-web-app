@@ -207,6 +207,37 @@ def transactions():
     return render_template('transactions.html.j2', title='Transactions',
         transactions=transactions, sort=sort)
 
+@bp.route('/revert_transaction')
+@login_required
+def revert_transaction():
+    """ Delete item from the inventory. """
+    if not current_user.is_barman:
+        flash("You don't have the rights to access this page.", 'danger')
+        return redirect(url_for('main.index'))
+
+    transaction_id = request.args.get('transaction_id', -1, type=int)
+
+    transaction = Transaction.query.filter_by(id=transaction_id).first_or_404()
+    if transaction.is_reverted or 'Revert' in transaction.type:
+        flash("You can't revert this transaction.", 'warning')
+        return redirect(request.referrer)
+
+    if transaction.client:
+        transaction.client.balance -= transaction.balance_change
+    transaction.is_reverted = True
+
+    transaction = Transaction(client_id=None,
+                            barman=current_user.username,
+                            date=datetime.utcnow(),
+                            type='Revert #'+str(transaction_id),
+                            balance_change=None)
+
+    db.session.add(transaction)
+    db.session.commit()
+
+    flash('The transaction #'+str(transaction_id)+' has been reverted.', 'success')
+    return redirect(request.referrer)
+
 @bp.route('/inventory')
 @login_required
 def inventory():
@@ -286,13 +317,15 @@ def edit_item(item_name):
 
     return redirect(request.referrer)
 
-@bp.route('/delete_item/<item_name>')
+@bp.route('/delete_item')
 @login_required
-def delete_item(item_name):
+def delete_item():
     """ Delete item from the inventory. """
     if not current_user.is_barman:
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.index'))
+
+    item_name = request.args.get('item_name', 'none', type=str)
 
     item = Item.query.filter_by(name=item_name).first_or_404()
     db.session.delete(item)
@@ -339,7 +372,7 @@ def pay():
         return redirect(url_for('main.index'))
 
     username = request.args.get('username', 'none', type=str)
-    item_name = request.args.get('item_name', 0, type=str)
+    item_name = request.args.get('item_name', 'none', type=str)
 
     user = User.query.filter_by(username=username).first_or_404()
     item = Item.query.filter_by(name=item_name).first_or_404()

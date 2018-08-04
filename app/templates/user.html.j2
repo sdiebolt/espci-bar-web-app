@@ -34,7 +34,7 @@
                   <td><strong>Last drink:</strong></td>
                   <td>
                     {% if user.last_drink %}
-                    {{ moment(user.last_drink).format('LLL') }}
+                    {{ moment(user.last_drink).fromNow() }}
                     {% else %}
                     None
                     {% endif %}
