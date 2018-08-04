@@ -96,9 +96,9 @@ def user(username):
     user = User.query.filter_by(username=username).first_or_404()
 
     # Get transactions statistics
-    transaction_paid = user.transactions.filter(Transaction.type.like('Pay%')).all()
+    transaction_paid = user.transactions.filter_by(is_reverted=False).filter(Transaction.type.like('Pay%')).all()
     amount_paid = sum([abs(t.balance_change) for t in transaction_paid])
-    transactions_top_up = user.transactions.filter(Transaction.type == 'Top up').all()
+    transactions_top_up = user.transactions.filter_by(is_reverted=False).filter(Transaction.type == 'Top up').all()
     amount_topped_up = sum([abs(t.balance_change) for t in transactions_top_up])
 
     # Get inventory
@@ -171,11 +171,11 @@ def statistics():
     # Number of transactions
     nb_transactions = Transaction.query.count()
     # Amount of money paid
-    transactions_paid = Transaction.query.filter(Transaction.type.like('Pay%')).all()
+    transactions_paid = Transaction.query.filter_by(is_reverted=False).filter(Transaction.type.like('Pay%')).all()
     amount_paid = sum([abs(t.balance_change) for t in transactions_paid])
 
     # Amount of money topped up
-    transactions_top_up = Transaction.query.filter_by(type='Top up').all()
+    transactions_top_up = Transaction.query.filter_by(is_reverted=False).filter_by(type='Top up').all()
     amount_topped_up = sum([abs(t.balance_change) for t in transactions_top_up])
     return render_template('statistics.html.j2', title='Statistics',
                             nb_users=nb_users, nb_active_users=nb_active_users,

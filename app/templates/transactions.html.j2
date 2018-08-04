@@ -42,7 +42,7 @@
               <td {% if transaction.is_reverted %}style="text-decoration: line-through;"{% endif %}>{{ transaction.barman }}</td>
               <td {% if transaction.is_reverted %}style="text-decoration: line-through;"{% endif %}>{{ transaction.client.username }}</td>
               <td {% if transaction.is_reverted %}style="text-decoration: line-through;"{% endif %}>{{ transaction.type }}</td>
-              <td {% if transaction.is_reverted %}style="text-decoration: line-through;"{% endif %}>{% if transaction.balance_change %}{{ '%0.2f' | format(transaction.balance_change) }} €{% endif %}</td>
+              <td {% if transaction.is_reverted %}style="text-decoration: line-through;"{% endif %}>{% if transaction.balance_change %}{{ '%0.2f' | format(transaction.balance_change) }}€{% endif %}</td>
               <td>
                 <div class="btn-group">
                   <button type="button" class="btn btn-sm btn-danger dropdown-toggle {% if transaction.is_reverted or 'Revert' in transaction.type %}disabled{% endif %}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
