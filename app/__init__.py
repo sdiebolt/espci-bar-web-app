@@ -2,7 +2,6 @@ import logging
 from logging.handlers import SMTPHandler, RotatingFileHandler
 import os
 import certifi
-from elasticsearch import Elasticsearch
 from flask import Flask, request, current_app
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -29,14 +28,6 @@ def create_app(config_class=Config):
         a global app variable. """
     app = Flask(__name__)
     app.config.from_object(config_class)
-
-    if app.config['NO_SEARCH_SSL']:
-        app.elasticsearch = Elasticsearch([app.config['ELASTICSEARCH_URL']]) \
-            if app.config['ELASTICSEARCH_URL'] else None
-    else:
-        app.elasticsearch = Elasticsearch([app.config['ELASTICSEARCH_URL']],
-            use_ssl=True, ca_certs=certifi.where()) \
-            if app.config['ELASTICSEARCH_URL'] else None
 
     db.init_app(app)
     migrate.init_app(app, db)
