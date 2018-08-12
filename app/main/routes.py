@@ -105,8 +105,11 @@ def user(username):
     # Get inventory
     inventory = Item.query.order_by(Item.name.asc()).all()
 
+    # Check if user is an admin
+    is_admin = user.email in current_app.config['ADMINS']
+
     return render_template('user.html.j2', title=username + ' profile',
-                            user=user, inventory=inventory,
+                            is_admin=is_admin, user=user, inventory=inventory,
                             amount_paid=amount_paid,
                             amount_topped_up=amount_topped_up)
 
