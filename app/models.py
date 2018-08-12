@@ -55,20 +55,21 @@ class User(SearchableMixin, UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     # Login info
-    username = db.Column(db.String(64), index=True, unique=True)
-    email = db.Column(db.String(120), index=True, unique=True)
-    password_hash = db.Column(db.String(128))
+    username = db.Column(db.String(64), index=True, unique=True,
+                            nullable=False)
+    email = db.Column(db.String(120), index=True, unique=True, nullable=False)
+    password_hash = db.Column(db.String(128), nullable=False)
 
     # Personal info
-    first_name = db.Column(db.String(64), index=True)
-    last_name = db.Column(db.String(64), index=True)
-    nickname = db.Column(db.String(64), index=True)
-    is_barman = db.Column(db.Boolean, default=False)
-    grad_class = db.Column(db.Integer, index=True, default=0)
+    first_name = db.Column(db.String(64), index=True, nullable=False)
+    last_name = db.Column(db.String(64), index=True, nullable=False)
+    nickname = db.Column(db.String(64), index=True, nullable=False)
+    is_barman = db.Column(db.Boolean, default=False, nullable=False)
+    grad_class = db.Column(db.Integer, index=True, default=0, nullable=False)
 
     # Technical info
-    balance = db.Column(db.Float, default=0.0)
-    last_drink = db.Column(db.DateTime, default=None)
+    balance = db.Column(db.Float, default=0.0, nullable=False)
+    last_drink = db.Column(db.DateTime, default=None, nullable=False)
     transactions = db.relationship('Transaction', backref='client',
                                     lazy='dynamic')
 
@@ -132,11 +133,17 @@ def load_user(id):
 class Item(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
-    name = db.Column(db.String(64), index=True, unique=True)
-    is_alcohol = db.Column(db.Boolean)
-    price = db.Column(db.Float)
-    is_quantifiable = db.Column(db.Boolean)
-    quantity = db.Column(db.Integer, default=0)
+    name = db.Column(db.String(64), index=True, unique=True, nullable=False)
+
+    is_alcohol = db.Column(db.Boolean, nullable=False)
+
+    price = db.Column(db.Float, nullable=False)
+
+    is_quantifiable = db.Column(db.Boolean, nullable=False)
+    quantity = db.Column(db.Integer, default=0, nullable=False)
+
+    transactions = db.relationship('Transaction', backref='item',
+                                    lazy='dynamic')
 
     def __repr__(self):
         return '<Item {}>'.format(self.name)
@@ -144,14 +151,24 @@ class Item(db.Model):
 class Transaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
-    is_reverted = db.Column(db.Boolean, default=False)
+    # True if the transaction has been reverted. In this case, won't ever go
+    # back to False
+    is_reverted = db.Column(db.Boolean, default=False, nullable=False)
 
-    date = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-    barman = db.Column(db.String(64), index=True)
+    date = db.Column(db.DateTime, index=True, default=datetime.utcnow,
+                        nullable=False)
+
+    # The barman who made the transaction
+    barman = db.Column(db.String(64), index=True, nullable=False)
+
+    # Not NULL if type is 'Pay <Item>' or 'Top up'
     client_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
+    # Not NULL if type is 'Pay <Item>'
+    item_id = db.Column(db.Integer, db.ForeignKey('item.id'))
+
     # type can be 'Top up', 'Pay <Item>' or 'Revert #<id>'
-    type = db.Column(db.String(64), index=True)
+    type = db.Column(db.String(64), index=True, nullable=False)
     balance_change = db.Column(db.Float)
 
     def __repr__(self):

@@ -217,13 +217,21 @@ def revert_transaction():
 
     transaction_id = request.args.get('transaction_id', -1, type=int)
 
+    # Transactions that are already reverted can't be reverted again
     transaction = Transaction.query.filter_by(id=transaction_id).first_or_404()
     if transaction.is_reverted or 'Revert' in transaction.type:
         flash("You can't revert this transaction.", 'warning')
         return redirect(request.referrer)
 
+    # Revert client balance
     if transaction.client:
         transaction.client.balance -= transaction.balance_change
+
+    # Revert item quantity
+    if transaction.item and transaction.item.is_quantifiable:
+        transaction.item.quantity += 1
+
+    # Transaction is now reverted: it won't ever be 'unreverted'
     transaction.is_reverted = True
 
     transaction = Transaction(client_id=None,
@@ -391,7 +399,8 @@ def pay():
     if item.is_alcohol:
         user.last_drink = datetime.utcnow()
 
-    transaction = Transaction(client_id=user.id, barman=current_user.username,
+    transaction = Transaction(client_id=user.id, item_id=item.id,
+                            barman=current_user.username,
                             date=datetime.utcnow(), type='Pay '+item.name,
                             balance_change=-item.price)
     db.session.add(transaction)
