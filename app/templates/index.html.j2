@@ -8,14 +8,14 @@
   <div class="well">
     <div class="container-fluid">
       <div class="row">
-        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-5">
           <div class="btn-group">
             <a href="{{ url_for('main.index', sort='asc', grad_class=grad_class) }}" data-original-title="Sort By Alphabet" type="button" class="btn btn-info btn-md {% if sort == 'asc' %}active{% endif %}"><span class="glyphicon glyphicon-sort-by-alphabet"></span></a>
             <a href="{{ url_for('main.index', sort='desc', grad_class=grad_class) }}" data-original-title="Sort By Alphabet" type="button" class="btn btn-info btn-md {% if sort == 'desc' %}active{% endif %}"><span class="glyphicon glyphicon-sort-by-alphabet-alt"></span></a>
           </div>
         </div>
 
-        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-8 col-lg-offset-2 col-md-offset-2 col-sm-offset-2">
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 col-lg-offset-2 col-md-offset-2 col-sm-offset-2 col-xs-offset-1">
           <form class="form-search input-group pull-right" method="get" action="{{ url_for('main.search') }}">
             {{ g.search_form.q(size=20, class='form-control', placeholder=g.search_form.q.label.text) }}
             <div class="input-group-btn">

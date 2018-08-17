@@ -11,6 +11,7 @@ Thumbs.db
 
 # Helper scripts
 add136.py
+makeqr.py
 
 # Environment variables
 *.env

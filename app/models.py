@@ -5,10 +5,11 @@ from flask import current_app, url_for, flash
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
+import qrcode
 from app import db, login
 
 class User(UserMixin, db.Model):
-
+    """ Contains all SQL columns defining a user. """
     id = db.Column(db.Integer, primary_key=True)
 
     # Login info
@@ -16,17 +17,18 @@ class User(UserMixin, db.Model):
                             nullable=False)
     email = db.Column(db.String(120), index=True, unique=True, nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
+    qrcode_hash = db.Column(db.String(128), nullable=False)
 
     # Personal info
     first_name = db.Column(db.String(64), index=True, nullable=False)
     last_name = db.Column(db.String(64), index=True, nullable=False)
-    nickname = db.Column(db.String(64), index=True, nullable=False)
-    is_barman = db.Column(db.Boolean, default=False, nullable=False)
+    nickname = db.Column(db.String(64), index=True)
+    is_bartender = db.Column(db.Boolean, default=False, nullable=False)
     grad_class = db.Column(db.Integer, index=True, default=0, nullable=False)
 
     # Technical info
     balance = db.Column(db.Float, default=0.0, nullable=False)
-    last_drink = db.Column(db.DateTime, default=None, nullable=False)
+    last_drink = db.Column(db.DateTime, default=None, nullable=True)
     transactions = db.relationship('Transaction', backref='client',
                                     lazy='dynamic')
 
@@ -35,6 +37,25 @@ class User(UserMixin, db.Model):
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
+
+    def set_qrcode(self):
+        self.qrcode_hash = generate_password_hash(str(datetime.utcnow()))
+
+        # Create QR code object
+        qr = qrcode.QRCode(
+            version = 1,
+            error_correction = qrcode.constants.ERROR_CORRECT_H,
+            box_size = 10,
+            border = 0,
+        )
+        qr.add_data(self.qrcode_hash)
+        qr.make(fit=True)
+
+        # Create QR code image and save it to static folder
+        img = qr.make_image()
+        img = img.resize((160, 160))
+        img.save('app/static/img/qr/'+self.username+'_qr.jpg')
+
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)

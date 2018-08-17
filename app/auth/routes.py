@@ -47,7 +47,7 @@ def logout():
 @bp.route('/register', methods=['GET', 'POST'])
 @fresh_login_required
 def register():
-    if not current_user.is_barman:
+    if not current_user.is_bartender:
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.index'))
     form = RegistrationForm()
@@ -59,6 +59,7 @@ def register():
                     grad_class=form.grad_class.data, username=form.username.data,
                     email=form.email.data)
         user.set_password(form.password.data)
+        user.set_qrcode()
         db.session.add(user)
         db.session.commit()
         flash('Congratulations, the user '+user.username+' has been added.',

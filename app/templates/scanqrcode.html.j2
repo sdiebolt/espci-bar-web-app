@@ -87,7 +87,7 @@
         outputMessage.hidden = true;
         outputData.parentElement.hidden = false;
         outputData.innerText = code.data;
-        window.location.replace("/user/" + code.data);
+        window.location.replace("/get_user_from_qr?qrcode_hash=" + code.data);
       } else {
         outputMessage.hidden = false;
         outputData.parentElement.hidden = true;

@@ -13,7 +13,7 @@ from app.main import bp
 @bp.before_app_request
 def before_request():
     if not current_user.is_anonymous:
-        if current_user.is_barman:
+        if current_user.is_bartender:
             g.search_form = SearchForm()
 
 @bp.route('/', methods=['GET'])
@@ -22,7 +22,7 @@ def before_request():
 def index():
     """ View index page. For barmen, it's the customers page and for clients,
         it redirects to the profile. """
-    if not current_user.is_barman:
+    if not current_user.is_bartender:
         return redirect(url_for('main.user', username=current_user.username))
 
     # Get arguments
@@ -53,7 +53,7 @@ def index():
 @login_required
 def search():
     """ View search page. """
-    if not current_user.is_barman:
+    if not current_user.is_bartender:
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.index'))
     if not g.search_form.validate():
@@ -89,7 +89,7 @@ def search():
 @login_required
 def user(username):
     """ View user profile page. """
-    if current_user.username != username and (not current_user.is_barman):
+    if current_user.username != username and (not current_user.is_bartender):
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.index'))
 
@@ -117,7 +117,7 @@ def user(username):
 @fresh_login_required
 def edit_profile(username):
     """ Edit user. """
-    if not current_user.is_barman:
+    if not current_user.is_bartender:
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.index'))
 
@@ -128,7 +128,7 @@ def edit_profile(username):
         user.last_name = form.last_name.data
         user.nickname = form.nickname.data
         user.email = form.email.data
-        user.is_barman = form.is_barman.data
+        user.is_bartender = form.is_bartender.data
         if (form.password.data != ''):
             user.set_password(form.password.data)
         db.session.commit()
@@ -139,7 +139,7 @@ def edit_profile(username):
         form.last_name.data = user.last_name
         form.nickname.data = user.nickname
         form.email.data = user.email
-        form.is_barman.data = user.is_barman
+        form.is_bartender.data = user.is_bartender
     return render_template('edit_profile.html.j2', title='Edit profile',
                            form=form)
 
@@ -147,7 +147,7 @@ def edit_profile(username):
 @fresh_login_required
 def delete_user(username):
     """ Delete user. """
-    if not current_user.is_barman:
+    if not current_user.is_bartender:
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.index'))
 
@@ -161,14 +161,14 @@ def delete_user(username):
 @login_required
 def statistics():
     """ View statistics page. """
-    if not current_user.is_barman:
+    if not current_user.is_bartender:
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.index'))
 
     # Number of clients
     nb_users = User.query.count()
     # Number of bartenders
-    nb_bartenders = User.query.filter_by(is_barman=True).count()
+    nb_bartenders = User.query.filter_by(is_bartender=True).count()
     # Number of active users
     nb_active_users = User.query.filter(User.last_drink > (datetime.utcnow() - timedelta(days=current_app.config['DAYS_BEFORE_INACTIVE']))).count()
 
@@ -192,7 +192,7 @@ def statistics():
 @login_required
 def transactions():
     """ View transactions page. """
-    if not current_user.is_barman:
+    if not current_user.is_bartender:
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.index'))
 
@@ -215,7 +215,7 @@ def transactions():
 @login_required
 def revert_transaction():
     """ Delete item from the inventory. """
-    if not current_user.is_barman:
+    if not current_user.is_bartender:
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.index'))
 
@@ -254,7 +254,7 @@ def revert_transaction():
 @login_required
 def inventory():
     """ View inventory page. """
-    if not current_user.is_barman:
+    if not current_user.is_bartender:
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.index'))
 
@@ -277,7 +277,7 @@ def inventory():
 @login_required
 def add_item():
     """ Add item. """
-    if not current_user.is_barman:
+    if not current_user.is_bartender:
         flash("You don't have the rights to acces this page.", 'danger')
         return redirect(url_for('main.index'))
 
@@ -298,7 +298,7 @@ def add_item():
 @fresh_login_required
 def edit_item(item_name):
     """ Edit item. """
-    if not current_user.is_barman:
+    if not current_user.is_bartender:
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.index'))
 
@@ -333,7 +333,7 @@ def edit_item(item_name):
 @login_required
 def delete_item():
     """ Delete item from the inventory. """
-    if not current_user.is_barman:
+    if not current_user.is_bartender:
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.index'))
 
@@ -349,7 +349,7 @@ def delete_item():
 @login_required
 def top_up():
     """ Top up user and redirect to last page. """
-    if not current_user.is_barman:
+    if not current_user.is_bartender:
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.index'))
 
@@ -379,7 +379,7 @@ def top_up():
 @login_required
 def pay():
     """ Substract the item price to username's balance. """
-    if not current_user.is_barman:
+    if not current_user.is_bartender:
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.index'))
 
@@ -418,17 +418,35 @@ def pay():
 @login_required
 def scanqrcode():
     """ QR code scan to easily find a user. """
-    if not current_user.is_barman:
+    if not current_user.is_bartender:
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.index'))
 
     return render_template('scanqrcode.html.j2', title='Scan QR code')
 
+@bp.route('/get_user_from_qr')
+@login_required
+def get_user_from_qr():
+    """ The QR code scanner redirects to this page when a QR code is scanned.
+        The corresponding user is retrieved and this page redirects to the
+        user's profile. """
+    if not current_user.is_bartender:
+        flash("You don't have the rights to access this page.", 'danger')
+        return redirect(url_for('main.index'))
+
+    # Get arguments
+    qrcode_hash = request.args.get('qrcode_hash', 'None', type=str)
+
+    # Retrieve corresponding user
+    user = User.query.filter_by(qrcode_hash=qrcode_hash).first_or_404()
+
+    return redirect(url_for('main.user', username=user.username))
+
 @bp.route('/qrcode/<username>')
 @login_required
 def qrcode(username):
     """ View user's QR code. """
-    if current_user.username != username and (not current_user.is_barman):
+    if current_user.username != username and (not current_user.is_bartender):
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.index'))
 
