@@ -230,6 +230,8 @@ def revert_transaction():
     # Revert client balance
     if transaction.client:
         transaction.client.balance -= transaction.balance_change
+        if transaction.item and transaction.item.is_alcohol:
+            transaction.client.last_drink = None
 
     # Revert item quantity
     if transaction.item and transaction.item.is_quantifiable:

@@ -113,12 +113,12 @@ class Item(db.Model):
 
     name = db.Column(db.String(64), index=True, unique=True, nullable=False)
 
-    is_alcohol = db.Column(db.Boolean, nullable=False)
+    is_alcohol = db.Column(db.Boolean)
 
     price = db.Column(db.Float, nullable=False)
 
-    is_quantifiable = db.Column(db.Boolean, nullable=False)
-    quantity = db.Column(db.Integer, default=0, nullable=False)
+    is_quantifiable = db.Column(db.Boolean)
+    quantity = db.Column(db.Integer, default=0)
 
     transactions = db.relationship('Transaction', backref='item',
                                     lazy='dynamic')
@@ -131,7 +131,7 @@ class Transaction(db.Model):
 
     # True if the transaction has been reverted. In this case, won't ever go
     # back to False
-    is_reverted = db.Column(db.Boolean, default=False, nullable=False)
+    is_reverted = db.Column(db.Boolean, default=False)
 
     date = db.Column(db.DateTime, index=True, default=datetime.utcnow,
                         nullable=False)
