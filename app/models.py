@@ -23,6 +23,7 @@ class User(UserMixin, db.Model):
     first_name = db.Column(db.String(64), index=True, nullable=False)
     last_name = db.Column(db.String(64), index=True, nullable=False)
     nickname = db.Column(db.String(64), index=True)
+    birthdate = db.Column(db.Date)
     is_bartender = db.Column(db.Boolean, default=False, nullable=False)
     grad_class = db.Column(db.Integer, index=True, default=0, nullable=False)
 

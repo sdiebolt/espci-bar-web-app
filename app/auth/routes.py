@@ -57,6 +57,7 @@ def register():
             grad_class = 0
         user = User(first_name=form.first_name.data,
                     last_name=form.last_name.data,
+                    birthdate=form.birthdate.data,
                     grad_class=form.grad_class.data,
                     username=form.username.data, email=form.email.data,
                     is_bartender=form.is_bartender.data)

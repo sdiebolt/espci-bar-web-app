@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
+import datetime
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, \
-    IntegerField
+    IntegerField, DateField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, \
     optional
 from app.models import User
@@ -23,6 +24,11 @@ class RegistrationForm(FlaskForm):
     # Personal info
     first_name = StringField('First name', validators=[DataRequired()])
     last_name = StringField('Last name', validators=[DataRequired()])
+    birthdate = DateField(
+        "Birthdate", format="%Y/%m/%d",
+        default=datetime.datetime.today,
+        validators=[DataRequired()]
+        )
     grad_class = IntegerField('Graduating class (empty if non student)',
                                 [optional()])
     is_bartender = BooleanField('Bartender')

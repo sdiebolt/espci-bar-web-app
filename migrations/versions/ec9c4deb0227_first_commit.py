@@ -1,8 +1,8 @@
 """First commit.
 
-Revision ID: afd2770503d9
+Revision ID: ec9c4deb0227
 Revises: 
-Create Date: 2018-08-17 14:25:10.460787
+Create Date: 2018-08-22 13:26:19.847863
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'afd2770503d9'
+revision = 'ec9c4deb0227'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -21,10 +21,10 @@ def upgrade():
     op.create_table('item',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=64), nullable=False),
-    sa.Column('is_alcohol', sa.Boolean(), nullable=False),
+    sa.Column('is_alcohol', sa.Boolean(), nullable=True),
     sa.Column('price', sa.Float(), nullable=False),
-    sa.Column('is_quantifiable', sa.Boolean(), nullable=False),
-    sa.Column('quantity', sa.Integer(), nullable=False),
+    sa.Column('is_quantifiable', sa.Boolean(), nullable=True),
+    sa.Column('quantity', sa.Integer(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_item_name'), 'item', ['name'], unique=True)
@@ -37,6 +37,7 @@ def upgrade():
     sa.Column('first_name', sa.String(length=64), nullable=False),
     sa.Column('last_name', sa.String(length=64), nullable=False),
     sa.Column('nickname', sa.String(length=64), nullable=True),
+    sa.Column('birthdate', sa.DateTime(), nullable=True),
     sa.Column('is_bartender', sa.Boolean(), nullable=False),
     sa.Column('grad_class', sa.Integer(), nullable=False),
     sa.Column('balance', sa.Float(), nullable=False),
@@ -51,7 +52,7 @@ def upgrade():
     op.create_index(op.f('ix_user_username'), 'user', ['username'], unique=True)
     op.create_table('transaction',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('is_reverted', sa.Boolean(), nullable=False),
+    sa.Column('is_reverted', sa.Boolean(), nullable=True),
     sa.Column('date', sa.DateTime(), nullable=False),
     sa.Column('barman', sa.String(length=64), nullable=False),
     sa.Column('client_id', sa.Integer(), nullable=True),

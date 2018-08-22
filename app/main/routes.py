@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+import datetime
 from flask import render_template, flash, redirect, url_for, request, g, \
     jsonify, current_app
 from flask_login import current_user, login_required, fresh_login_required
@@ -96,6 +96,10 @@ def user(username):
     # Get user
     user = User.query.filter_by(username=username).first_or_404()
 
+    today = datetime.date.today()
+    age = today.year - user.birthdate.year - \
+        ((today.month, today.day) < (user.birthdate.month, user.birthdate.day))
+
     # Get transactions statistics
     transaction_paid = user.transactions.filter_by(is_reverted=False).filter(Transaction.type.like('Pay%')).all()
     amount_paid = sum([abs(t.balance_change) for t in transaction_paid])
@@ -109,8 +113,8 @@ def user(username):
     is_admin = user.email in current_app.config['ADMINS']
 
     return render_template('user.html.j2', title=username + ' profile',
-                            is_admin=is_admin, user=user, inventory=inventory,
-                            amount_paid=amount_paid,
+                            age=age, is_admin=is_admin, user=user,
+                            inventory=inventory, amount_paid=amount_paid,
                             amount_topped_up=amount_topped_up)
 
 @bp.route('/edit_profile/<username>', methods=['GET', 'POST'])
@@ -126,6 +130,7 @@ def edit_profile(username):
     if form.validate_on_submit():
         user.first_name = form.first_name.data
         user.last_name = form.last_name.data
+        user.birthdate = form.birthdate.data
         user.nickname = form.nickname.data
         user.email = form.email.data
         user.is_bartender = form.is_bartender.data
@@ -137,6 +142,7 @@ def edit_profile(username):
     elif request.method == 'GET':
         form.first_name.data = user.first_name
         form.last_name.data = user.last_name
+        form.birthdate.data = user.birthdate
         form.nickname.data = user.nickname
         form.email.data = user.email
         form.is_bartender.data = user.is_bartender
@@ -170,7 +176,7 @@ def statistics():
     # Number of bartenders
     nb_bartenders = User.query.filter_by(is_bartender=True).count()
     # Number of active users
-    nb_active_users = User.query.filter(User.last_drink > (datetime.utcnow() - timedelta(days=current_app.config['DAYS_BEFORE_INACTIVE']))).count()
+    nb_active_users = User.query.filter(User.last_drink > (datetime.datetime.utcnow() - datetime.timedelta(days=current_app.config['DAYS_BEFORE_INACTIVE']))).count()
 
     # Number of transactions
     nb_transactions = Transaction.query.count()
@@ -242,7 +248,7 @@ def revert_transaction():
 
     transaction = Transaction(client_id=None,
                             barman=current_user.username,
-                            date=datetime.utcnow(),
+                            date=datetime.datetime.utcnow(),
                             type='Revert #'+str(transaction_id),
                             balance_change=None)
 
@@ -369,7 +375,7 @@ def top_up():
     user.balance += amount
 
     transaction = Transaction(client_id=user.id, barman=current_user.username,
-                            date=datetime.utcnow(), type='Top up',
+                            date=datetime.datetime.utcnow(), type='Top up',
                             balance_change=amount)
     db.session.add(transaction)
     db.session.commit()
@@ -404,11 +410,11 @@ def pay():
     if item.is_quantifiable:
         item.quantity -= 1
     if item.is_alcohol:
-        user.last_drink = datetime.utcnow()
+        user.last_drink = datetime.datetime.utcnow()
 
     transaction = Transaction(client_id=user.id, item_id=item.id,
                             barman=current_user.username,
-                            date=datetime.utcnow(), type='Pay '+item.name,
+                            date=datetime.datetime.utcnow(), type='Pay '+item.name,
                             balance_change=-item.price)
     db.session.add(transaction)
     db.session.commit()

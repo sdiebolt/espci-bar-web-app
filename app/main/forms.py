@@ -1,7 +1,9 @@
 from flask import request
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, PasswordField, FloatField, IntegerField, BooleanField
-from wtforms.validators import ValidationError, DataRequired, Length, Email, EqualTo, NumberRange, optional
+from wtforms import StringField, SubmitField, PasswordField, FloatField, \
+                    IntegerField, BooleanField, DateField
+from wtforms.validators import ValidationError, DataRequired, Length, Email, \
+                                EqualTo, NumberRange, optional
 from app.models import User, Item
 
 
@@ -10,6 +12,10 @@ class EditProfileForm(FlaskForm):
     first_name = StringField('First name', validators=[DataRequired()])
     last_name = StringField('Last name', validators=[DataRequired()])
     nickname = StringField('Nickname')
+    birthdate = DateField(
+        "Birthdate", format="%Y/%m/%d",
+        validators=[DataRequired()]
+        )
 
     # Technical info
     email = StringField('Email', validators=[DataRequired(), Email()])

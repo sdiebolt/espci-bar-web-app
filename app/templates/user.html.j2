@@ -27,6 +27,9 @@
                   <td><a href="mailto:{{ user.email }}">{{ user.email }}</a></td>
                 </tr>
                 <tr>
+                  <td><strong>Age:</strong></td>
+                  <td>{{ age }} years old</td>
+                <tr>
                   <td><strong>Graduating class:</strong></td>
                   <td>{% if user.grad_class != 0 %}{{ user.grad_class }}{% else %}Extern{% endif %}</td>
                 </tr>
@@ -36,7 +39,7 @@
                     {% if user.last_drink %}
                     {{ moment(user.last_drink).fromNow() }}
                     {% else %}
-                    None
+                    Non-existent or reverted
                     {% endif %}
                   </td>
                 </tr>
