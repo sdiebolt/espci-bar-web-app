@@ -25,6 +25,7 @@ class RegistrationForm(FlaskForm):
     last_name = StringField('Last name', validators=[DataRequired()])
     grad_class = IntegerField('Graduating class (empty if non student)',
                                 [optional()])
+    is_bartender = BooleanField('Bartender')
 
     submit = SubmitField('Register')
 

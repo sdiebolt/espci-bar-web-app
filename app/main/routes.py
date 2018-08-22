@@ -289,7 +289,8 @@ def add_item():
         if quantity is None:
             quantity = 0
         item = Item(name=form.name.data, quantity=quantity,
-                    price=form.price.data, is_alcohol=form.is_alcohol.data)
+                    price=form.price.data, is_alcohol=form.is_alcohol.data,
+                    is_quantifiable=form.is_quantifiable.data)
         db.session.add(item)
         db.session.commit()
         flash('The item '+item.name+' was successfully added.', 'success')

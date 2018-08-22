@@ -55,9 +55,11 @@ def register():
         grad_class = form.grad_class.data
         if grad_class is None:
             grad_class = 0
-        user = User(first_name=form.first_name.data, last_name=form.last_name.data,
-                    grad_class=form.grad_class.data, username=form.username.data,
-                    email=form.email.data)
+        user = User(first_name=form.first_name.data,
+                    last_name=form.last_name.data,
+                    grad_class=form.grad_class.data,
+                    username=form.username.data, email=form.email.data,
+                    is_bartender=form.is_bartender.data)
         user.set_password(form.password.data)
         user.set_qrcode()
         db.session.add(user)
@@ -65,7 +67,8 @@ def register():
         flash('Congratulations, the user '+user.username+' has been added.',
                 'success')
         return redirect(url_for('main.index'))
-    return render_template('auth/register.html.j2', title='Register', form=form)
+    return render_template('auth/register.html.j2', title='Register',
+                            form=form)
 
 @bp.route('/reset_password_request', methods=['GET', 'POST'])
 def reset_password_request():
