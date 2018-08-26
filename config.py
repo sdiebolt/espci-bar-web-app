@@ -18,12 +18,12 @@ class Config(object):
     MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS') is not None
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
-    ADMINS = ['samuel.diebolt@espci.psl.eu']
+    ADMINS = ['barman@foyerespci.fr', 'samuel.diebolt@espci.psl.eu']
 
     USERS_PER_PAGE = int(os.environ.get('USERS_PER_PAGE') or 12)
     ITEMS_PER_PAGE = int(os.environ.get('ITEMS_PER_PAGE') or 10)
 
-    CURRENT_GRAD_CLASS = int(os.environ.get('CURRENT_GRAD_CLASS') or 136)
+    CURRENT_GRAD_CLASS = int(os.environ.get('CURRENT_GRAD_CLASS') or 137)
 
     MINUTES_BEFORE_NEXT_DRINK = int(os.environ.get('MINUTES_BEFORE_NEXT_DRINK') or 30)
     DAYS_BEFORE_INACTIVE = int(os.environ.get('DAYS_BEFORE_INACTIVE') or 30)
