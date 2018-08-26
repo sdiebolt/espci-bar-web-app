@@ -9,9 +9,13 @@ Thumbs.db
 *.jpg
 *.png
 
+# PDF cards
+pdf
+latex
+
 # Helper scripts
-add136.py
-makeqr.py
+*.txt
+bulk_add.py
 
 # Environment variables
 *.env
