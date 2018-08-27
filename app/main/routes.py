@@ -149,6 +149,26 @@ def edit_profile(username):
     return render_template('edit_profile.html.j2', title='Edit profile',
                            form=form)
 
+@bp.route('/deposit', methods=['GET'])
+@login_required
+def deposit():
+    if not current_user.is_bartender:
+        flash("You don't have the rights to access this page.", 'danger')
+        return redirect(url_for('main.index'))
+
+    username = request.args.get('username', None, type=str)
+    user = User.query.filter_by(username=username).first_or_404()
+
+    if user.deposit == True:
+        flash('User already gave a deposit.', 'warning')
+        return redirect(request.referrer)
+
+    user.deposit = True
+    db.session.commit()
+
+    return redirect(request.referrer)
+
+
 @bp.route('/delete_user/<username>')
 @fresh_login_required
 def delete_user(username):
@@ -397,6 +417,10 @@ def pay():
 
     user = User.query.filter_by(username=username).first_or_404()
     item = Item.query.filter_by(name=item_name).first_or_404()
+
+    if not user.deposit:
+        flask(user.username+" hasn't given a deposit.", 'warning')
+        return redirect(request.referrer)
 
     if not user.can_buy(item):
         flash(user.username+" can't buy "+item.name+'.', 'warning')

@@ -3,7 +3,7 @@
 {% block app_content %}
 <div class="row">
   <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xs-offset-0 col-sm-offset-0 col-md-offset-0 col-lg-offset-0" >
-    <div class="panel panel-info">
+    <div class="panel {% if not user.deposit %}panel-default{% elif user.balance <= 0 %}panel-danger{% elif user.balance <= 5 %}panel-warning{% else %}panel-info{% endif %}">
       <div class="panel-heading">
         <h3 class="panel-title">{{ user.first_name }}{% if current_user.is_bartender and user.nickname %} "{{ user.nickname }}"{% endif %} {{ user.last_name }}{% if is_admin %} – Administrator{% elif user.is_bartender %} – Bartender{% endif %}</h3>
       </div>
@@ -78,6 +78,18 @@
         {% include '_pay.html.j2' %}
         {% include '_top_up.html.j2' %}
         <span class="pull-right">
+          {% if not user.deposit %}
+          <div class="btn-group">
+            <button type="button" class="btn btn-md btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <span class="glyphicon glyphicon-ok"></span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-right">
+              <li class="dropdown-header">User gave deposit?</li>
+              <li><a href="{{ url_for('main.deposit', username=user.username) }}">Yes</a></li>
+              <li><a href="#">No</a></li>
+            </ul>
+          </div>
+          {% endif %}
           <a href="{{ url_for('main.edit_profile', username=user.username) }}" data-original-title="Edit this user" data-toggle="tooltip" type="button" class="btn btn-md btn-warning"><i class="glyphicon glyphicon-edit"></i></a>
           <div class="btn-group">
             <button type="button" class="btn btn-md btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

@@ -32,6 +32,7 @@ class User(UserMixin, db.Model):
     last_drink = db.Column(db.DateTime, default=None, nullable=True)
     transactions = db.relationship('Transaction', backref='client',
                                     lazy='dynamic')
+    deposit = db.Column(db.Boolean, default=False)
 
     def __repr__(self):
         return '<User {}>'.format(self.username)

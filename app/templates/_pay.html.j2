@@ -1,11 +1,11 @@
 <div class="btn-group">
-  <button type="button" class="btn btn-primary btn-md dropdown-toggle {% if user.balance <= 0 %}disabled{% endif %}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+  <button type="button" class="btn btn-primary btn-md dropdown-toggle {% if user.balance <= 0 or not user.deposit %}disabled{% endif %}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
     <span class="transaction">Pay </span><span class="glyphicon glyphicon-euro"></span>
   </button>
 
   <ul class="dropdown-menu dropdown-menu-index scrollable-menu">
     {% for item in inventory %}
-    <li {% if not user.can_buy(item) or (item.is_quantifiable and item.quantity <= 0) %}class="disabled"{% endif %}><a href="{{ url_for('main.pay', username=user.username, item_name=item.name) }}">{{ item.name }} ({{ item.price }}€)</a></li>
+    <li {% if (not user.deposit) or (not user.can_buy(item)) or (item.is_quantifiable and item.quantity <= 0) %}class="disabled"{% endif %}><a href="{{ url_for('main.pay', username=user.username, item_name=item.name) }}">{{ item.name }} ({{ item.price }}€)</a></li>
     {% endfor %}
   </ul>
 </div>
