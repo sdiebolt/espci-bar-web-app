@@ -14,13 +14,6 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Sign in')
 
 class RegistrationForm(FlaskForm):
-    # Login info
-    username = StringField('Username', validators=[DataRequired()])
-    email = StringField('Email', validators=[DataRequired(), Email()])
-    password = PasswordField('Password', validators=[DataRequired()])
-    password2 = PasswordField(
-        'Repeat password', validators=[DataRequired(), EqualTo('password')])
-
     # Personal info
     first_name = StringField('First name', validators=[DataRequired()])
     last_name = StringField('Last name', validators=[DataRequired()])
@@ -29,6 +22,7 @@ class RegistrationForm(FlaskForm):
         default=datetime.datetime.today,
         validators=[DataRequired()]
         )
+    email = StringField('Email', validators=[DataRequired(), Email()])
     grad_class = IntegerField('Graduating class (empty if non student)',
                                 [optional()])
     is_bartender = BooleanField('Bartender')

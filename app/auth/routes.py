@@ -1,3 +1,5 @@
+import unidecode
+import secrets
 from flask import render_template, redirect, url_for, flash, request
 from werkzeug.urls import url_parse
 from flask_login import login_user, logout_user, current_user, \
@@ -9,6 +11,26 @@ from app.auth.forms import LoginForm, RegistrationForm, \
 from app.models import User
 from app.auth.email import send_password_reset_email
 
+
+def gen_password(length=8, charset="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()"):
+    return "".join([secrets.choice(charset) for _ in range(0, length)])
+
+def create_pdf(first_name, last_name, grad_class, username, password):
+    """Generates the PDF file with user credientials."""
+    with open(os.path.join('latex', 'model.tex'), 'r') as f:
+        model = f.read()
+
+    with open(os.path.join('latex', str(grad_class), username+'.tex'), 'w') as f:
+        f.write(model % (
+            first_name + ' ' + last_name,
+            grad_class,
+            username,
+            '\\texttt{'+password.replace('&', '\&').replace('%', '\%').replace('$', '\$').replace('#', '\#').replace('^', '\\textasciicircum{}')+'}',))
+
+    subprocess.check_call(['pdflatex', '-output-directory='+os.path.join('pdf', str(grad_class)), os.path.join('latex', str(grad_class), username+'.tex')])
+    subprocess.check_call(['rm', os.path.join('pdf', str(grad_class), username+'.aux')])
+    subprocess.check_call(['rm', os.path.join('pdf', str(grad_class), username+'.log')])
+    subprocess.check_call(['rm', os.path.join('pdf', str(grad_class), username+'.out')])
 
 @login.needs_refresh_handler
 @login_required
@@ -50,22 +72,31 @@ def register():
     if not current_user.is_bartender:
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.index'))
+
     form = RegistrationForm()
     if form.validate_on_submit():
-        grad_class = form.grad_class.data
-        if grad_class is None:
-            grad_class = 0
-        user = User(first_name=form.first_name.data,
-                    last_name=form.last_name.data,
+        # Get user information from form and generate username, email and password
+        grad_class = form.grad_class.data or 0 # 0 if extern
+        first_name = form.first_name.data
+        last_name = form.last_name.data
+        username = first_name[0].lower() + unidecode.unidecode(last_name.replace(' ', '').replace("'", '').lower()).partition('-')[0][:7]
+        password =  gen_password()
+
+        # Generate pdf
+        # create_pdf(cols[1], cols[0], gc, username, password)
+
+        # Create user
+        user = User(first_name=first_name,
+                    last_name=last_name,
                     birthdate=form.birthdate.data,
                     grad_class=form.grad_class.data,
-                    username=form.username.data, email=form.email.data,
+                    username=username, email=form.email.data.lower(),
                     is_bartender=form.is_bartender.data)
-        user.set_password(form.password.data)
+        user.set_password(password)
         user.set_qrcode()
         db.session.add(user)
         db.session.commit()
-        flash('Congratulations, the user '+user.username+' has been added.',
+        flash('Congratulations, the user '+user.username+' has been added with password '+password+'.',
                 'success')
         return redirect(url_for('main.index'))
     return render_template('auth/register.html.j2', title='Register',
