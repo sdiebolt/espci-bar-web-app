@@ -69,10 +69,10 @@ def search():
     # Get users corresponding to the query
     query_text = g.search_form.q.data
     username_query = User.query.filter(User.username.ilike('%'+query_text+'%'))
+    nickname_query = User.query.filter(User.nickname.ilike('%'+query_text+'%'))
     first_name_query = User.query.filter(User.first_name.ilike('%'+query_text+'%'))
     last_name_query = User.query.filter(User.last_name.ilike('%'+query_text+'%'))
-    grad_class_query = User.query.filter(User.grad_class.ilike('%'+query_text+'%'))
-    final_query = username_query.union(first_name_query).union(last_name_query).union(grad_class_query)
+    final_query = username_query.union(first_name_query).union(last_name_query).union(nickname_query)
     total = final_query.count()
 
     # Sort users alphabetically
@@ -429,10 +429,6 @@ def pay():
         flask(user.username+" hasn't given a deposit.", 'warning')
         return redirect(request.referrer)
 
-    if item.is_alcohol and alcoholic_drinks >= current_app.config['MAX_ALCOHOLIC_DRINKS_PER_DAY']:
-        flash(user.username+' has reached the alcohol limit for the day.', 'warning')
-        return redirect(request.referrer)
-
     if not user.can_buy(item):
         flash(user.username+" can't buy "+item.name+'.', 'warning')
         return redirect(request.referrer)
@@ -454,8 +450,8 @@ def pay():
     db.session.add(transaction)
     db.session.commit()
 
-    flash(user.username+' successfully bought '+item.name \
-            +'. Balance: {:.2f}'.format(user.balance)+'€', 'success')
+    flash(user.username+' successfully bought '+item.name + \
+        '. Balance: {:.2f}'.format(user.balance)+'€', 'success')
     return redirect(request.referrer)
 
 @bp.route('/scanqrcode')

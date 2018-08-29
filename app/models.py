@@ -1,8 +1,9 @@
 import os.path
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from time import time
 from flask import current_app, url_for, flash
 from flask_login import UserMixin
+from sqlalchemy.sql.expression import and_
 from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
 import qrcode
@@ -41,7 +42,7 @@ class User(UserMixin, db.Model):
         self.password_hash = generate_password_hash(password)
 
     def set_qrcode(self):
-        self.qrcode_hash = generate_password_hash(str(datetime.utcnow()))
+        self.qrcode_hash = generate_password_hash(str(datetime()))
 
         # Create QR code object
         qr = qrcode.QRCode(
@@ -90,7 +91,15 @@ class User(UserMixin, db.Model):
     def can_buy(self, item):
         """ Return the user's right to buy the item depending on his balance
             and the time since his last drink if the item is alcohol. """
+        today = date.today()
+        age = today.year - self.birthdate.year - \
+            ((today.month, today.day) < (self.birthdate.month, self.birthdate.day))
+        alcoholic_drinks = self.transactions.filter_by(is_reverted=False).filter(and_(Transaction.item.has(is_alcohol=True), Transaction.date > datetime(today.year, today.month, today.day, 6, 0, 0))).count()
+        if item.is_alcohol and age < 18:
+            return False
         if item.is_alcohol and (self.last_drink and self.last_drink > (datetime.utcnow() - timedelta(minutes=current_app.config['MINUTES_BEFORE_NEXT_DRINK']))):
+            return False
+        elif item.is_alcohol and alcoholic_drinks >= current_app.config['MAX_ALCOHOLIC_DRINKS_PER_DAY']:
             return False
         elif self.balance < item.price:
             return False
