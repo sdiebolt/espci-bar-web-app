@@ -26,4 +26,5 @@ class Config(object):
     CURRENT_GRAD_CLASS = int(os.environ.get('CURRENT_GRAD_CLASS') or 137)
 
     MINUTES_BEFORE_NEXT_DRINK = int(os.environ.get('MINUTES_BEFORE_NEXT_DRINK') or 30)
+    MAX_ALCOHOLIC_DRINKS_PER_DAY = int(os.environ.get('MAX_ALCOHOLIC_DRINKS_PER_DAY') or 4)
     DAYS_BEFORE_INACTIVE = int(os.environ.get('DAYS_BEFORE_INACTIVE') or 30)

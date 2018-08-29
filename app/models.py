@@ -90,7 +90,7 @@ class User(UserMixin, db.Model):
     def can_buy(self, item):
         """ Return the user's right to buy the item depending on his balance
             and the time since his last drink if the item is alcohol. """
-        if item.is_alcohol and (self.last_drink and self.last_drink > (datetime.utcnow() - timedelta(minutes=30))):
+        if item.is_alcohol and (self.last_drink and self.last_drink > (datetime.utcnow() - timedelta(minutes=current_app.config['MINUTES_BEFORE_NEXT_DRINK']))):
             return False
         elif self.balance < item.price:
             return False

@@ -418,8 +418,14 @@ def pay():
     user = User.query.filter_by(username=username).first_or_404()
     item = Item.query.filter_by(name=item_name).first_or_404()
 
+    today = datetime.date.today()
+    alcoholic_drinks = user.transactions.filter_by(is_reverted=False).filter(and_(Transaction.item.has(is_alcohol=True), Transaction.date > datetime.datetime(today.year, today.month, today.day, 6, 0, 0))).count()
     if not user.deposit:
         flask(user.username+" hasn't given a deposit.", 'warning')
+        return redirect(request.referrer)
+
+    if item.is_alcohol and alcoholic_drinks >= current_app.config['MAX_ALCOHOLIC_DRINKS_PER_DAY']:
+        flash(user.username+' has reached the alcohol limit for the day.', 'warning')
         return redirect(request.referrer)
 
     if not user.can_buy(item):
