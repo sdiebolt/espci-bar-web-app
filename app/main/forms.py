@@ -88,7 +88,7 @@ class AddItemForm(FlaskForm):
             raise ValidationError('Please enter a positive price.')
 
 class SearchForm(FlaskForm):
-    q = StringField('Username', validators=[DataRequired()])
+    q = StringField('Search', validators=[DataRequired()])
 
     def __init__(self, *args, **kwargs):
         if 'formdata' not in kwargs:

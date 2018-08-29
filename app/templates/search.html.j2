@@ -33,7 +33,7 @@
       <div class="row">
         {% for user in users.items %}
         <div class="col-lg-3 col-md-3 col-sm-4 col-xs-6">
-          <div class="panel panel-info">
+          <div class="panel {% if not user.deposit %}panel-default{% elif user.balance <= 0 %}panel-danger{% elif user.balance <= 5 %}panel-warning{% else %}panel-info{% endif %}">
             <div class="panel-heading text-center">
               <a href="{{ url_for('main.user', username=user.username) }}">
                 <span hidden>{{ user.username }}</span hidden>

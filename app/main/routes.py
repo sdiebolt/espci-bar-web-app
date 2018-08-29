@@ -67,15 +67,20 @@ def search():
     inventory = Item.query.order_by(Item.name.asc()).all()
 
     # Get users corresponding to the query
-    users_query = User.query.filter(User.username.like('%'+g.search_form.q.data+'%'))
-    total = users_query.count()
+    query_text = g.search_form.q.data
+    username_query = User.query.filter(User.username.ilike('%'+query_text+'%'))
+    first_name_query = User.query.filter(User.first_name.ilike('%'+query_text+'%'))
+    last_name_query = User.query.filter(User.last_name.ilike('%'+query_text+'%'))
+    grad_class_query = User.query.filter(User.grad_class.ilike('%'+query_text+'%'))
+    final_query = username_query.union(first_name_query).union(last_name_query).union(grad_class_query)
+    total = final_query.count()
 
     # Sort users alphabetically
     if sort == 'asc':
-        users = users_query.order_by(User.last_name.asc()).paginate(page,
+        users = final_query.order_by(User.last_name.asc()).paginate(page,
             current_app.config['USERS_PER_PAGE'], True)
     else:
-        users = users_query.order_by(User.last_name.desc()).paginate(page,
+        users = final_query.order_by(User.last_name.desc()).paginate(page,
             current_app.config['USERS_PER_PAGE'], True)
 
     # If only one user, redirect to his profile
