@@ -109,9 +109,14 @@
                         </li>
                       </ul>
                     </li>
-                    <li class="dropdown {% if (request.path == '/settings' or request.path == '/register') and current_user.is_bartender %}active{% endif %}">
-                      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                    <li {% if (request.path == '/settings') and current_user.is_bartender %}class="active"{% endif %}>
+                      <a href="{{ url_for('main.index')}}">
                         <span class="glyphicon glyphicon-cog"></span> Settings
+                      </a>
+                    </li>
+                    <li class="dropdown {% if (request.path == '/tools' or request.path == '/auth/register') and current_user.is_bartender %}active{% endif %}">
+                      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                        <span class="glyphicon glyphicon-wrench"></span> Tools
                       </a>
                       <ul class="dropdown-menu">
                         <li>

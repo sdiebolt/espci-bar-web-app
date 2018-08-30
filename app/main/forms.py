@@ -1,3 +1,4 @@
+import safe
 from flask import request
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, PasswordField, FloatField, \
@@ -36,6 +37,10 @@ class EditProfileForm(FlaskForm):
             user = User.query.filter_by(email=email.data).first()
             if user is not None:
                 raise ValidationError('Please use a different email address.')
+
+    def validate_password(self, password):
+        if repr(safe.check(password.data)) != 'strong':
+            raise ValidationError("Password isn't strong enough.")
 
 class EditItemForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired()])
