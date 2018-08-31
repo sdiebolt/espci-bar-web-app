@@ -2,7 +2,7 @@ import safe
 from flask import request
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, PasswordField, FloatField, \
-                    IntegerField, BooleanField, DateField
+                    IntegerField, BooleanField, DateField, FieldList
 from wtforms.validators import ValidationError, DataRequired, Length, Email, \
                                 EqualTo, NumberRange, optional
 from app.models import User, Item
@@ -101,3 +101,11 @@ class SearchForm(FlaskForm):
         if 'csrf_enabled' not in kwargs:
             kwargs['csrf_enabled'] = False
         super(SearchForm, self).__init__(*args, **kwargs)
+
+class GlobalSettingsForm(FlaskForm):
+    value = FieldList(IntegerField('Key'))
+
+    def __init__(self, *args, **kwargs):
+        super(GlobalSettingsForm, self).__init__(*args, **kwargs)
+        if 'obj' in kwargs and kwargs['obj'] is not None:
+            self.value.label.text = kwargs['obj'].key

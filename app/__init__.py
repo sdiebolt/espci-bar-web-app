@@ -1,7 +1,6 @@
 import logging
 from logging.handlers import SMTPHandler, RotatingFileHandler
 import os
-import certifi
 from flask import Flask, request, current_app
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -36,6 +35,12 @@ def create_app(config_class=Config):
     bootstrap.init_app(app)
     moment.init_app(app)
 
+    from app.models import GlobalSetting
+    with app.app_context():
+        settings = GlobalSetting.query.all()
+        for s in settings:
+            app.config[s.key] = int(s.value)
+
     from app.errors import bp as errors_bp
     app.register_blueprint(errors_bp)
 
@@ -57,7 +62,7 @@ def create_app(config_class=Config):
                 secure = ()
             mail_handler = SMTPHandler(
                 mailhost=(app.config['MAIL_SERVER'], app.config['MAIL_PORT']),
-                fromaddr='no-reply@' + app.config['MAIL_SERVER'],
+                fromaddr='noreply@' + app.config['MAIL_SERVER'],
                 toaddrs=app.config['ADMINS'], subject='ESPCI Bar Failure',
                 credentials=auth, secure=secure)
             mail_handler.setLevel(logging.ERROR)

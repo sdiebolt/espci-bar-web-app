@@ -5,8 +5,8 @@ from flask_login import current_user, login_required, fresh_login_required
 from sqlalchemy.sql.expression import and_
 from app import db
 from app.main.forms import EditProfileForm, EditItemForm, AddItemForm, \
-    SearchForm
-from app.models import User, Item, Transaction
+    SearchForm, GlobalSettingsForm
+from app.models import User, Item, Transaction, GlobalSetting
 from app.main import bp
 
 
@@ -423,8 +423,6 @@ def pay():
     user = User.query.filter_by(username=username).first_or_404()
     item = Item.query.filter_by(name=item_name).first_or_404()
 
-    today = datetime.date.today()
-    alcoholic_drinks = user.transactions.filter_by(is_reverted=False).filter(and_(Transaction.item.has(is_alcohol=True), Transaction.date > datetime.datetime(today.year, today.month, today.day, 6, 0, 0))).count()
     if not user.deposit:
         flask(user.username+" hasn't given a deposit.", 'warning')
         return redirect(request.referrer)
@@ -493,3 +491,27 @@ def qrcode(username):
     user = User.query.filter_by(username=username).first_or_404()
 
     return render_template('qrcode.html.j2', title='QR code', user=user)
+
+@bp.route('/global_settings', methods=['GET', 'POST'])
+@login_required
+def global_settings():
+    """ Set global web app settings. """
+    if not current_user.is_bartender:
+        flash("You don't have the rights to access this page.", 'danger')
+        return redirect(url_for('main.index'))
+
+    form = GlobalSettingsForm()
+    if form.validate_on_submit():
+        settings = GlobalSetting.query.all()
+        for index, s in enumerate(settings):
+            s.value = form.value.data[index]
+            current_app.config[s.key] = s.value
+        db.session.commit()
+        flash('Global settings successfully updated.', 'success')
+        return redirect(url_for('main.global_settings'))
+    else:
+        settings = GlobalSetting.query.all()
+        for index, s in enumerate(settings):
+            form.value.append_entry(s.value)
+            form.value.entries[index].label.text = s.name
+    return render_template('global_settings.html.j2', title='Global settings', form=form)

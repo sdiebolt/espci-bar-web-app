@@ -14,7 +14,10 @@ pdf
 latex
 
 # Helper scripts
-*.txt
+134.txt
+135.txt
+136.txt
+137.txt
 bulk_add.py
 
 # Environment variables

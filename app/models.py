@@ -94,7 +94,7 @@ class User(UserMixin, db.Model):
         today = date.today()
         age = today.year - self.birthdate.year - \
             ((today.month, today.day) < (self.birthdate.month, self.birthdate.day))
-        alcoholic_drinks = self.transactions.filter_by(is_reverted=False).filter(and_(Transaction.item.has(is_alcohol=True), Transaction.date > datetime(today.year, today.month, today.day, 6, 0, 0))).count()
+        alcoholic_drinks = self.transactions.filter_by(is_reverted=False).filter(and_(Transaction.item.has(is_alcohol=True), Transaction.date > datetime.utcnow() - timedelta(hours=12))).count()
         if item.is_alcohol and age < 18:
             return False
         if item.is_alcohol and (self.last_drink and self.last_drink > (datetime.utcnow() - timedelta(minutes=current_app.config['MINUTES_BEFORE_NEXT_DRINK']))):
@@ -162,3 +162,13 @@ class Transaction(db.Model):
 
     def __repr__(self):
         return '<Transaction {}>'.format(self.date)
+
+class GlobalSetting(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    name = db.Column(db.String(128), nullable=False)
+    key = db.Column(db.String(64), nullable=False)
+    value = db.Column(db.Integer, default=0)
+
+    def __repr__(self):
+        return '<Setting {}>'.format(self.key)

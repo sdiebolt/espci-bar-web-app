@@ -109,8 +109,8 @@
                         </li>
                       </ul>
                     </li>
-                    <li {% if (request.path == '/settings') and current_user.is_bartender %}class="active"{% endif %}>
-                      <a href="{{ url_for('main.index')}}">
+                    <li {% if (request.path == '/global_settings') and current_user.is_bartender %}class="active"{% endif %}>
+                      <a href="{{ url_for('main.global_settings')}}">
                         <span class="glyphicon glyphicon-cog"></span> Settings
                       </a>
                     </li>
