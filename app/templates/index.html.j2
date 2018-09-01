@@ -61,7 +61,7 @@
                 {% if user.nickname %}
                 "{{ user.nickname }}"<br>{{ user.last_name|upper }}
                 {% else %}
-                {{ user.first_name|capitalize }}<br>{{ user.last_name|upper }}
+                {{ user.first_name }}<br>{{ user.last_name|upper }}
                 {% endif %}
               </h4>
             </div>

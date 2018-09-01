@@ -39,7 +39,7 @@ class EditProfileForm(FlaskForm):
                 raise ValidationError('Please use a different email address.')
 
     def validate_password(self, password):
-        if repr(safe.check(password.data)) != 'strong':
+        if password.data != '' and repr(safe.check(password.data)) != 'strong':
             raise ValidationError("Password isn't strong enough.")
 
 class EditItemForm(FlaskForm):
