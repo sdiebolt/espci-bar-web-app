@@ -201,7 +201,6 @@ def statistics():
     # Number of bartenders
     nb_bartenders = User.query.filter_by(is_bartender=True).count()
     # Number of active users
-    # nb_active_users = User.query.filter(User.last_drink > (datetime.datetime.utcnow() - datetime.timedelta(days=current_app.config['DAYS_BEFORE_INACTIVE']))).count()
     nb_active_users = User.query.filter(User.transactions.any(Transaction.date > datetime.datetime.utcnow() - datetime.timedelta(days=current_app.config['DAYS_BEFORE_INACTIVE']))).count()
 
     # Number of transactions

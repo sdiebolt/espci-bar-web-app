@@ -35,12 +35,27 @@ def create_app(config_class=Config):
     bootstrap.init_app(app)
     moment.init_app(app)
 
+    # Initialize global settings from database
     from app.models import GlobalSetting
     with app.app_context():
+        # Create database entries if they don't exist yet
+        global_settings = {
+            'MINUTES_BEFORE_NEXT_DRINK': 'Time (in minutes) between alcoholic drinks',
+            'MAX_ALCOHOLIC_DRINKS_PER_DAY': 'Maximum number of alcoholic drinks per day',
+            'DAYS_BEFORE_INACTIVE': 'Number of days after which a user is counted as inactive'
+            }
+        for key, name in global_settings.items():
+            if GlobalSetting.query.filter_by(key=key).first() is None:
+                gs = GlobalSetting(key=key, value=app.config[key], name=name)
+                db.session.add(gs)
+            db.session.commit()
+
+        # Update application configuration with database entries
         settings = GlobalSetting.query.all()
         for s in settings:
             app.config[s.key] = int(s.value)
 
+    # Register error, auth and main blueprints
     from app.errors import bp as errors_bp
     app.register_blueprint(errors_bp)
 
