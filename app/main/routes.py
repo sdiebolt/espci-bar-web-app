@@ -244,10 +244,10 @@ def statistics():
         transactions_topped_m = Transaction.query.filter(and_(extract('month', Transaction.date) == m, extract('year', Transaction.date) == y)).filter(Transaction.type.like('Top up')).filter_by(is_reverted=False).all()
         paid_per_month.append(0)
         for t in transactions_paid_m:
-            paid_per_month[-1] -= t.balance_change
+            paid_per_month[-1] -= round(t.balance_change, 2)
         topped_per_month.append(0)
         for t in transactions_topped_m:
-            topped_per_month[-1] += t.balance_change
+            topped_per_month[-1] += round(t.balance_change, 2)
 
     # Generate months labels
     months_labels = ['%.2d' % m[1] +'/'+str(m[0]) for m in list(month_year_iter(previous_month, previous_year, current_month, current_year))]
@@ -260,15 +260,9 @@ def statistics():
     transactions_paid = Transaction.query.filter_by(is_reverted=False).filter(Transaction.type.like('Pay%')).all()
     amount_paid = sum([abs(t.balance_change) for t in transactions_paid])
 
-    # Amount of money topped up
-    transactions_top_up = Transaction.query.filter_by(is_reverted=False).filter_by(type='Top up').all()
-    amount_topped_up = sum([abs(t.balance_change) for t in transactions_top_up])
     return render_template('statistics.html.j2', title='Statistics',
                             nb_users=nb_users, nb_active_users=nb_active_users,
                             nb_bartenders=nb_bartenders,
-                            nb_transactions=nb_transactions,
-                            amount_paid=amount_paid,
-                            amount_topped_up=amount_topped_up,
                             paid_per_month=paid_per_month,
                             topped_per_month=topped_per_month,
                             months_labels=months_labels)
