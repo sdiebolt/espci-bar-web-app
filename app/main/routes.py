@@ -3,6 +3,7 @@ from flask import render_template, flash, redirect, url_for, request, g, \
     jsonify, current_app
 from flask_login import current_user, login_required, fresh_login_required
 from sqlalchemy.sql.expression import and_
+from sqlalchemy import extract
 from app import db
 from app.main.forms import EditProfileForm, EditItemForm, AddItemForm, \
     SearchForm, GlobalSettingsForm
@@ -188,6 +189,13 @@ def delete_user(username):
     flash('The user ' + username + ' has been deleted.', 'success')
     return redirect(url_for('main.index'))
 
+def month_year_iter( start_month, start_year, end_month, end_year ):
+    ym_start= 12*start_year + start_month - 1
+    ym_end= 12*end_year + end_month - 1
+    for ym in range(ym_start, ym_end):
+        y, m = divmod(ym, 12)
+        yield y, m+1
+
 @bp.route('/statistics')
 @login_required
 def statistics():
@@ -196,12 +204,55 @@ def statistics():
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.index'))
 
+    month_dict = {
+        1:  'January',
+        2:  'February',
+        3:  'March',
+        4:  'April',
+        5:  'May',
+        6:  'June',
+        7:  'July',
+        8:  'August',
+        9:  'September',
+        10: 'October',
+        11: 'November',
+        12: 'December'
+        }
+
     # Number of clients
     nb_users = User.query.count()
     # Number of bartenders
     nb_bartenders = User.query.filter_by(is_bartender=True).count()
     # Number of active users
     nb_active_users = User.query.filter(User.transactions.any(Transaction.date > datetime.datetime.utcnow() - datetime.timedelta(days=current_app.config['DAYS_BEFORE_INACTIVE']))).count()
+
+    # Get money spent and topped up last 12 months
+    paid_per_month = []
+    topped_per_month = []
+    current_year = datetime.date.today().year
+    current_month = datetime.date.today().month
+    if current_month == 12:
+        previous_year = current_year
+    else:
+        previous_year = current_year - 1
+    previous_month = (current_month-12) % 12
+
+    previous_month += 1
+    current_month += 1
+    for (y, m) in month_year_iter(previous_month, previous_year, current_month, current_year):
+        transactions_paid_m = Transaction.query.filter(and_(extract('month', Transaction.date) == m, extract('year', Transaction.date) == y)).filter(Transaction.type.like('Pay%')).filter_by(is_reverted=False).all()
+        transactions_topped_m = Transaction.query.filter(and_(extract('month', Transaction.date) == m, extract('year', Transaction.date) == y)).filter(Transaction.type.like('Top up')).filter_by(is_reverted=False).all()
+        paid_per_month.append(0)
+        for t in transactions_paid_m:
+            paid_per_month[-1] -= t.balance_change
+        topped_per_month.append(0)
+        for t in transactions_topped_m:
+            topped_per_month[-1] += t.balance_change
+
+    # Generate months labels
+    months_labels = ['%.2d' % m[1] +'/'+str(m[0]) for m in list(month_year_iter(previous_month, previous_year, current_month, current_year))]
+    print(months_labels)
+
 
     # Number of transactions
     nb_transactions = Transaction.query.count()
@@ -217,7 +268,10 @@ def statistics():
                             nb_bartenders=nb_bartenders,
                             nb_transactions=nb_transactions,
                             amount_paid=amount_paid,
-                            amount_topped_up=amount_topped_up)
+                            amount_topped_up=amount_topped_up,
+                            paid_per_month=paid_per_month,
+                            topped_per_month=topped_per_month,
+                            months_labels=months_labels)
 
 @bp.route('/transactions')
 @login_required

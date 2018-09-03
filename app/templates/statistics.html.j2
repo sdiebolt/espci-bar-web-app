@@ -1,8 +1,83 @@
 {% extends 'base.html.j2' %}
 
+{% block scripts %}
+{{ super() }}
+<script src="{{ url_for('static', filename='Chart.min.js') }}"></script>
+
+<script>
+// Global parameters:
+// do not resize the chart canvas when its container does (keep at 600x400px)
+Chart.defaults.global.responsive = true;
+
+Chart.scaleService.updateScaleDefaults('linear', {
+  ticks: {
+      autoSkip: false
+  }
+});
+
+// define the chart data
+var chartData = {
+  labels : [
+      {% for item in months_labels %}
+        "{{ item }}",
+      {% endfor %}
+  ],
+  datasets : [{
+      label: 'Amount paid',
+      fill: true,
+      lineTension: 0.1,
+      backgroundColor: "rgba(55,123,181,0.4)",
+      borderColor: "rgba(55,123,181,1)",
+      borderWidth: 1,
+      data : [
+              {% for item in paid_per_month %}
+                {{ item }},
+              {% endfor %}
+            ],
+      spanGaps: false
+  },
+  {
+      label: 'Amount topped up',
+      fill: true,
+      lineTension: 0.1,
+      backgroundColor: "rgba(215,84,82,0.4)",
+      borderColor: "rgba(215,84,82,1)",
+      borderWidth: 1,
+      data : [
+              {% for item in topped_per_month %}
+                {{ item }},
+              {% endfor %}
+            ],
+      spanGaps: false
+  }]
+}
+
+// get chart canvas
+var ctx = document.getElementById("myChart").getContext("2d");
+
+// create the chart using the chart canvas
+var myChart = new Chart(ctx, {
+  type: 'bar',
+  data: chartData,
+  options: {
+        scales: {
+            yAxes: [{
+                ticks: {
+                    // Include a euro sign in the ticks
+                    callback: function(value, index, values) {
+                        return '€' + value;
+                    }
+                }
+            }]
+        }
+    }
+});
+</script>
+{% endblock %}
+
 {% block app_content %}
 <div class="panel-group">
-  <div class="panel panel-default">
+  <div class="panel panel-info">
     <div class="panel-heading">
       <h4 class="panel-title">
         <a data-toggle="collapse" href="#collapse1">
@@ -20,7 +95,7 @@
     </div>
   </div>
 
-  <div class="panel panel-default">
+  <div class="panel panel-info">
     <div class="panel-heading">
       <h4 class="panel-title">
         <a data-toggle="collapse" href="#collapse2">
@@ -29,11 +104,7 @@
       </h4>
     </div>
     <div id="collapse2" class="panel-collapse collapse in">
-      <ul class="list-group">
-        <li class="list-group-item"><span class="badge">{{ nb_transactions }}</span> Total</li>
-        <li class="list-group-item"><span class="badge">{{ '%0.2f' | format(amount_paid) }}€</span><span class="glyphicon glyphicon-chevron-right"></span> Amount paid</li>
-        <li class="list-group-item"><span class="badge">{{ '%0.2f' | format(amount_topped_up) }}€</span><span class="glyphicon glyphicon-chevron-right"></span> Amount topped up</li>
-      </ul>
+      <canvas id="myChart" width="600" height="400"></canvas>
     </div>
   </div>
 </div>
