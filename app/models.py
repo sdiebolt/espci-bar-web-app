@@ -42,7 +42,7 @@ class User(UserMixin, db.Model):
         self.password_hash = generate_password_hash(password)
 
     def set_qrcode(self):
-        self.qrcode_hash = generate_password_hash(str(datetime()))
+        self.qrcode_hash = generate_password_hash(str(datetime.utcnow()))
 
         # Create QR code object
         qr = qrcode.QRCode(
