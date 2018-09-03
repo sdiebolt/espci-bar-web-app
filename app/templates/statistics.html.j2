@@ -5,35 +5,26 @@
 <script src="{{ url_for('static', filename='Chart.min.js') }}"></script>
 
 <script>
+function updateData(chart, chartData) {
+  chart.data = chartData;
+  chart.update();
+}
+
 // Global parameters:
 // do not resize the chart canvas when its container does (keep at 600x400px)
 Chart.defaults.global.responsive = true;
 
-Chart.scaleService.updateScaleDefaults('linear', {
-  ticks: {
-      autoSkip: false
-  }
-});
-
 // define the chart data
-var chartData = {
-  labels : [
-      {% for item in months_labels %}
-        "{{ item }}",
-      {% endfor %}
-  ],
-  datasets : [{
+var chartDataYear = {
+  labels: [{% for item in months_labels %}"{{ item }}", {% endfor %}],
+  datasets: [{
       label: 'Amount paid',
       fill: true,
       lineTension: 0.1,
       backgroundColor: "rgba(55,123,181,0.4)",
       borderColor: "rgba(55,123,181,1)",
       borderWidth: 1,
-      data : [
-              {% for item in paid_per_month %}
-                {{ '%0.2f'| format(item|float) }},
-              {% endfor %}
-            ],
+      data: [{% for item in paid_per_month %}{{ '%0.2f'| format(item|float) }}, {% endfor %}],
       spanGaps: false
   },
   {
@@ -43,34 +34,74 @@ var chartData = {
       backgroundColor: "rgba(215,84,82,0.4)",
       borderColor: "rgba(215,84,82,1)",
       borderWidth: 1,
-      data : [
-              {% for item in topped_per_month %}
-                {{ '%0.2f'| format(item|float) }},
-              {% endfor %}
-            ],
+      data: [{% for item in topped_per_month %}{{ '%0.2f'| format(item|float) }}, {% endfor %}],
       spanGaps: false
   }]
-}
+};
 
-// get chart canvas
-var ctx = document.getElementById("myChart").getContext("2d");
+var chartDataMonth = {
+  labels: [{% for item in days_labels %}"{{ item }}", {% endfor %}],
+  datasets: [{
+      label: 'Amount paid',
+      fill: true,
+      lineTension: 0.1,
+      backgroundColor: "rgba(55,123,181,0.4)",
+      borderColor: "rgba(55,123,181,1)",
+      borderWidth: 1,
+      data: [{% for item in paid_this_month %}{{ '%0.2f'| format(item|float) }}, {% endfor %}],
+      spanGaps: false
+  },
+  {
+      label: 'Amount topped up',
+      fill: true,
+      lineTension: 0.1,
+      backgroundColor: "rgba(215,84,82,0.4)",
+      borderColor: "rgba(215,84,82,1)",
+      borderWidth: 1,
+      data: [{% for item in topped_this_month %}{{ '%0.2f'| format(item|float) }}, {% endfor %}],
+      spanGaps: false
+  }]
+};
 
-// create the chart using the chart canvas
-var myChart = new Chart(ctx, {
+// Get chart canvas
+var ctx = document.querySelector('#transactionsChart').getContext('2d');
+// Create the chart using the chart canvas
+var transactionsChart = new Chart(ctx, {
   type: 'bar',
-  data: chartData,
+  data: chartDataMonth,
   options: {
-        scales: {
-            yAxes: [{
-                ticks: {
-                    // Include a euro sign in the ticks
-                    callback: function(value, index, values) {
-                        return '€' + value;
-                    }
-                }
-            }]
+    scales: {
+      yAxes: [{
+        ticks: {
+          // Include a euro sign in the ticks
+          callback: function(value, index, values) {
+            return '€' + value;
+          }
         }
-    }
+      }]
+    },
+    tooltips: {
+      enabled: true,
+      mode: 'single',
+      callbacks: {
+        label: function(tooltipItems, data) {
+          return '€' + tooltipItems.yLabel;
+        }
+      }
+    },
+  }
+});
+
+$("#btn1").on("click", function() {
+  updateData(transactionsChart, chartDataYear);
+  document.getElementById('btn2li').classList.remove('active');
+  document.getElementById('btn1li').classList.add('active');
+});
+
+$("#btn2").on("click", function() {
+  updateData(transactionsChart, chartDataMonth);
+  document.getElementById('btn1li').classList.remove('active');
+  document.getElementById('btn2li').classList.add('active');
 });
 </script>
 {% endblock %}
@@ -103,8 +134,22 @@ var myChart = new Chart(ctx, {
         </a>
       </h4>
     </div>
-    <div id="collapse2" class="panel-collapse collapse in">
-      <canvas id="myChart" width="600" height="400"></canvas>
+    <div class="panel-body">
+      <div id="collapse2" class="panel-collapse collapse in">
+        <ul class="nav nav-tabs nav-justified">
+          <li id="btn1li" role="presentation">
+            <a id="btn1" href="#transactionsChart">
+              Last 12 months
+            </a>
+          </li>
+          <li id="btn2li" role="presentation" class="active">
+            <a id="btn2" href="#transactionsChart">
+              This month
+            </a>
+          </li>
+        </ul>
+        <canvas id="transactionsChart" width="600" height="400"></canvas>
+      </div>
     </div>
   </div>
 </div>

@@ -1,4 +1,5 @@
 import datetime
+from calendar import monthrange
 from flask import render_template, flash, redirect, url_for, request, g, \
     jsonify, current_app
 from flask_login import current_user, login_required, fresh_login_required
@@ -226,9 +227,7 @@ def statistics():
     # Number of active users
     nb_active_users = User.query.filter(User.transactions.any(Transaction.date > datetime.datetime.utcnow() - datetime.timedelta(days=current_app.config['DAYS_BEFORE_INACTIVE']))).count()
 
-    # Get money spent and topped up last 12 months
-    paid_per_month = []
-    topped_per_month = []
+    # Get last 12 months range
     current_year = datetime.date.today().year
     current_month = datetime.date.today().month
     if current_month == 12:
@@ -237,21 +236,38 @@ def statistics():
         previous_year = current_year - 1
     previous_month = (current_month-12) % 12
 
-    previous_month += 1
-    current_month += 1
-    for (y, m) in month_year_iter(previous_month, previous_year, current_month, current_year):
-        transactions_paid_m = Transaction.query.filter(and_(extract('month', Transaction.date) == m, extract('year', Transaction.date) == y)).filter(Transaction.type.like('Pay%')).filter_by(is_reverted=False).all()
-        transactions_topped_m = Transaction.query.filter(and_(extract('month', Transaction.date) == m, extract('year', Transaction.date) == y)).filter(Transaction.type.like('Top up')).filter_by(is_reverted=False).all()
+    # Get money spent and topped up last 12 months
+    paid_per_month = []
+    topped_per_month = []
+    for (y, m) in month_year_iter(previous_month+1, previous_year, current_month+1, current_year):
+        transactions_paid_y = Transaction.query.filter(and_(extract('month', Transaction.date) == m, extract('year', Transaction.date) == y)).filter(Transaction.type.like('Pay%')).filter_by(is_reverted=False).all()
+        transactions_topped_y = Transaction.query.filter(and_(extract('month', Transaction.date) == m, extract('year', Transaction.date) == y)).filter(Transaction.type.like('Top up')).filter_by(is_reverted=False).all()
         paid_per_month.append(0)
-        for t in transactions_paid_m:
+        for t in transactions_paid_y:
             paid_per_month[-1] -= t.balance_change
         topped_per_month.append(0)
-        for t in transactions_topped_m:
+        for t in transactions_topped_y:
             topped_per_month[-1] += t.balance_change
 
     # Generate months labels
-    months_labels = ['%.2d' % m[1] +'/'+str(m[0]) for m in list(month_year_iter(previous_month, previous_year, current_month, current_year))]
-    print(months_labels)
+    months_labels = ['%.2d' % m[1] + '/'+str(m[0]) for m in list(month_year_iter(previous_month+1, previous_year, current_month+1, current_year))]
+
+    # Get money spent and topped up this month
+    paid_this_month = []
+    topped_this_month = []
+    for day in range(1, monthrange(current_year, current_month)[1] + 1):
+        transactions_paid_m = Transaction.query.filter(and_(extract('day', Transaction.date) == day, and_(extract('month', Transaction.date) == m, extract('year', Transaction.date) == y))).filter(Transaction.type.like('Pay%')).filter_by(is_reverted=False).all()
+        transactions_topped_m = Transaction.query.filter(and_(extract('day', Transaction.date) == day, and_(extract('month', Transaction.date) == m, extract('year', Transaction.date) == y))).filter(Transaction.type.like('Top up')).filter_by(is_reverted=False).all()
+        paid_this_month.append(0)
+        for t in transactions_paid_m:
+            paid_this_month[-1] -= t.balance_change
+        topped_this_month.append(0)
+        for t in transactions_topped_m:
+            topped_this_month[-1] += t.balance_change
+    print(topped_this_month)    
+
+    # Generate days labels
+    days_labels = ['%.2d' % current_month + '/' + '%.2d' % day for day in range(1, monthrange(current_year, current_month)[1] + 1)]
 
 
     # Number of transactions
@@ -265,7 +281,10 @@ def statistics():
                             nb_bartenders=nb_bartenders,
                             paid_per_month=paid_per_month,
                             topped_per_month=topped_per_month,
-                            months_labels=months_labels)
+                            months_labels=months_labels,
+                            paid_this_month=paid_this_month,
+                            topped_this_month=topped_this_month,
+                            days_labels=days_labels)
 
 @bp.route('/transactions')
 @login_required
