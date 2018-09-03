@@ -264,7 +264,7 @@ def statistics():
         topped_this_month.append(0)
         for t in transactions_topped_m:
             topped_this_month[-1] += t.balance_change
-    print(topped_this_month)    
+    print(topped_this_month)
 
     # Generate days labels
     days_labels = ['%.2d' % current_month + '/' + '%.2d' % day for day in range(1, monthrange(current_year, current_month)[1] + 1)]

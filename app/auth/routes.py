@@ -85,6 +85,12 @@ def register():
         # Generate pdf
         # create_pdf(cols[1], cols[0], gc, username, password)
 
+        # Test if username already exists
+        user = User.query.filter_by(username=username).first()
+        if user is not None:
+            flash('User ' + username + ' already exists.', 'danger')
+            return redirect(request.referrer)
+
         # Create user
         user = User(first_name=first_name,
                     last_name=last_name,
