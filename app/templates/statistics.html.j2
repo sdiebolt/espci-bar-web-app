@@ -31,7 +31,7 @@ var chartData = {
       borderWidth: 1,
       data : [
               {% for item in paid_per_month %}
-                {{ item }},
+                {{ '%0.2f'| format(item|float) }},
               {% endfor %}
             ],
       spanGaps: false
@@ -45,7 +45,7 @@ var chartData = {
       borderWidth: 1,
       data : [
               {% for item in topped_per_month %}
-                {{ item }},
+                {{ '%0.2f'| format(item|float) }},
               {% endfor %}
             ],
       spanGaps: false
