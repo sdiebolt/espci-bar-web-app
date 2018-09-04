@@ -94,15 +94,19 @@ class User(UserMixin, db.Model):
         today = date.today()
         age = today.year - self.birthdate.year - \
             ((today.month, today.day) < (self.birthdate.month, self.birthdate.day))
-        alcoholic_drinks = self.transactions.filter_by(is_reverted=False).filter(and_(Transaction.item.has(is_alcohol=True), Transaction.date > datetime.utcnow() - timedelta(hours=12))).count()
-        if item.is_alcohol and age < 18:
-            return False
-        if item.is_alcohol and (self.last_drink and self.last_drink > (datetime.utcnow() - timedelta(minutes=current_app.config['MINUTES_BEFORE_NEXT_DRINK']))):
-            return False
-        elif item.is_alcohol and alcoholic_drinks >= current_app.config['MAX_ALCOHOLIC_DRINKS_PER_DAY']:
-            return False
+        nb_alcoholic_drinks = self.transactions.filter_by(is_reverted=False).filter(and_(Transaction.item.has(is_alcohol=True), Transaction.date > datetime.utcnow() - timedelta(hours=12))).count()
+        if self.last_drink:
+            time_to_wait = current_app.config['MINUTES_BEFORE_NEXT_DRINK'] - (datetime.utcnow() - self.last_drink).seconds//60
+        else:
+            time_to_wait = 0
+        if item.is_alcohol and age < current_app.config['MINIMUM_LEGAL_AGE']:
+            return "{} {} isn't old enough, the minimum legal age being {}.".format(self.first_name, self.last_name, current_app.config['MINIMUM_LEGAL_AGE'])
+        elif item.is_alcohol and time_to_wait > 0:
+            return '{} {} must wait {} minutes to buy alcohol.'.format(self.first_name, self.last_name, time_to_wait)
+        elif item.is_alcohol and nb_alcoholic_drinks >= current_app.config['MAX_ALCOHOLIC_DRINKS_PER_DAY']:
+            return '{} {} has reached the limit of {} drinks per night.'.format(self.first_name, self.last_name, current_app.config['MAX_ALCOHOLIC_DRINKS_PER_DAY'])
         elif self.balance < item.price:
-            return False
+            return "{} {} doesn't have enough funds to buy {}.".format(self.first_name, self.last_name, item.name)
         else:
             return True
 

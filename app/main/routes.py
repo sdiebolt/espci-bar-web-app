@@ -494,8 +494,9 @@ def pay():
         flask(user.username+" hasn't given a deposit.", 'warning')
         return redirect(request.referrer)
 
-    if not user.can_buy(item):
-        flash(user.username+" can't buy "+item.name+'.', 'warning')
+    user_can_buy = user.can_buy(item)
+    if user_can_buy is not True:
+        flash(user_can_buy, 'warning')
         return redirect(request.referrer)
 
     if item.is_quantifiable and item.quantity <= 0:

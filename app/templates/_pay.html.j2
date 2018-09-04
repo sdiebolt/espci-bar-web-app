@@ -5,7 +5,17 @@
 
   <ul class="dropdown-menu dropdown-menu-index scrollable-menu">
     {% for item in inventory %}
-    <li {% if (not user.deposit) or (not user.can_buy(item)) or (item.is_quantifiable and item.quantity <= 0) %}class="disabled"{% endif %}><a href="{{ url_for('main.pay', username=user.username, item_name=item.name) }}">{{ item.name }} ({{ item.price }}€)</a></li>
+    <li {% if (not user.deposit) or (user.can_buy(item) != True) or (item.is_quantifiable and item.quantity <= 0) %}class="disabled"{% endif %}>
+      <a href="{{ url_for('main.pay', username=user.username, item_name=item.name) }}">
+        {% if (not user.deposit) or (user.can_buy(item) != True) or (item.is_quantifiable and item.quantity <= 0) %}
+        <strike>
+        {% endif %}
+        {{ item.name }} ({{ item.price }}€)
+        {% if (not user.deposit) or (user.can_buy(item) != True) or (item.is_quantifiable and item.quantity <= 0) %}
+        </strike>
+        {% endif %}
+      </a>
+    </li>
     {% endfor %}
   </ul>
 </div>
