@@ -39,6 +39,9 @@ def index():
     # Get inventory
     inventory = Item.query.order_by(Item.name.asc()).all()
 
+    # Get favorite items
+    favorite_inventory = Item.query.filter_by(favorite=True).order_by(Item.name.asc()).all()
+
     # Sort users alphabetically
     if sort == 'asc':
         users = User.query.filter_by(grad_class=grad_class).order_by(User.last_name.asc()).paginate(page,
@@ -49,6 +52,7 @@ def index():
 
     return render_template('index.html.j2', title='Checkout',
                             users=users, sort=sort, inventory=inventory,
+                            favorite_inventory=favorite_inventory,
                             grad_class=grad_class, grad_classes=grad_classes)
 
 @bp.route('/search')
@@ -67,6 +71,9 @@ def search():
 
     # Get inventory
     inventory = Item.query.order_by(Item.name.asc()).all()
+
+    # Get favorite items
+    favorite_inventory = Item.query.filter_by(favorite=True).order_by(Item.name.asc()).all()
 
     # Get users corresponding to the query
     query_text = g.search_form.q.data
@@ -90,7 +97,8 @@ def search():
         return redirect(url_for('main.user', username=users.items[0].username))
 
     return render_template('search.html.j2', title='Search', users=users,
-                            sort=sort, inventory=inventory, total=total)
+                            sort=sort, inventory=inventory, total=total,
+                            favorite_inventory=favorite_inventory)
 
 @bp.route('/user/<username>')
 @login_required
@@ -116,12 +124,16 @@ def user(username):
     # Get inventory
     inventory = Item.query.order_by(Item.name.asc()).all()
 
+    # Get favorite items
+    favorite_inventory = Item.query.filter_by(favorite=True).order_by(Item.name.asc()).all()
+
     # Check if user is an admin
     is_admin = user.email in current_app.config['ADMINS']
 
     return render_template('user.html.j2', title=username + ' profile',
                             age=age, is_admin=is_admin, user=user,
                             inventory=inventory, amount_paid=amount_paid,
+                            favorite_inventory=favorite_inventory,
                             amount_topped_up=amount_topped_up)
 
 @bp.route('/edit_profile/<username>', methods=['GET', 'POST'])
@@ -415,6 +427,7 @@ def edit_item(item_name):
         item.price = form.price.data
         item.is_alcohol = form.is_alcohol.data
         item.is_quantifiable = form.is_quantifiable.data
+        item.is_favorite = form.is_favorite.data
         db.session.commit()
         flash('Your changes have been saved.', 'success')
         return redirect(url_for('main.inventory'))

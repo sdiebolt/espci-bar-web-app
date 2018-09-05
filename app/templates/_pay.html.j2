@@ -4,8 +4,23 @@
   </button>
 
   <ul class="dropdown-menu dropdown-menu-index scrollable-menu" aria-labelledby="dropdownMenuDivider">
+    {% if favorite_inventory|length > 1 %}
     <li class="dropdown-header">Favorites</li>
+    {% for item in favorite_inventory %}
+    <li {% if (not user.deposit) or (user.can_buy(item) != True) or (item.is_quantifiable and item.quantity <= 0) %}class="disabled"{% endif %}>
+      <a href="{{ url_for('main.pay', username=user.username, item_name=item.name) }}">
+        {% if (not user.deposit) or (user.can_buy(item) != True) or (item.is_quantifiable and item.quantity <= 0) %}
+        <strike>
+        {% endif %}
+        {{ item.name }} ({{ item.price }}€)
+        {% if (not user.deposit) or (user.can_buy(item) != True) or (item.is_quantifiable and item.quantity <= 0) %}
+        </strike>
+        {% endif %}
+      </a>
+    </li>
+    {% endfor %}
     <li role="separator" class="divider"></li>
+    {% endif %}
     <li class="dropdown-header">Inventory</li>
     {% for item in inventory %}
     <li {% if (not user.deposit) or (user.can_buy(item) != True) or (item.is_quantifiable and item.quantity <= 0) %}class="disabled"{% endif %}>
