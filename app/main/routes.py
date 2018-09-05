@@ -40,7 +40,7 @@ def index():
     inventory = Item.query.order_by(Item.name.asc()).all()
 
     # Get favorite items
-    favorite_inventory = Item.query.filter_by(favorite=True).order_by(Item.name.asc()).all()
+    favorite_inventory = Item.query.filter_by(is_favorite=True).order_by(Item.name.asc()).all()
 
     # Sort users alphabetically
     if sort == 'asc':
@@ -73,7 +73,7 @@ def search():
     inventory = Item.query.order_by(Item.name.asc()).all()
 
     # Get favorite items
-    favorite_inventory = Item.query.filter_by(favorite=True).order_by(Item.name.asc()).all()
+    favorite_inventory = Item.query.filter_by(is_favorite=True).order_by(Item.name.asc()).all()
 
     # Get users corresponding to the query
     query_text = g.search_form.q.data
@@ -125,7 +125,7 @@ def user(username):
     inventory = Item.query.order_by(Item.name.asc()).all()
 
     # Get favorite items
-    favorite_inventory = Item.query.filter_by(favorite=True).order_by(Item.name.asc()).all()
+    favorite_inventory = Item.query.filter_by(is_favorite=True).order_by(Item.name.asc()).all()
 
     # Check if user is an admin
     is_admin = user.email in current_app.config['ADMINS']
@@ -400,7 +400,8 @@ def add_item():
             quantity = 0
         item = Item(name=form.name.data, quantity=quantity,
                     price=form.price.data, is_alcohol=form.is_alcohol.data,
-                    is_quantifiable=form.is_quantifiable.data)
+                    is_quantifiable=form.is_quantifiable.data,
+                    is_favorite=form.is_favorite.data)
         db.session.add(item)
         db.session.commit()
         flash('The item '+item.name+' was successfully added.', 'success')
@@ -438,6 +439,7 @@ def edit_item(item_name):
         form.price.data = item.price
         form.is_alcohol.data = item.is_alcohol
         form.is_quantifiable.data = item.is_quantifiable
+        form.is_favorite.data = item.is_favorite
     return render_template('edit_item.html.j2', title='Edit item',
                            form=form)
 

@@ -48,7 +48,7 @@ class EditItemForm(FlaskForm):
     price = FloatField('Price', validators=[DataRequired()])
     is_alcohol = BooleanField('Alcohol')
     is_quantifiable = BooleanField('Quantifiable')
-    favorite = BooleanField('Favorite')
+    is_favorite = BooleanField('Favorite')
 
     submit = SubmitField('Submit')
 
@@ -76,6 +76,7 @@ class AddItemForm(FlaskForm):
     price = FloatField('Price', validators=[DataRequired()])
     is_alcohol = BooleanField('Alcohol')
     is_quantifiable = BooleanField('Quantifiable')
+    is_favorite = BooleanField('Favorite')
 
     submit = SubmitField('Submit')
 

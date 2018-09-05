@@ -36,6 +36,7 @@
               <th>Quantity</th>
               <th>Price</th>
               <th class="col-lg-1 col-md-1 col-sm-1 col-xs-1">Alcohol</th>
+              <th class="col-lg-1 col-md-1 col-sm-1 col-xs-1">Favorite</th>
               <th class="col-lg-1 col-md-2 col-sm-2 col-xs-3">Edit</th>
             </tr>
           </thead>
@@ -56,6 +57,13 @@
                 <span class="glyphicon glyphicon-ok"></span>
                 {% else %}
                 <span class="glyphicon glyphicon-remove"></span>
+                {% endif %}
+              </td>
+              <td style="vertical-align: middle;">
+                {% if item.is_favorite %}
+                <span class="glyphicon glyphicon-star"></span>
+                {% else %}
+                <span class="glyphicon glyphicon-star-empty"></span>
                 {% endif %}
               </td>
               <td>
