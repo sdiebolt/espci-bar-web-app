@@ -135,6 +135,8 @@ class Item(db.Model):
     is_quantifiable = db.Column(db.Boolean)
     quantity = db.Column(db.Integer, default=0)
 
+    favorite = db.Column(db.Boolean, default=False)
+
     transactions = db.relationship('Transaction', backref='item',
                                     lazy='dynamic')
 

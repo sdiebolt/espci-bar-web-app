@@ -3,7 +3,10 @@
     <span class="transaction">Pay </span><span class="glyphicon glyphicon-euro"></span>
   </button>
 
-  <ul class="dropdown-menu dropdown-menu-index scrollable-menu">
+  <ul class="dropdown-menu dropdown-menu-index scrollable-menu" aria-labelledby="dropdownMenuDivider">
+    <li class="dropdown-header">Favorites</li>
+    <li role="separator" class="divider"></li>
+    <li class="dropdown-header">Inventory</li>
     {% for item in inventory %}
     <li {% if (not user.deposit) or (user.can_buy(item) != True) or (item.is_quantifiable and item.quantity <= 0) %}class="disabled"{% endif %}>
       <a href="{{ url_for('main.pay', username=user.username, item_name=item.name) }}">
