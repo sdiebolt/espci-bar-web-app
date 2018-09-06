@@ -48,15 +48,23 @@
 
             <div class="panel-footer">
               <div class="row">
+                {% if user.deposit %}
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
                   {% include '_pay.html.j2' %}
                 </div>
 
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
                   <div class="pull-right">
-                    {% include '_top_up.html.j2' %}
+                    {% include '_quick_access_item.html.j2' %}
                   </div>
                 </div>
+                {% else %}
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 col-lg-offset-6 col-md-offset-6 col-sm-offset-6 col-xs-offset-6">
+                  <div class="pull-right">
+                    {% include '_deposit.html.j2' %}
+                  </div>
+                </div>
+                {% endif %}
               </div>
             </div>
           </div>

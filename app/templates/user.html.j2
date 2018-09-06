@@ -75,20 +75,14 @@
       <div class="panel-footer">
         <a href="{{ url_for('main.qrcode', username=user.username) }}" data-original-title="QR code" data-toggle="tooltip" type="button" class="btn btn-md btn-primary"><span class="glyphicon glyphicon-qrcode"></span></a>
         {% if current_user.is_bartender %}
+        {% if user.deposit %}
         {% include '_pay.html.j2' %}
+        {% include '_quick_access_item.html.j2' %}
         {% include '_top_up.html.j2' %}
+        {% endif %}
         <span class="pull-right">
           {% if not user.deposit %}
-          <div class="btn-group">
-            <button type="button" class="btn btn-md btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              <span class="glyphicon glyphicon-ok"></span>
-            </button>
-            <ul class="dropdown-menu dropdown-menu-right">
-              <li class="dropdown-header">User gave deposit?</li>
-              <li><a href="{{ url_for('main.deposit', username=user.username) }}">Yes</a></li>
-              <li><a href="#">No</a></li>
-            </ul>
-          </div>
+          {% include '_deposit.html.j2' %}
           {% endif %}
           <a href="{{ url_for('main.edit_profile', username=user.username) }}" data-original-title="Edit this user" data-toggle="tooltip" type="button" class="btn btn-md btn-warning"><i class="glyphicon glyphicon-edit"></i></a>
           <div class="btn-group">

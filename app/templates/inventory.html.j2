@@ -37,12 +37,12 @@
               <th>Price</th>
               <th class="col-lg-1 col-md-1 col-sm-1 col-xs-1">Alcohol</th>
               <th class="col-lg-1 col-md-1 col-sm-1 col-xs-1">Favorite</th>
-              <th class="col-lg-1 col-md-2 col-sm-2 col-xs-3">Edit</th>
+              <th class="col-lg-2 col-md-2 col-sm-3 col-xs-3">Edit</th>
             </tr>
           </thead>
           <tbody>
             {% for item in inventory.items %}
-            <tr {% if item.quantity <= 0 and item.is_quantifiable %}class="danger"{% endif %}>
+            <tr {% if item.quantity <= 0 and item.is_quantifiable %}class="danger"{% elif item.id == quick_access_item.id %}class="success"{% endif %}>
               <td style="vertical-align: middle;">{{ item.name }}</td>
               <td style="vertical-align: middle;">
                 {% if item.is_quantifiable %}
@@ -67,6 +67,7 @@
                 {% endif %}
               </td>
               <td>
+                <a href="{{ url_for('main.set_quick_access_item', item_name=item.name) }}" data-original-title="Set quick access item" data-toggle="tooltip" type="button" class="btn btn-sm btn-success"><i class="glyphicon glyphicon-flash"></i></a>
                 <a href="{{ url_for('main.edit_item', item_name=item.name) }}" data-original-title="Edit this item" data-toggle="tooltip" type="button" class="btn btn-sm btn-warning"><i class="glyphicon glyphicon-edit"></i></a>
                 <div class="btn-group">
                   <button type="button" class="btn btn-sm btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

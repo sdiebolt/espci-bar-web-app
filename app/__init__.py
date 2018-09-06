@@ -43,7 +43,8 @@ def create_app(config_class=Config):
             'MINUTES_BEFORE_NEXT_DRINK': 'Time (in minutes) between alcoholic drinks',
             'MAX_ALCOHOLIC_DRINKS_PER_DAY': 'Maximum number of alcoholic drinks per day',
             'DAYS_BEFORE_INACTIVE': 'Number of days after which a user is counted as inactive',
-            'MINIMUM_LEGAL_AGE': 'Minimum legal age'
+            'MINIMUM_LEGAL_AGE': 'Minimum legal age',
+            'QUICK_ACCESS_ITEM_ID': 'Quick access item'
             }
         for key, name in global_settings.items():
             if GlobalSetting.query.filter_by(key=key).first() is None:

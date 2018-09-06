@@ -42,6 +42,9 @@ def index():
     # Get favorite items
     favorite_inventory = Item.query.filter_by(is_favorite=True).order_by(Item.name.asc()).all()
 
+    # Get quick access item
+    quick_access_item = Item.query.filter_by(id=current_app.config['QUICK_ACCESS_ITEM_ID']).first()
+
     # Sort users alphabetically
     if sort == 'asc':
         users = User.query.filter_by(grad_class=grad_class).order_by(User.last_name.asc()).paginate(page,
@@ -53,6 +56,7 @@ def index():
     return render_template('index.html.j2', title='Checkout',
                             users=users, sort=sort, inventory=inventory,
                             favorite_inventory=favorite_inventory,
+                            quick_access_item=quick_access_item,
                             grad_class=grad_class, grad_classes=grad_classes)
 
 @bp.route('/search')
@@ -74,6 +78,9 @@ def search():
 
     # Get favorite items
     favorite_inventory = Item.query.filter_by(is_favorite=True).order_by(Item.name.asc()).all()
+
+    # Get quick access item
+    quick_access_item = Item.query.filter_by(id=current_app.config['QUICK_ACCESS_ITEM_ID']).first()
 
     # Get users corresponding to the query
     query_text = g.search_form.q.data
@@ -98,7 +105,8 @@ def search():
 
     return render_template('search.html.j2', title='Search', users=users,
                             sort=sort, inventory=inventory, total=total,
-                            favorite_inventory=favorite_inventory)
+                            favorite_inventory=favorite_inventory,
+                            quick_access_item=quick_access_item)
 
 @bp.route('/user/<username>')
 @login_required
@@ -127,6 +135,9 @@ def user(username):
     # Get favorite items
     favorite_inventory = Item.query.filter_by(is_favorite=True).order_by(Item.name.asc()).all()
 
+    # Get quick access item
+    quick_access_item = Item.query.filter_by(id=current_app.config['QUICK_ACCESS_ITEM_ID']).first()
+
     # Check if user is an admin
     is_admin = user.email in current_app.config['ADMINS']
 
@@ -134,6 +145,7 @@ def user(username):
                             age=age, is_admin=is_admin, user=user,
                             inventory=inventory, amount_paid=amount_paid,
                             favorite_inventory=favorite_inventory,
+                            quick_access_item=quick_access_item,
                             amount_topped_up=amount_topped_up)
 
 @bp.route('/edit_profile/<username>', methods=['GET', 'POST'])
@@ -365,7 +377,8 @@ def revert_transaction():
 @bp.route('/inventory')
 @login_required
 def inventory():
-    """ View inventory page. """
+    """View inventory page.
+    """
     if not current_user.is_bartender:
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.index'))
@@ -373,6 +386,9 @@ def inventory():
     # Get arguments
     page = request.args.get('page', 1, type=int)
     sort = request.args.get('sort', 'asc', type=str)
+
+    # Get quick access item
+    quick_access_item = Item.query.filter_by(id=current_app.config['QUICK_ACCESS_ITEM_ID']).first_or_404()
 
     # Sort items alphabetically
     if sort == 'asc':
@@ -383,7 +399,30 @@ def inventory():
             current_app.config['ITEMS_PER_PAGE'], True)
 
     return render_template('inventory.html.j2', title='Inventory',
-        inventory=inventory, sort=sort)
+        inventory=inventory, sort=sort, quick_access_item=quick_access_item)
+
+@bp.route('/set_quick_access_item/<item_name>')
+@login_required
+def set_quick_access_item(item_name):
+    """Set the quick acces item.
+    """
+    if not current_user.is_bartender:
+        flash("You don't have the rights to access this page.", 'danger')
+        return redirect(url_for('main.index'))
+
+    # Get item
+    item = Item.query.filter_by(name=item_name).first_or_404()
+
+    # Get current quick access item
+    quick_access_item = GlobalSetting.query.filter_by(key='QUICK_ACCESS_ITEM_ID').first_or_404()
+
+    # Update the quick access item
+    current_app.config['QUICK_ACCESS_ITEM_ID'] = item.id
+    quick_access_item.value = item.id
+    db.session.commit()
+
+    return redirect(request.referrer)
+
 
 @bp.route('/add_item', methods=['GET', 'POST'])
 @login_required

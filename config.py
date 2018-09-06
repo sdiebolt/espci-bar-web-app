@@ -31,3 +31,4 @@ class Config(object):
     MAX_ALCOHOLIC_DRINKS_PER_DAY = int(os.environ.get('MAX_ALCOHOLIC_DRINKS_PER_DAY'))
     DAYS_BEFORE_INACTIVE = int(os.environ.get('DAYS_BEFORE_INACTIVE'))
     MINIMUM_LEGAL_AGE = int(os.environ.get('MINIMUM_LEGAL_AGE'))
+    QUICK_ACCESS_ITEM_ID = int(os.environ.get('QUICK_ACCESS_ITEM_ID'))

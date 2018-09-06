@@ -1,0 +1,3 @@
+<a href="{{ url_for('main.pay', username=user.username, item_name=quick_access_item.name) }}" data-original-title="Pay" data-toggle="tooltip" type="button" class="btn btn-md btn-warning {% if user.can_buy(quick_access_item) != True or not user.deposit %}disabled{% endif %}">
+  <span class="transaction">{{ quick_access_item.name }} </span><span class="glyphicon glyphicon-flash"></span>
+</a>
