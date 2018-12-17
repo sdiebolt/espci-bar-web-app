@@ -9,9 +9,10 @@ class Config(object):
     SECRET_KEY = os.environ.get('SECRET_KEY')
     if not SECRET_KEY:
         raise ValueError("No secret key set for Flask application")
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
-        'sqlite:///' + os.path.join(basedir, 'app.db')
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+    SESSION_TYPE = os.environ.get('SESSION_TYPE')
 
     LOG_TO_STDOUT = os.environ.get('LOG_TO_STDOUT')
 

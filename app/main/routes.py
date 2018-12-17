@@ -22,7 +22,7 @@ def before_request():
 @bp.route('/index', methods=['GET'])
 @login_required
 def index():
-    """ View index page. For barmen, it's the customers page and for clients,
+    """ View index page. For bartenders, it's the customers page and for clients,
         it redirects to the profile. """
     if not current_user.is_bartender:
         return redirect(url_for('main.user', username=current_user.username))
@@ -229,21 +229,6 @@ def statistics():
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.index'))
 
-    month_dict = {
-        1:  'January',
-        2:  'February',
-        3:  'March',
-        4:  'April',
-        5:  'May',
-        6:  'June',
-        7:  'July',
-        8:  'August',
-        9:  'September',
-        10: 'October',
-        11: 'November',
-        12: 'December'
-        }
-
     # Number of clients
     nb_users = User.query.count()
     # Number of bartenders
@@ -288,11 +273,9 @@ def statistics():
         topped_this_month.append(0)
         for t in transactions_topped_m:
             topped_this_month[-1] += t.balance_change
-    print(topped_this_month)
 
     # Generate days labels
     days_labels = ['%.2d' % current_month + '/' + '%.2d' % day for day in range(1, monthrange(current_year, current_month)[1] + 1)]
-
 
     # Number of transactions
     nb_transactions = Transaction.query.count()
