@@ -55,7 +55,7 @@
         <td class="align-middle">
           <div class="btn-group" role="group" aria-label="Item actions">
             <a class="btn btn-success{% if item.id == quick_access_item.id %} disabled{% endif %}" href="{{ url_for('main.set_quick_access_item', item_name=item.name) }}" data-original-title="Set quick access item" role="button"><i data-feather="zap"></i></a>
-            <a class="btn btn-warning{% if item.id == quick_access_item.id %} disabled{% endif %}" href="{{ url_for('main.edit_item', item_name=item.name) }}" data-original-title="Edit item" role="button"><i data-feather="edit"></i></a>
+            <a class="btn btn-warning" href="{{ url_for('main.edit_item', item_name=item.name) }}" data-original-title="Edit item" role="button"><i data-feather="edit"></i></a>
             <button class="btn btn-danger dropdown-toggle" type="button" id="dropdownDeleteItem" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <i data-feather="x-square"></i>
             </button>

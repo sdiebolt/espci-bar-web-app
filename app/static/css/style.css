@@ -41,14 +41,37 @@ body {
 .btn {
   height: 40px;
 }
-.quick-access-item .text {
-  width: 55px;
-  overflow: hidden;
-  text-overflow: ellipsis;
+@media (min-width: 576px) {
+  .quick-access-item .text {
+    max-width: 105px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+@media (min-width: 768px) {
+  .quick-access-item .text {
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+@media (min-width: 992px) {
+  .quick-access-item .text {
+    max-width: 83px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+@media (min-width: 1200px) {
+  .quick-access-item .text {
+    max-width: 127px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
 
 /* @include media-breakpoint-up(sm) { */
-@media (min-width: 575.98px) {
+@media (min-width: 576px) {
   .user-card-btn .icon {
     display: none;
   }
@@ -56,6 +79,7 @@ body {
     display: inline-block;
   }
 }
+
 
 /***************/
 /* Signin page */

@@ -3,7 +3,7 @@
     <span class="icon" data-feather="credit-card"></span><span class="text">Top up</span>
   </button>
   <div class="dropdown-menu" aria-labelledby="dropdownTopUp">
-    <form action="{{ url_for('main.top_up', username=user.username) }}" method="post">
+    <form class="mx-2" action="{{ url_for('main.top_up', username=user.username) }}" method="post">
       <div class="input-group">
         <label for="topUpAmount" class="sr-only">Top Up</label>
         <input class="form-control" type="number" name="amount" id="topUpAmount" step=0.01 min=0 name="amount" placeholder="Amount" aria-describedby="top-up-submit">
