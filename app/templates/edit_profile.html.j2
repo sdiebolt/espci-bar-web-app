@@ -1,9 +1,43 @@
 {% extends 'base.html.j2' %}
-{% import 'bootstrap/wtf.html' as wtf %}
 
 {% block app_content %}
-    <h1>Edit profile</h1>
-    <div class="container">
-      {{ wtf.quick_form(form) }}
-    </div>
+<div class="container">
+    <form action="" method="post" role="form" class="centered-form" novalidate>
+      {{ form.hidden_tag() }}
+      <h1 class="mb-3">Edit profile</h1>
+      <div class="form-group">
+        {{ form.first_name.label()}}
+        {{ form.first_name(class_='form-control') }}
+      </div>
+      <div class="form-group">
+        {{ form.last_name.label()}}
+        {{ form.last_name(class_='form-control') }}
+      </div>
+      <div class="form-group">
+        {{ form.nickname.label()}}
+        {{ form.nickname(class_='form-control') }}
+      </div>
+      <div class="form-group">
+        {{ form.birthdate.label()}}
+        {{ form.birthdate(class_='form-control') }}
+      </div>
+      <div class="form-group">
+        {{ form.email.label()}}
+        {{ form.email(class_='form-control') }}
+      </div>
+      <div class="form-group">
+        {{ form.password.label()}}
+        {{ form.password(class_='form-control') }}
+      </div>
+      <div class="form-group">
+        {{ form.password2.label()}}
+        {{ form.password2(class_='form-control') }}
+      </div>
+      <div class="form-group form-check">
+        {{ form.is_bartender(class_='form-check-input') }}
+        {{ form.is_bartender.label()}}
+      </div>
+      {{ form.submit(class_='btn btn-primary') }}
+  </div>
+</div>
 {% endblock %}

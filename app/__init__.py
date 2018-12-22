@@ -6,8 +6,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_mail import Mail
-from flask_bootstrap import Bootstrap
 from flask_moment import Moment
+from flask_whooshee import Whooshee
 from config import Config
 
 db = SQLAlchemy()
@@ -17,8 +17,8 @@ login.login_view = 'auth.login'
 login.login_message = 'Please log in to access this page.'
 login.login_message_category = 'warning'
 mail = Mail()
-bootstrap = Bootstrap()
 moment = Moment()
+whooshee = Whooshee()
 
 def create_app(config_class=Config):
     """ Constructs a Flask application instance, thus eliminating the need for
@@ -30,8 +30,8 @@ def create_app(config_class=Config):
     migrate.init_app(app, db)
     login.init_app(app)
     mail.init_app(app)
-    bootstrap.init_app(app)
     moment.init_app(app)
+    whooshee.init_app(app)
 
     # Initialize global settings from database
     from app.models import GlobalSetting

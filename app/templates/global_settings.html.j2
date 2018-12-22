@@ -1,15 +1,17 @@
 {% extends 'base.html.j2' %}
-{% import 'bootstrap/wtf.html' as wtf %}
 
 {% block app_content %}
     <div class="container">
-        <h1>Global settings</h1>
-        <form action="" method="post" role="form" novalidate>
+        <form action="" method="post" role="form" class="centered-form" novalidate>
           {{ form.hidden_tag() }}
+          <h1 class="mb-3">Global settings</h1>
           {% for entry in form.value %}
-          {{ wtf.form_field(entry) }}
+          <div class="form-group">
+            {{ entry.label()}}
+            {{ entry(placeholder=entry.key, id=entry.key, class_='form-control') }}
+          </div>
           {% endfor %}
-          <input class="btn btn-primary" id="submit" name="submit" type="submit"/>
+          {{ form.submit(class_='btn btn-primary') }}
       </div>
     </div>
 {% endblock %}

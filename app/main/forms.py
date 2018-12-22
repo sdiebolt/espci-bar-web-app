@@ -107,6 +107,8 @@ class SearchForm(FlaskForm):
 class GlobalSettingsForm(FlaskForm):
     value = FieldList(IntegerField('Key'))
 
+    submit = SubmitField('Submit')
+
     def __init__(self, *args, **kwargs):
         super(GlobalSettingsForm, self).__init__(*args, **kwargs)
         if 'obj' in kwargs and kwargs['obj'] is not None:

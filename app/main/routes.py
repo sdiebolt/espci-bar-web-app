@@ -88,11 +88,12 @@ def search():
 
     # Get users corresponding to the query
     query_text = g.search_form.q.data
-    username_query = User.query.filter(User.username.ilike('%'+query_text+'%'))
-    nickname_query = User.query.filter(User.nickname.ilike('%'+query_text+'%'))
-    first_name_query = User.query.filter(User.first_name.ilike('%'+query_text+'%'))
-    last_name_query = User.query.filter(User.last_name.ilike('%'+query_text+'%'))
-    final_query = username_query.union(first_name_query).union(last_name_query).union(nickname_query)
+    final_query = User.query.whooshee_search(query_text)
+    # username_query = User.query.filter(User.username.ilike('%'+query_text+'%'))
+    # nickname_query = User.query.filter(User.nickname.ilike('%'+query_text+'%'))
+    # first_name_query = User.query.filter(User.first_name.ilike('%'+query_text+'%'))
+    # last_name_query = User.query.filter(User.last_name.ilike('%'+query_text+'%'))
+    # final_query = username_query.union(first_name_query).union(last_name_query).union(nickname_query)
     total = final_query.count()
 
     # Sort users alphabetically

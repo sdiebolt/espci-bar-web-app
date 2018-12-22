@@ -7,8 +7,9 @@ from sqlalchemy.sql.expression import and_
 from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
 import qrcode
-from app import db, login
+from app import db, login, whooshee
 
+@whooshee.register_model('username', 'first_name', 'last_name', 'nickname')
 class User(UserMixin, db.Model):
     """ Contains all SQL columns defining a user. """
     id = db.Column(db.Integer, primary_key=True)
