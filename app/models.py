@@ -91,6 +91,8 @@ class User(UserMixin, db.Model):
     def can_buy(self, item):
         """ Return the user's right to buy the item depending on his balance
             and the time since his last drink if the item is alcohol. """
+        if not item:
+            return False
         today = date.today()
         age = today.year - self.birthdate.year - \
             ((today.month, today.day) < (self.birthdate.month, self.birthdate.day))

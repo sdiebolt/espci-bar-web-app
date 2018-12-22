@@ -399,7 +399,7 @@ def inventory():
     sort = request.args.get('sort', 'asc', type=str)
 
     # Get quick access item
-    quick_access_item = Item.query.filter_by(id=current_app.config['QUICK_ACCESS_ITEM_ID']).first_or_404()
+    quick_access_item = Item.query.filter_by(id=current_app.config['QUICK_ACCESS_ITEM_ID']).first()
 
     # Sort items alphabetically
     if sort == 'asc':

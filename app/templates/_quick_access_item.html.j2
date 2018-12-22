@@ -1,3 +1,3 @@
-<a class="user-card-btn quick-access-item btn {% if user.balance <= 0 %}btn-outline-danger{% elif user.balance <= 5 %}btn-outline-warning{% else %}btn-outline-primary{% endif %}{% if user.can_buy(quick_access_item) != True or not user.deposit %} disabled{% endif %}" href="{{ url_for('main.pay', username=user.username, item_name=quick_access_item.name) }}" role="button">
-  <i class="material-icons icon align-middle">star</i><span class="text">{{ quick_access_item.name }}</span>
+<a class="user-card-btn quick-access-item btn {% if user.balance <= 0 %}btn-outline-danger{% elif user.balance <= 5 %}btn-outline-warning{% else %}btn-outline-primary{% endif %}{% if user.can_buy(quick_access_item) != True or not user.deposit %} disabled{% endif %}" href="{% if quick_access_item %}{{ url_for('main.pay', username=user.username, item_name=quick_access_item.name) }}{% else %}#{% endif %}" role="button">
+  <i class="material-icons icon align-middle">star</i><span class="text">{% if quick_access_item %}{{ quick_access_item.name }}{% else %}None{% endif %}</span>
 </a>
