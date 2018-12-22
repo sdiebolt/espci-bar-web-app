@@ -71,38 +71,45 @@
       </div>
     </div>
 
+    {% if user.deposit or current_user.is_bartender %}
     <div class="card-footer">
       <div class="btn-toolbar justify-content-between" role="toolbar" aria-label="User button toolbar">
-        {% if user.deposit %}
-        <div class="btn-group" role="group" aria-label="QR code">
+        {% if current_user.is_bartender and user.deposit %}
+        <div class="btn-group" role="group" aria-label="User actions">
           <a class="btn btn-primary" href="{{ url_for('main.qrcode', username=user.username) }}" role="button"><i data-feather="grid"></i></a>
           {% include '_pay.html.j2' %}
           {% include '_top_up.html.j2' %}
           {% include '_quick_access_item.html.j2' %}
         </div>
-        {% else %}
+        {% elif current_user.is_bartender %}
         <div class="btn-group" role="group" aria-label="Deposit">
           {% include '_deposit.html.j2' %}
         </div>
+        {% else %}
+        <div class="btn-group" role="group" aria-label="User actions">
+          <a class="btn btn-primary" href="{{ url_for('main.qrcode', username=user.username) }}" role="button"><i data-feather="grid"></i></a>
+        </div>
         {% endif %}
+        
+        {% if current_user.is_bartender %}
         <div class="btn-group">
           <a class="btn btn-warning" href="{{ url_for('main.edit_profile', username=user.username) }}" role="button">
             <i data-feather="edit"></i>
           </a>
 
-          <div class="btn-group" role="group">
-            <button class="btn btn-danger dropdown-toggle" type="button" id="dropdownDeleteUser" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              <i data-feather="x-square"></i>
-            </button>
-            <div class="dropdown-menu" aria-labelledby="dropdownDeleteUser">
-              <h6 class="dropdown-header">Delete this user?</h6>
-              <a class="dropdown-item" href="{{ url_for('main.delete_user', username=user.username) }}">Yes</a>
-              <a class="dropdown-item" href="#">No</a>
-            </div>
+          <button class="btn btn-danger dropdown-toggle" type="button" id="dropdownDeleteUser" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <i data-feather="x-square"></i>
+          </button>
+          <div class="dropdown-menu" aria-labelledby="dropdownDeleteUser">
+            <h6 class="dropdown-header">Delete this user?</h6>
+            <a class="dropdown-item" href="{{ url_for('main.delete_user', username=user.username) }}">Yes</a>
+            <a class="dropdown-item" href="#">No</a>
           </div>
         </div>
+        {% endif %}
       </div>
     </div>
+    {% endif %}
   </div>
 </div>
 {% endblock %}
