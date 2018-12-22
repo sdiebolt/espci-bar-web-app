@@ -1,6 +1,6 @@
 <div class="btn-group pay-btn" id="{{ user.username }}-pay-btn" role="group">
   <button class="user-card-btn btn {% if user.balance <= 0 %}btn-danger{% elif user.balance <= 5 %}btn-warning{% else %}btn-primary{% endif %} dropdown-toggle{% if user.balance <= 0 or not user.deposit %} disabled{% endif %}" type="button" id="dropdownPay" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-    <span class="icon mr-1" data-feather="shopping-cart"></span><span class="text">Pay</span>
+    <span class="icon" data-feather="shopping-cart"></span><span class="text">Pay</span>
   </button>
   <div class="dropdown-menu scrollable-menu" aria-labelledby="dropdownPay"></div>
 </div>
