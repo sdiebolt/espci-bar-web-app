@@ -11,7 +11,6 @@ from app.main.forms import EditProfileForm, EditItemForm, AddItemForm, \
 from app.models import User, Item, Transaction, GlobalSetting
 from app.main import bp
 
-
 @bp.before_app_request
 def before_request():
     if not current_user.is_anonymous:
@@ -59,7 +58,7 @@ def index():
                             quick_access_item=quick_access_item,
                             grad_class=grad_class, grad_classes=grad_classes)
 
-@bp.route('/search')
+@bp.route('/search', methods=['GET'])
 @login_required
 def search():
     """ View search page. """
@@ -72,6 +71,11 @@ def search():
     # Get arguments
     page = request.args.get('page', 1, type=int)
     sort = request.args.get('sort', 'asc', type=str)
+    query = request.args.get('q', '', type=str)
+
+    # If the query is empty, redirect to the index page
+    if query == '':
+        return redirect(url_for('main.index'))
 
     # Get inventory
     inventory = Item.query.order_by(Item.name.asc()).all()
@@ -107,6 +111,29 @@ def search():
                             sort=sort, inventory=inventory, total=total,
                             favorite_inventory=favorite_inventory,
                             quick_access_item=quick_access_item)
+
+@bp.route('/get_user_products', methods=['POST'])
+@login_required
+def get_user_products():
+    """ Returns the list of products that a user can buy. """
+    if not current_user.is_bartender:
+        flash("You don't have the rights to access this page.", 'danger')
+        return redirect(url_for('main.index'))
+
+    # Get user
+    user = User.query.filter_by(username=request.form['username']).first_or_404()
+
+    # Get inventory
+    inventory = Item.query.order_by(Item.name.asc()).all()
+
+    # Get favorite items
+    favorite_inventory = Item.query.filter_by(is_favorite=True).order_by(Item.name.asc()).all()
+
+    pay_template = render_template('_user_products.html.j2', user=user,
+                                    inventory=inventory,
+                                    favorite_inventory=favorite_inventory)
+
+    return jsonify({'html': pay_template})
 
 @bp.route('/user/<username>')
 @login_required
@@ -183,6 +210,7 @@ def edit_profile(username):
 @bp.route('/deposit', methods=['GET'])
 @login_required
 def deposit():
+    """ User gave a deposit. """
     if not current_user.is_bartender:
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.index'))
@@ -387,8 +415,7 @@ def inventory():
 @bp.route('/set_quick_access_item/<item_name>')
 @login_required
 def set_quick_access_item(item_name):
-    """Set the quick acces item.
-    """
+    """ Set the quick access item. """
     if not current_user.is_bartender:
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.index'))
@@ -513,7 +540,7 @@ def top_up():
             user.last_name + "'s account.", 'info')
     return redirect(request.referrer)
 
-@bp.route('/pay', methods=['GET', 'POST'])
+@bp.route('/pay', methods=['GET'])
 @login_required
 def pay():
     """ Substract the item price to username's balance. """
@@ -553,8 +580,9 @@ def pay():
     db.session.add(transaction)
     db.session.commit()
 
-    flash(user.username+' successfully bought '+item.name + \
-        '. Balance: {:.2f}'.format(user.balance)+'€', 'success')
+    flash(user.first_name + ' ' + user.last_name + ' successfully bought ' +\
+            item.name +\
+            ' (Balance: {:.2f}'.format(user.balance)+'€).', 'success')
     return redirect(request.referrer)
 
 @bp.route('/scanqrcode')

@@ -1,109 +1,90 @@
 {% extends 'base.html.j2' %}
-{% import 'bootstrap/wtf.html' as wtf %}
 
 {% block app_content %}
-
 <!-- Items sorting -->
-<div class="well">
-  <div class="container-fluid">
-    <div class="row">
-      <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
-        <div class="btn-group">
-          <a href="{{ url_for('main.inventory', sort='asc') }}" data-original-title="Sort by alphabet" type="button" class="btn btn-info {% if sort == 'asc' %}active{% endif %}"><span class="glyphicon glyphicon-sort-by-alphabet"></span></a>
-          <a href="{{ url_for('main.inventory', sort='desc') }}" data-original-title="Sort by alphabet" type="button" class="btn btn-info {% if sort == 'desc' %}active{% endif %}"><span class="glyphicon glyphicon-sort-by-alphabet-alt"></span></a>
-        </div>
-      </div>
+<div class="container my-1">
+  <div class="btn-toolbar justify-content-between" role="toolbar" aria-label="Item sorting">
+    <div class="btn-group" role="group" aria-label="Alphabet sorting">
+      <a class="btn btn-outline-primary{% if sort == 'asc' %} active{% endif %}" href="{{ url_for('main.inventory', sort='asc') }}" data-original-title="Sort By Alphabet" role="button"><i data-feather="arrow-down"></i></a>
+      <a class="btn btn-outline-primary{% if sort == 'desc' %} active{% endif %}" href="{{ url_for('main.inventory', sort='desc') }}" data-original-title="Sort By Alphabet" role="button"><i data-feather="arrow-up"></i></a>
+    </div>
+    <div class="btn-group" role="group" aria-label="Add item">
+      <a class="btn btn-primary" href="{{ url_for('main.add_item') }}" data-original-title="Sort By Alphabet" role="button"><i data-feather="plus"></i></a>
+    </div>
+  </div>
+</div>
 
-      <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
-        <div class="pull-right">
-          <div class="btn-group">
-            <a href="{{ url_for('main.add_item') }}" data-original-title="Add item" type="button" class="btn btn-default"><span class="glyphicon glyphicon-plus"></span> Add item</a>
+<div style="margin-top:10px"></div>
+
+<div class="table-responsive">
+  <table class="table table-striped table-bordered">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Quantity</th>
+        <th>Price</th>
+        <th>Alcohol</th>
+        <th>Favorite</th>
+        <th>Edit</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in inventory.items %}
+      <tr {% if item.quantity <= 0 and item.is_quantifiable %}class="table-danger"{% elif item.id == quick_access_item.id %}class="table-success"{% endif %}>
+        <td class="align-middle">{{ item.name }}</td>
+        <td class="align-middle">
+          {% if item.is_quantifiable %}
+          {{ item.quantity }}
+          {% else %}
+          Unquantifiable
+          {% endif %}
+        </td>
+        <td class="align-middle">{{ item.price }}€</td>
+        <td class="align-middle">
+          {% if item.is_alcohol %}
+          <i data-feather="check"></i>
+          {% else %}
+          <i data-feather="x"></i>
+          {% endif %}
+        </td>
+        <td class="align-middle">
+          {% if item.is_favorite %}
+          <i data-feather="star"></i>
+          {% endif %}
+        </td>
+        <td class="align-middle">
+          <div class="btn-group" role="group" aria-label="Item actions">
+            <a class="btn btn-success{% if item.id == quick_access_item.id %} disabled{% endif %}" href="{{ url_for('main.set_quick_access_item', item_name=item.name) }}" data-original-title="Set quick access item" role="button"><i data-feather="zap"></i></a>
+            <a class="btn btn-warning{% if item.id == quick_access_item.id %} disabled{% endif %}" href="{{ url_for('main.edit_item', item_name=item.name) }}" data-original-title="Edit item" role="button"><i data-feather="edit"></i></a>
+            <button class="btn btn-danger dropdown-toggle" type="button" id="dropdownDeleteItem" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i data-feather="x-square"></i>
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownDeleteItem">
+              <h6 class="dropdown-header">Delete this item?</h6>
+              <a class="dropdown-item" href="{{ url_for('main.delete_item', item_name=item.name) }}">Yes</a>
+              <a class="dropdown-item" href="#">No</a>
+            </div>
           </div>
-        </div>
-      </div>
-    </div>
-  </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 </div>
 
-<div class="container-fluid">
-  <div class="row">
-    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xs-offset-0 col-sm-offset-0 col-md-offset-0 col-lg-offset-0" >
-      <div class="panel panel-default table-responsive">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Quantity</th>
-              <th>Price</th>
-              <th class="col-lg-1 col-md-1 col-sm-1 col-xs-1">Alcohol</th>
-              <th class="col-lg-1 col-md-1 col-sm-1 col-xs-1">Favorite</th>
-              <th class="col-lg-2 col-md-2 col-sm-3 col-xs-3">Edit</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for item in inventory.items %}
-            <tr {% if item.quantity <= 0 and item.is_quantifiable %}class="danger"{% elif item.id == quick_access_item.id %}class="success"{% endif %}>
-              <td style="vertical-align: middle;">{{ item.name }}</td>
-              <td style="vertical-align: middle;">
-                {% if item.is_quantifiable %}
-                {{ item.quantity }}
-                {% else %}
-                Not quantifiable
-                {% endif %}
-              </td>
-              <td style="vertical-align: middle;">{{ item.price }}€</td>
-              <td style="vertical-align: middle;">
-                {% if item.is_alcohol %}
-                <span class="glyphicon glyphicon-ok"></span>
-                {% else %}
-                <span class="glyphicon glyphicon-remove"></span>
-                {% endif %}
-              </td>
-              <td style="vertical-align: middle;">
-                {% if item.is_favorite %}
-                <span class="glyphicon glyphicon-star"></span>
-                {% else %}
-                <span class="glyphicon glyphicon-star-empty"></span>
-                {% endif %}
-              </td>
-              <td>
-                <a href="{{ url_for('main.set_quick_access_item', item_name=item.name) }}" data-original-title="Set quick access item" data-toggle="tooltip" type="button" class="btn btn-sm btn-success"><i class="glyphicon glyphicon-flash"></i></a>
-                <a href="{{ url_for('main.edit_item', item_name=item.name) }}" data-original-title="Edit this item" data-toggle="tooltip" type="button" class="btn btn-sm btn-warning"><i class="glyphicon glyphicon-edit"></i></a>
-                <div class="btn-group">
-                  <button type="button" class="btn btn-sm btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <span class="glyphicon glyphicon-remove"></span>
-                  </button>
-                  <ul class="dropdown-menu dropdown-menu-index dropdown-menu-right">
-                    <li class="dropdown-header">Delete this item?</li>
-                    <li><a href="{{ url_for('main.delete_item', item_name=item.name) }}">Yes</a></li>
-                    <li><a href="#">No</a></li>
-                  </ul>
-                </div>
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <div class="pager">
-      <div class="btn-group" role="group">
-        {% for page in inventory.iter_pages() %}
-        <a href="{{ url_for('main.inventory', page=page, sort=sort) }}" type="button" class="btn {% if page == inventory.page %}btn-primary{% else %}btn-default{% endif %} {% if not page %}disabled{% endif %}">
-          {% if page %}
-          {% if page != inventory.page %}
-          {{ page }}
-          {% else %}
-          <strong>{{ page }}</strong>
-          {% endif %}
-          {% else %}
-          <span class=ellipsis>…</span>
-          {% endif %}
-        </a>
-        {% endfor %}
-      </div>
-    </div>
-  </div>
-</div>
+<nav aria-label="Page navigation">
+  <ul class="pagination justify-content-center">
+    {%- for page in inventory.iter_pages() %}
+    <li class="page-item{% if page == inventory.page %} active{% endif %}{%if not page %} disabled{% endif %}">
+      <a class="page-link" href="{{ url_for('main.inventory', page=page, sort=sort) }}">
+        {% if page %}
+        {{ page }}
+        {% else %}
+        <span class=ellipsis>…</span>
+        {% endif %}
+      </a>
+      {%- endfor %}
+    </li>
+  </ul>
+</nav>
 {% endblock %}

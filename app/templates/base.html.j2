@@ -1,164 +1,125 @@
-{% extends 'bootstrap/base.html' %}
+{% block doc -%}
+<!doctype html>
+<html lang="en">
+{%- block html %}
+  <head>
+    {%- block head %}
+    {%- block metas %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="ESPCI Student Bar">
+    <meta name="author" content="Samuel Diebolt">
+    {%- endblock metas %}
+    <title>{% block title %}{% if title %}{{ title }} - ESPCI Bar{% else %}Welcome to ESPCI Bar{% endif %}{% endblock title %}</title>
 
-{% block styles %}
-  {{ super() }}
-  <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
-  <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
-{% endblock %}
+    {%- block styles %}
+    <!-- Bootstrap 4.1 core CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
 
-{% block scripts %}
-    {{ super() }}
-    {{ moment.include_moment() }}
-    <!--  Bootstrap 4.1, Popper and jQuery -->
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <!-- Custom styles and favicon -->
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    {%- endblock styles %}
+    {%- endblock head %}
+  </head>
+  <body {% block body_attribs %}{% endblock body_attribs %}>
+    {% block body -%}
+    {% block navbar %}
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+      {% if current_user.is_bartender %}
+      <a class="navbar-brand" href="{{ url_for('main.index') }}">ESPCI Bar</a>
+      {% elif current_user.is_anonymous %}
+      <a class="navbar-brand" href="{{ url_for('auth.login') }}">ESPCI Bar</a>
+      {% else %}
+      <a class="navbar-brand" href="{{ url_for('main.user', username=current_user.username) }}">ESPCI Bar</a>
+      {% endif %}
+
+      {% if not current_user.is_anonymous %}
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse navbarMain">
+        {% if current_user.is_bartender %}
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item{% if (request.path == '/index' or request.path == '/') and current_user.is_bartender %} active{% endif %}">
+            <a class="nav-link" href="{{ url_for('main.index') }}">Customers</a>
+          </li>
+          <li class="nav-item{% if (request.path == '/inventory') and current_user.is_bartender %} active{% endif %}">
+            <a class="nav-link" href="{{ url_for('main.inventory')}}">Inventory</a>
+          </li>
+          <li class="nav-item{% if (request.path == '/transactions') and current_user.is_bartender %} active{% endif %}">
+            <a class="nav-link" href="{{ url_for('main.transactions') }}">Transactions</a>
+          </li>
+          <li class="nav-item{% if (request.path == '/global_settings') and current_user.is_bartender %} active{% endif %}">
+            <a class="nav-link" href="{{ url_for('main.global_settings')}}">Settings</a>
+          </li>
+          <li class="nav-item dropdown{% if (request.path == '/tools' or request.path == '/auth/register') and current_user.is_bartender %} active{% endif %}">
+            <a class="nav-link dropdown-toggle" href="#" id="dropdownTools" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Tools</a>
+            <div class="dropdown-menu" aria-labelledby="dropdownTools">
+              <!-- <a class="dropdown-item" href="{{ url_for('main.statistics') }}">Statistics</a> -->
+              <a class="dropdown-item" href="{{ url_for('auth.register') }}">Add user</a>
+            </div>
+          </li>
+        </ul>
+        {% endif %}
+      </div>
+      <div class="collapse navbar-collapse navbarMain">
+        {% if current_user.is_bartender %}
+        <form class="form-inline my-2 my-lg-0 ml-auto" method="get" action="{{ url_for('main.search') }}">
+          {{ g.search_form.q(size=20, class_='form-control mr-sm-2', placeholder=g.search_form.q.label.text) }}
+        </form>
+        <a class="btn btn-{% if request.path != '/scanqrcode' and current_user.is_bartender %}outline-{% endif %}primary mx-2 my-2 my-sm-0" href="{{ url_for('main.scanqrcode') }}" role="button"><i data-feather="grid"></i></a>
+        {% endif %}
+        <ul class="navbar-nav">
+          <li class="nav-item{% if request.path == '/user/'+current_user.username or request.path == '/edit_profile/'+current_user.username %} active{% endif %}">
+            <a class="nav-link" href="{{ url_for('main.user', username=current_user.username) }}">Profile</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-nowrap" href="{{ url_for('auth.logout') }}">Sign out</a>
+          </li>
+        </ul>
+      </div>
+      {% endif %}
+    </nav>
+    {%- endblock navbar %}
+    {% block content -%}
+    <div class="container">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+      {% for category, message in messages %}
+      <div class="alert alert-{{ category }} alert-dismissible" role="alert">
+        {{ message }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><i data-feather="x"></i></button>
+      </div>
+      {% endfor %}
+      {% endif %}
+      {% endwith %}
+
+      {# application content needs to be provided in the app_content block #}
+      {% block app_content %}{% endblock %}
+    </div>
+    {%- endblock content %}
+
+    {% block scripts %}
+    <!--  Bootstrap 4.1 core Javascript, Popper and jQuery -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+    {{ moment.include_jquery() }}
+    {{ moment.include_moment() }}
 
+    <!-- Icons -->
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
     <script>
-    // Dirty fix for dropdown menus in table-responsive
-    (function () {
-      $('.table-responsive').on('shown.bs.dropdown', function (e) {
-        var $table = $(this),
-            $menu = $(e.target).find('.dropdown-menu'),
-            tableOffsetHeight = $table.offset().top + $table.height(),
-            menuOffsetHeight = $menu.offset().top + $menu.outerHeight(true);
-
-        if (menuOffsetHeight > tableOffsetHeight)
-          $table.css("padding-bottom", menuOffsetHeight - tableOffsetHeight);
-      });
-
-      $('.table-responsive').on('hide.bs.dropdown', function () {
-        $(this).css("padding-bottom", 0);
-      })
-    })();
-
-    // Change drop direction for dropdown menus
-    function determineDropDirection(){
-      $(".dropdown-menu-index").each( function(){
-        $(this).css({
-          visibility: "hidden",
-          display: "block"
-        });
-
-        $(this).parent().removeClass("dropup");
-
-        if ($(this).offset().top + $(this).outerHeight() > $(window).innerHeight() + $(window).scrollTop()){
-          $(this).parent().addClass("dropup");
-        }
-
-        $(this).removeAttr("style");
-      });
-    }
-
-    determineDropDirection();
-
-    $(window).scroll(determineDropDirection);
+      feather.replace()
     </script>
-{% endblock %}
 
-{% block title %}
-    {% if title %}{{ title }} - ESPCI Bar{% else %}Welcome to ESPCI Bar{% endif %}
-{% endblock %}
-
-{% block navbar %}
-    <nav class="navbar-inverse navbar-fixed-top">
-        <div class="container-fluid">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#global-navbar-collapse" aria-expanded="false">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                {% if current_user.is_bartender %}
-                <a class="navbar-brand" href="{{ url_for('main.index') }}">ESPCI Bar</a>
-                {% elif current_user.is_anonymous %}
-                <a class="navbar-brand" href="{{ url_for('auth.login') }}">ESPCI Bar</a>
-                {% else %}
-                <a class="navbar-brand" href="{{ url_for('main.user', username=current_user.username) }}">ESPCI Bar</a>
-                {% endif %}
-            </div>
-            <div class="collapse navbar-collapse" id="global-navbar-collapse">
-                <ul class="nav navbar-nav">
-                    {% if current_user.is_bartender %}
-                    <li {% if (request.path == '/index' or request.path == '/') and current_user.is_bartender %}class="active"{% endif %}>
-                      <a href="{{ url_for('main.index') }}">
-                        <span class="glyphicon glyphicon-credit-card"></span> Checkout
-                      </a>
-                    </li>
-                    <li {% if request.path == '/scanqrcode' and current_user.is_bartender %}class="active"{% endif %}>
-                      <a href="{{ url_for('main.scanqrcode') }}">
-                        <span class="glyphicon glyphicon-qrcode"></span> Scan QR
-                      </a>
-                    </li>
-                    <li {% if (request.path == '/inventory') and current_user.is_bartender %}class="active"{% endif %}>
-                      <a href="{{ url_for('main.inventory')}}">
-                        <span class="glyphicon glyphicon-shopping-cart"></span> Inventory
-                      </a>
-                    </li>
-                    <li class="dropdown {% if (request.path == '/transactions' or request.path == '/statistics') and current_user.is_bartender %}active{% endif %}">
-                      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                        <span class="glyphicon glyphicon-tasks"></span> Logs
-                      </a>
-                      <ul class="dropdown-menu">
-                        <li>
-                          <a href="{{ url_for('main.transactions') }}">
-                            <span class="glyphicon glyphicon-list-alt"></span> Transactions
-                          </a>
-                        </li>
-                        <li>
-                          <a href="{{ url_for('main.statistics') }}">
-                            <span class="glyphicon glyphicon-stats"></span> Statistics
-                          </a>
-                        </li>
-                      </ul>
-                    </li>
-                    <li {% if (request.path == '/global_settings') and current_user.is_bartender %}class="active"{% endif %}>
-                      <a href="{{ url_for('main.global_settings')}}">
-                        <span class="glyphicon glyphicon-cog"></span> Settings
-                      </a>
-                    </li>
-                    <li class="dropdown {% if (request.path == '/tools' or request.path == '/auth/register') and current_user.is_bartender %}active{% endif %}">
-                      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                        <span class="glyphicon glyphicon-wrench"></span> Tools
-                      </a>
-                      <ul class="dropdown-menu">
-                        <li>
-                          <a href="{{ url_for('auth.register') }}">
-                            <span class="glyphicon glyphicon-plus"></span> Add user
-                          </a>
-                        </li>
-                      </ul>
-                    </li>
-                    {% endif %}
-                </ul>
-                <ul class="nav navbar-nav navbar-right">
-                    {% if current_user.is_anonymous %}
-                    <li class="active"><a href="{{ url_for('auth.login') }}"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
-                    {% else %}
-                    <li {% if '/user' in request.path or '/edit_profile' in request.path %}class="active"{% endif %}><a href="{{ url_for('main.user', username=current_user.username) }}"><span class="glyphicon glyphicon-user"></span> Profile</a></li>
-                    <li><a href="{{ url_for('auth.logout') }}"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
-                    {% endif %}
-                </ul>
-            </div>
-        </div>
-    </nav>
-{% endblock %}
-
-{% block content %}
-<div class="container">
-  {% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-  {% for category, message in messages %}
-  <div class="alert alert-{{ category }} alert-dismissible" role="alert">
-    {{ message }}
-    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-  </div>
-  {% endfor %}
-  {% endif %}
-  {% endwith %}
-
-  {# application content needs to be provided in the app_content block #}
-  {% block app_content %}{% endblock %}
-</div>
-{% endblock %}
+    <!-- Graphs -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
+    {%- endblock scripts %}
+    {%- endblock body %}
+  </body>
+{%- endblock html %}
+</html>
+{% endblock doc -%}

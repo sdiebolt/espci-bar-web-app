@@ -1,0 +1,94 @@
+body {
+  padding-top: 60px;
+  padding-bottom: 47px;
+  -webkit-padding-after: 100px;
+  background-color: #f5f5f5;
+}
+
+/* Make Bootstrap dropdowns scrollable */
+.scrollable-menu {
+  height: auto;
+  max-height: 150px;
+  overflow-x: hidden;
+}
+
+/* Remove dropdown carret */
+.dropdown-toggle::after {
+    display:none;
+}
+
+/* Firefox specific hack for table-responsive */
+@-moz-document url-prefix() {
+  fieldset { display: table-cell; }
+}
+
+/*************************/
+/* Index and search page */
+/*************************/
+
+.user-card-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Switch between text or icon on checkout page buttons */
+.user-card-btn .icon {
+  display: inline-block;
+}
+.user-card-btn .text {
+  display: none;
+}
+.btn {
+  height: 40px;
+}
+.quick-access-item .text {
+  width: 55px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* @include media-breakpoint-up(sm) { */
+@media (min-width: 575.98px) {
+  .user-card-btn .icon {
+    display: none;
+  }
+  .user-card-btn .text {
+    display: inline-block;
+  }
+}
+
+/***************/
+/* Signin page */
+/***************/
+
+/* Sign in form */
+.form-signin {
+  width: 100%;
+  max-width: 330px;
+  padding: 15px;
+  padding-top: 100px;
+  margin: auto;
+}
+.form-signin .checkbox {
+  font-weight: 400;
+}
+.form-signin .form-control {
+  position: relative;
+  box-sizing: border-box;
+  height: auto;
+  padding: 10px;
+  font-size: 16px;
+}
+.form-signin .form-control:focus {
+  z-index: 2;
+}
+.form-signin input[type="text"] {
+  margin-bottom: -1px;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.form-signin input[type="password"] {
+  margin-bottom: 10px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}

@@ -1,11 +1,7 @@
 {% extends 'base.html.j2' %}
-{% import 'bootstrap/wtf.html' as wtf %}
 
-{% block scripts %}
+{% block styles %}
 {{ super() }}
-
-<script src="{{ url_for('static', filename='jsQR.js') }}"></script>
-
 <style>
   body {
     max-width: 640px;
@@ -34,17 +30,24 @@
     text-align: center;
   }
 </style>
-
 {% endblock %}
 
 {% block content %}
 
 <div id="loadingMessage">🎥 Unable to access video stream (please make sure you have a webcam enabled)</div>
-<canvas id="canvas" hidden></canvas>
+<canvas class="mt-5" id="canvas" hidden></canvas>
 <div id="output" hidden>
   <div id="outputMessage">No QR code detected.</div>
   <div hidden><b>Data:</b> <span id="outputData"></span></div>
 </div>
+
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+
+<script src="{{ url_for('static', filename='js/jsQR.js') }}"></script>
+
 <script>
   var video = document.createElement("video");
   var canvasElement = document.getElementById("canvas");
@@ -96,5 +99,4 @@
     requestAnimationFrame(tick);
   }
 </script>
-
 {% endblock %}

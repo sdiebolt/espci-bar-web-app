@@ -1,0 +1,29 @@
+{% if favorite_inventory|length > 1 %}
+<h6 class="dropdown-header">Favorites</h6>
+{% for item in favorite_inventory %}
+<a class="dropdown-item{% if (not user.deposit) or (user.can_buy(item) != True) or (item.is_quantifiable and item.quantity <= 0) %} disabled{% endif %}" href="{{ url_for('main.pay', username=user.username, item_name=item.name) }}">
+  {% if (not user.deposit) or (user.can_buy(item) != True) or (item.is_quantifiable and item.quantity <= 0) %}
+  <strike>
+  {% endif %}
+  {{ item.name }} ({{ item.price }}€)
+  {% if (not user.deposit) or (user.can_buy(item) != True) or (item.is_quantifiable and item.quantity <= 0) %}
+  </strike>
+  {% endif %}
+</a>
+{% endfor %}
+<div class="dropdown-divider"></div>
+{% endif %}
+<h6 class="dropdown-header">Products</h6>
+{% for item in inventory %}
+{% if item not in favorite_inventory %}
+<a class="dropdown-item{% if (not user.deposit) or (user.can_buy(item) != True) or (item.is_quantifiable and item.quantity <= 0) %} disabled{% endif %}" href="{{ url_for('main.pay', username=user.username, item_name=item.name) }}">
+  {% if (not user.deposit) or (user.can_buy(item) != True) or (item.is_quantifiable and item.quantity <= 0) %}
+  <strike>
+  {% endif %}
+  {{ item.name }} ({{ item.price }}€)
+  {% if (not user.deposit) or (user.can_buy(item) != True) or (item.is_quantifiable and item.quantity <= 0) %}
+  </strike>
+  {% endif %}
+</a>
+{% endif %}
+{% endfor %}

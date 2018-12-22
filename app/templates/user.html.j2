@@ -1,104 +1,127 @@
 {% extends 'base.html.j2' %}
 
 {% block app_content %}
-<div class="row">
-  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xs-offset-0 col-sm-offset-0 col-md-offset-0 col-lg-offset-0" >
-    <div class="panel {% if not user.deposit %}panel-default{% elif user.balance <= 0 %}panel-danger{% elif user.balance <= 5 %}panel-warning{% else %}panel-info{% endif %}">
-      <div class="panel-heading">
-        <h3 class="panel-title">{{ user.first_name }}{% if current_user.is_bartender and user.nickname %} "{{ user.nickname }}"{% endif %} {{ user.last_name }}{% if is_admin %} – Administrator{% elif user.is_bartender %} – Bartender{% endif %}</h3>
-      </div>
+<div class="container">
+  <div class="card mt-3 shadow {% if not user.deposit %}border-secondary{% elif user.balance <= 0 %}border-danger{% elif user.balance <= 5 %}border-warning{% else %}border-primary{% endif %}">
+    <div class="card-header">
+      <h3 class="card-title {% if not user.deposit %}text-secondary{% elif user.balance <= 0 %}text-danger{% elif user.balance <= 5 %}text-warning{% else %}text-primary{% endif %}">{{ user.first_name }}{% if current_user.is_bartender and user.nickname %} "{{ user.nickname }}"{% endif %} {{ user.last_name }}{% if is_admin %} – Administrator{% elif user.is_bartender %} – Bartender{% endif %}</h3>
+    </div>
 
-      <div class="panel-body">
-        <div class="row">
-          <div class="col-md-3 col-lg-3 " align="center">
-            <!-- User picture -->
-            <img alt="User picture" src="{{ user.avatar() }}" class="img-rounded img-responsive">
-          </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-3 col-lg-3 mb-4" align="center">
+          <!-- User picture -->
+          <img src="{{ user.avatar() }}" alt="{{ user.username }}">
+        </div>
 
-          <div class=" col-md-9 col-lg-9 ">
-            <table class="table table-user-information">
-              <tbody>
-                <tr>
-                  <td><strong>Username:</strong></td>
-                  <td>{{ user.username }}</td>
-                </tr>
-                <tr>
-                  <td><strong>Email:</strong></td>
-                  <td><a href="mailto:{{ user.email }}">{{ user.email }}</a></td>
-                </tr>
-                <tr>
-                  <td><strong>Age:</strong></td>
-                  <td>{{ age }} years old</td>
-                <tr>
-                  <td><strong>Graduating class:</strong></td>
-                  <td>{% if user.grad_class != 0 %}{{ user.grad_class }}{% else %}Extern{% endif %}</td>
-                </tr>
-                <tr>
-                  <td><strong>Last drink:</strong></td>
-                  <td>
-                    {% if user.last_drink %}
-                    {{ moment(user.last_drink).fromNow() }}
-                    {% else %}
-                    Non-existent or reverted
-                    {% endif %}
-                  </td>
-                </tr>
-                <tr>
-                  <td><strong>Balance:</strong></td>
-                  <td>
-                    <div class="progress">
-                      <div class="progress-bar progress-bar-{% if user.balance < 5.0 %}danger{% elif user.balance < 10 %}warning{% else %}success{% endif %} progress-bar-striped active" role="progressbar" aria-valuenow="{{ user.balance }}" aria-valuemin="0" aria-valuemax="50" style="width: {{ user.balance }}%; min-width: 3em; max-width: 100%">
-                        {{ '%0.2f' | format(user.balance) }}€
-                      </div>
+        <div class="table-responsive-sm col-md-9 col-lg-9">
+          <table class="table table-striped">
+            <tbody>
+              <tr>
+                <td><strong>Username:</strong></td>
+                <td>{{ user.username }}</td>
+              </tr>
+              <tr>
+                <td><strong>Email:</strong></td>
+                <td><a href="mailto:{{ user.email }}">{{ user.email }}</a></td>
+              </tr>
+              <tr>
+                <td><strong>Age:</strong></td>
+                <td>{{ age }} years old</td>
+              <tr>
+                <td><strong>Graduating class:</strong></td>
+                <td>{% if user.grad_class != 0 %}{{ user.grad_class }}{% else %}Extern{% endif %}</td>
+              </tr>
+              <tr>
+                <td><strong>Last drink:</strong></td>
+                <td>
+                  {% if user.last_drink %}
+                  {{ moment(user.last_drink).fromNow() }}
+                  {% else %}
+                  Non-existent or reverted
+                  {% endif %}
+                </td>
+              </tr>
+              <tr>
+                <td><strong>Balance:</strong></td>
+                <td>
+                  <div class="progress mt-1" style="height: 18px;">
+                    <div class="progress-bar bg-{% if not user.deposit %}secondary{% elif user.balance <= 0 %}danger{% elif user.balance <= 5 %}warning{% else %}primary{% endif %}" role="progressbar" aria-valuenow="{{ user.balance }}" aria-valuemin="0" aria-valuemax="50" style="width: {{ user.balance }}%; min-width: 3em; max-width: 100%">
+                      {{ '%0.2f' | format(user.balance) }}€
                     </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
+    </div>
 
-      <!-- User statistics -->
-      <div class="container-fluid">
-        <div class="panel panel-default" align="left">
-          <div class="panel-heading">
-            <h4 class="panel-title">Statistics</h4>
-          </div>
-          <ul class="list-group">
-            <li class="list-group-item"><span class="badge">{{ '%0.2f' | format(amount_paid) }}€</span>Amount paid</li>
-            <li class="list-group-item"><span class="badge">{{ '%0.2f' | format(amount_topped_up) }}€</span>Amount topped up</li>
-          </ul>
+    <!-- User statistics -->
+    <div class="container mb-4">
+      <div class="card card-secondary" align="left">
+        <div class="card-header">
+          <h4 class="card-title {% if not user.deposit %}text-secondary{% elif user.balance <= 0 %}text-danger{% elif user.balance <= 5 %}text-warning{% else %}text-primary{% endif %}">Last transactions</h4>
         </div>
+        <ul class="list-group">
+          <li class="list-group-item"><span class="badge">{{ '%0.2f' | format(amount_paid) }}€</span>Amount paid</li>
+          <li class="list-group-item"><span class="badge">{{ '%0.2f' | format(amount_topped_up) }}€</span>Amount topped up</li>
+        </ul>
       </div>
+    </div>
 
-      <div class="panel-footer">
-        <a href="{{ url_for('main.qrcode', username=user.username) }}" data-original-title="QR code" data-toggle="tooltip" type="button" class="btn btn-md btn-primary"><span class="glyphicon glyphicon-qrcode"></span></a>
-        {% if current_user.is_bartender %}
+    <div class="card-footer">
+      <div class="btn-toolbar justify-content-between" role="toolbar" aria-label="User button toolbar">
         {% if user.deposit %}
-        {% include '_pay.html.j2' %}
-        {% include '_quick_access_item.html.j2' %}
-        {% include '_top_up.html.j2' %}
-        {% endif %}
-        <span class="pull-right">
-          {% if not user.deposit %}
+        <div class="btn-group" role="group" aria-label="QR code">
+          <a class="btn btn-primary" href="{{ url_for('main.qrcode', username=user.username) }}" role="button"><i data-feather="grid"></i></a>
+          {% include '_pay.html.j2' %}
+          {% include '_top_up.html.j2' %}
+          {% include '_quick_access_item.html.j2' %}
+        </div>
+        {% else %}
+        <div class="btn-group" role="group" aria-label="Deposit">
           {% include '_deposit.html.j2' %}
-          {% endif %}
-          <a href="{{ url_for('main.edit_profile', username=user.username) }}" data-original-title="Edit this user" data-toggle="tooltip" type="button" class="btn btn-md btn-warning"><i class="glyphicon glyphicon-edit"></i></a>
-          <div class="btn-group">
-            <button type="button" class="btn btn-md btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              <span class="glyphicon glyphicon-remove"></span>
-            </button>
-            <ul class="dropdown-menu dropdown-menu-right">
-              <li class="dropdown-header">Delete this user?</li>
-              <li><a href="{{ url_for('main.delete_user', username=user.username) }}">Yes</a></li>
-              <li><a href="#">No</a></li>
-            </ul>
-          </div>
-        </span>
+        </div>
         {% endif %}
+        <div class="btn-group">
+          <a class="btn btn-warning" href="{{ url_for('main.edit_profile', username=user.username) }}" role="button">
+            <i data-feather="edit"></i>
+          </a>
+
+          <div class="btn-group" role="group">
+            <button class="btn btn-danger dropdown-toggle" type="button" id="dropdownDeleteUser" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i data-feather="x-square"></i>
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownDeleteUser">
+              <h6 class="dropdown-header">Delete this user?</h6>
+              <a class="dropdown-item" href="{{ url_for('main.delete_user', username=user.username) }}">Yes</a>
+              <a class="dropdown-item" href="#">No</a>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+
+<!-- Populate pay dropdown -->
+<script>
+$(".pay-btn").each(function() {
+  var pay_btn = $(this)
+  var dropdown = $(pay_btn).find('.dropdown-menu')
+  $.post('/get_user_products', {
+    username: $(pay_btn).attr('id').replace('-pay-btn', '')
+  }).done(function(response) {
+    $(dropdown).append(response['html'])
+  }).fail(function() {
+    $(dropdown).append('Error: Could not contact server.')
+  });
+});
+</script>
 {% endblock %}

@@ -1,93 +1,78 @@
 {% extends 'base.html.j2' %}
-{% import 'bootstrap/wtf.html' as wtf %}
 
 {% block app_content %}
-  <!-- User sorting -->
-  <!-- Padding to correct some weird grad_class dropdown menu bug -->
-  <div class="well">
-    <div class="container-fluid">
-      <div class="row">
-        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
-          <div class="btn-group">
-            <a href="{{ url_for('main.search', q=g.search_form.q.data, sort='asc') }}" data-original-title="Sort By Alphabet" type="button" class="btn btn-info {% if sort == 'asc' %}active{% endif %}"><span class="glyphicon glyphicon-sort-by-alphabet"></span></a>
-            <a href="{{ url_for('main.search', q=g.search_form.q.data, sort='desc') }}" data-original-title="Sort By Alphabet" type="button" class="btn btn-info {% if sort == 'desc' %}active{% endif %}"><span class="glyphicon glyphicon-sort-by-alphabet-alt"></span></a>
-          </div>
-        </div>
-
-        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-8 col-lg-offset-2 col-md-offset-2 col-sm-offset-2">
-          <form class="form-search input-group pull-right" method="get" action="{{ url_for('main.search') }}">
-            {{ g.search_form.q(size=20, class='form-control', placeholder=g.search_form.q.label.text) }}
-            <span class="input-group-addon"><strong>#{{ total }}</strong></span>
-          </form>
-        </div>
-      </div>
+<!-- User sorting -->
+<div class="container-fluid my-1">
+  <div class="btn-toolbar justify-content-between" role="toolbar" aria-label="User sorting">
+    <div class="btn-group" role="group" aria-label="Alphabet sorting">
+      <a class="btn btn-outline-primary{% if sort == 'asc' %} active{% endif %}" href="{{ url_for('main.search', q=g.search_form.q.data, sort='asc') }}" data-original-title="Sort By Alphabet" role="button"><i data-feather="arrow-down"></i></a>
+      <a class="btn btn-outline-primary{% if sort == 'desc' %} active{% endif %}" href="{{ url_for('main.search', q=g.search_form.q.data, sort='desc') }}" data-original-title="Sort By Alphabet" role="button"><i data-feather="arrow-up"></i></a>
+    </div>
+    <div class="btn-group" role="group" aria-label="Results">
+      <button type="button" class="btn btn-primary">
+        Results <span class="badge badge-light">{{ total }}</span>
+      </button>
     </div>
   </div>
+</div>
 
-    <div class="container-fluid">
-      <div class="row">
-        {% for user in users.items %}
-        <div class="col-lg-3 col-md-3 col-sm-4 col-xs-6">
-          <div class="panel {% if not user.deposit %}panel-default{% elif user.balance <= 0 %}panel-danger{% elif user.balance <= 5 %}panel-warning{% else %}panel-info{% endif %}">
-            <div class="panel-heading text-center">
-              <a href="{{ url_for('main.user', username=user.username) }}">
-                <span hidden>{{ user.username }}</span hidden>
-                <img src="{{ user.avatar() }}" alt="{{ user.username }}" class="img-rounded img-responsive center-block">
-              </a>
+<div style="margin-top:10px"></div>
+
+<div class="container">
+  <div class="row">
+    {% for user in users.items %}
+    <div class="col-lg-3 col-md-4 col-sm-6 col-6">
+      <div class="card mb-4 shadow {% if not user.deposit %}text-secondary border-secondary{% elif user.balance <= 0 %}text-danger border-danger{% elif user.balance <= 5 %}text-warning border-warning{% else %}text-primary border-primary{% endif %}">
+        <a href="{{ url_for('main.user', username=user.username) }}">
+          <img class="card-img-top img-fluid" src="{{ user.avatar() }}" alt="{{ user.username }}" style="height:100%;">
+        </a>
+        <div class="card-body">
+          <h5 class="card-title text-nowrap user-card-title">
+            {% if user.nickname %}
+            "{{ user.nickname }}"<br>{{ user.last_name|upper }}
+            {% else %}
+            {{ user.first_name }}<br>{{ user.last_name|upper }}
+            {% endif %}
+          </h5>
+        </div>
+        <div class="card-footer">
+          {% if user.deposit %}
+          <div class="btn-toolbar justify-content-between" role="toolbar" aria-label="Pay and quick access item">
+            <div class="btn-group" role="group" aria-label="Pay">
+              {% include '_pay.html.j2' %}
             </div>
-
-            <div class="panel-body">
-              <h4 class="panel-title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">
-                {% if user.nickname %}
-                "{{ user.nickname }}"<br>{{ user.last_name|upper }}
-                {% else %}
-                {{ user.first_name|capitalize }}<br>{{ user.last_name|upper }}
-                {% endif %}
-              </h4>
-            </div>
-
-            <div class="panel-footer">
-              <div class="row">
-                {% if user.deposit %}
-                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
-                  {% include '_pay.html.j2' %}
-                </div>
-
-                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
-                  <div class="pull-right">
-                    {% include '_quick_access_item.html.j2' %}
-                  </div>
-                </div>
-                {% else %}
-                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 col-lg-offset-6 col-md-offset-6 col-sm-offset-6 col-xs-offset-6">
-                  <div class="pull-right">
-                    {% include '_deposit.html.j2' %}
-                  </div>
-                </div>
-                {% endif %}
+              <div class="btn-group" role="group" aria-label="Quick access item">
+                {% include '_quick_access_item.html.j2' %}
               </div>
             </div>
-          </div>
+            {% else %}
+            <div class="btn-toolbar justify-content-between" role="toolbar" aria-label="Deposit">
+              <div class="btn-group" role="group" aria-label="Deposit">
+                {% include '_deposit.html.j2' %}
+              </div>
+            </div>
+            {% endif %}
         </div>
-        {% endfor %}
       </div>
     </div>
+    {% endfor %}
+  </div>
+</div>
 
-    <div class="pager">
-      <div class="btn-group" role="group">
-        {%- for page in users.iter_pages() %}
-        <a href="{{ url_for('main.search', q=g.search_form.q.data, page=page) }}" type="button" class="btn {% if page == users.page %}btn-primary{% else %}btn-default{% endif %} {% if not page %}disabled{% endif %}">
-          {% if page %}
-          {% if page != users.page %}
-          {{ page }}
-          {% else %}
-          <strong>{{ page }}</strong>
-          {% endif %}
-          {% else %}
-          <span class=ellipsis>…</span>
-          {% endif %}
-        </a>
-        {%- endfor %}
-      </div>
-    </div>
+
+<nav aria-label="Page navigation">
+  <ul class="pagination justify-content-center">
+    {%- for page in users.iter_pages() %}
+    <li class="page-item{% if page == users.page %} active{% endif %}{%if not page %} disabled{% endif %}">
+      <a class="page-link" href="{{ url_for('main.search', q=g.search_form.q.data, page=page, sort=sort) }}">
+        {% if page %}
+        {{ page }}
+        {% else %}
+        <span class=ellipsis>…</span>
+        {% endif %}
+      </a>
+      {%- endfor %}
+    </li>
+  </ul>
+</nav>
 {% endblock %}

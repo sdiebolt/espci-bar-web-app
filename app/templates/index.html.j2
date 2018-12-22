@@ -1,113 +1,109 @@
 {% extends 'base.html.j2' %}
-{% import 'bootstrap/wtf.html' as wtf %}
 
 {% block app_content %}
-
-  <!-- User sorting -->
-  <!-- Padding to correct some weird grad_class dropdown menu bug -->
-  <div class="well">
-    <div class="container-fluid">
-      <div class="row">
-        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-5">
-          <div class="btn-group">
-            <a href="{{ url_for('main.index', sort='asc', grad_class=grad_class) }}" data-original-title="Sort By Alphabet" type="button" class="btn btn-info btn-md {% if sort == 'asc' %}active{% endif %}"><span class="glyphicon glyphicon-sort-by-alphabet"></span></a>
-            <a href="{{ url_for('main.index', sort='desc', grad_class=grad_class) }}" data-original-title="Sort By Alphabet" type="button" class="btn btn-info btn-md {% if sort == 'desc' %}active{% endif %}"><span class="glyphicon glyphicon-sort-by-alphabet-alt"></span></a>
-          </div>
-        </div>
-
-        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 col-lg-offset-2 col-md-offset-2 col-sm-offset-2 col-xs-offset-1">
-          <form class="form-search input-group pull-right" method="get" action="{{ url_for('main.search') }}">
-            {{ g.search_form.q(size=20, class='form-control', placeholder=g.search_form.q.label.text) }}
-            <div class="input-group-btn">
-            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              {% if grad_class != 0 %}{{ grad_class }}<sup>th</sup>{% else %}Extern{% endif %} <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu dropdown-menu-right scrollable-menu">
-              {% for g in grad_classes %}
-              <li>
-                <a href="{{ url_for('main.index', grad_class=g) }}">
-                  {% if g != 0 %}
-                  {{ g }}
-                  {% else %}
-                  Extern
-                  {% endif %}
-                </a>
-              </li>
-              {% endfor %}
-            </ul>
-          </div>
-          </form>
+<!-- User sorting -->
+<div class="container my-1">
+  <div class="btn-toolbar justify-content-between" role="toolbar" aria-label="User sorting">
+    <div class="btn-group" role="group" aria-label="Alphabet sorting">
+      <a class="btn btn-outline-primary{% if sort == 'asc' %} active{% endif %}" href="{{ url_for('main.index', sort='asc', grad_class=grad_class) }}" data-original-title="Sort By Alphabet" role="button"><i data-feather="arrow-down"></i></a>
+      <a class="btn btn-outline-primary{% if sort == 'desc' %} active{% endif %}" href="{{ url_for('main.index', sort='desc', grad_class=grad_class) }}" data-original-title="Sort By Alphabet" role="button"><i data-feather="arrow-up"></i></a>
+    </div>
+    <div class="btn-group" role="group" aria-label="Graduating classes">
+      <div class="dropdown">
+        <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownGradClass" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          {% if grad_class != 0 %}{{ grad_class }}<sup>th</sup>{% else %}Extern{% endif %} <span class="caret"></span>
+        </button>
+        <div class="dropdown-menu scrollable-menu" aria-labelledby="dropdownMenuButton">
+          {% for gc in grad_classes %}
+          <a class="dropdown-item" href="{{ url_for('main.index', grad_class=gc) }}">
+            {% if gc != 0 %}
+            {{ gc }}
+            {% else %}
+            Extern
+            {% endif %}
+          </a>
+          {% endfor %}
         </div>
       </div>
     </div>
   </div>
+</div>
 
-  <div style="margin-top:10px"></div>
+<div style="margin-top:10px"></div>
 
-    <div class="container-fluid">
-      <div class="row">
-        {% for user in users.items %}
-        <div class="col-lg-3 col-md-3 col-sm-4 col-xs-6">
-          <div class="panel {% if not user.deposit %}panel-default{% elif user.balance <= 0 %}panel-danger{% elif user.balance <= 5 %}panel-warning{% else %}panel-info{% endif %}">
-            <div class="panel-heading">
-              <a href="{{ url_for('main.user', username=user.username) }}">
-                <span hidden>{{ user.username }}</span hidden>
-                <img src="{{ user.avatar() }}" alt="{{ user.username }}" class="img-rounded img-responsive center-block">
-              </a>
+<div class="container">
+  <div class="row">
+    {% for user in users.items %}
+    <div class="col-lg-3 col-md-4 col-sm-6 col-6">
+      <div class="card mb-4 shadow {% if not user.deposit %}text-secondary border-secondary{% elif user.balance <= 0 %}text-danger border-danger{% elif user.balance <= 5 %}text-warning border-warning{% else %}text-primary border-primary{% endif %}">
+        <a href="{{ url_for('main.user', username=user.username) }}">
+          <img class="card-img-top img-fluid" src="{{ user.avatar() }}" alt="{{ user.username }}">
+        </a>
+        <div class="card-body">
+          <h5 class="card-title text-nowrap user-card-title">
+            {% if user.nickname %}
+            "{{ user.nickname }}"<br>{{ user.last_name|upper }}
+            {% else %}
+            {{ user.first_name }}<br>{{ user.last_name|upper }}
+            {% endif %}
+          </h5>
+        </div>
+        <div class="card-footer">
+          {% if user.deposit %}
+          <div class="btn-toolbar justify-content-between" role="toolbar" aria-label="Pay and quick access item">
+            <div class="btn-group" role="group" aria-label="Pay">
+              {% include '_pay.html.j2' %}
             </div>
-
-            <div class="panel-body" style="min-height: 67px; max-height: 67px">
-              <h4 class="panel-title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">
-                {% if user.nickname %}
-                "{{ user.nickname }}"<br>{{ user.last_name|upper }}
-                {% else %}
-                {{ user.first_name }}<br>{{ user.last_name|upper }}
-                {% endif %}
-              </h4>
-            </div>
-
-            <div class="panel-footer">
-              <div class="row">
-                {% if user.deposit %}
-                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
-                  {% include '_pay.html.j2' %}
-                </div>
-
-                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
-                  <div class="pull-right">
-                    {% include '_quick_access_item.html.j2' %}
-                  </div>
-                </div>
-                {% else %}
-                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 col-lg-offset-6 col-md-offset-6 col-sm-offset-6 col-xs-offset-6">
-                  <div class="pull-right">
-                    {% include '_deposit.html.j2' %}
-                  </div>
-                </div>
-                {% endif %}
-              </div>
+            <div class="btn-group" role="group" aria-label="Quick access item">
+              {% include '_quick_access_item.html.j2' %}
             </div>
           </div>
+          {% else %}
+          <div class="btn-toolbar justify-content-between" role="toolbar" aria-label="Deposit">
+            <div class="btn-group" role="group" aria-label="Deposit">
+              {% include '_deposit.html.j2' %}
+            </div>
+          </div>
+          {% endif %}
         </div>
-        {% endfor %}
       </div>
     </div>
+    {% endfor %}
+  </div>
+</div>
 
-    <div class="pager">
-      <div class="btn-group" role="group">
-        {%- for page in users.iter_pages() %}
-        <a href="{{ url_for('main.index', page=page, sort=sort, grad_class=grad_class) }}" type="button" class="btn {% if page == users.page %}btn-primary{% else %}btn-default{% endif %} {% if not page %}disabled{% endif %}">
-          {% if page %}
-          {% if page != users.page %}
-          {{ page }}
-          {% else %}
-          <strong>{{ page }}</strong>
-          {% endif %}
-          {% else %}
-          <span class=ellipsis>…</span>
-          {% endif %}
-        </a>
-        {%- endfor %}
-      </div>
-    </div>
+<nav aria-label="Page navigation">
+  <ul class="pagination justify-content-center">
+    {%- for page in users.iter_pages() %}
+    <li class="page-item{% if page == users.page %} active{% endif %}{%if not page %} disabled{% endif %}">
+      <a class="page-link" href="{{ url_for('main.index', page=page, sort=sort, grad_class=grad_class) }}">
+        {% if page %}
+        {{ page }}
+        {% else %}
+        <span class=ellipsis>…</span>
+        {% endif %}
+      </a>
+      {%- endfor %}
+    </li>
+  </ul>
+</nav>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+
+<!-- Populate pay dropdown -->
+<script>
+$(".pay-btn").click(function() {
+  var pay_btn = $(this)
+  var dropdown = $(pay_btn).find('.dropdown-menu')
+  $.post('/get_user_products', {
+    username: $(pay_btn).attr('id').replace('-pay-btn', '')
+  }).done(function(response) {
+    $(dropdown).append(response['html'])
+  }).fail(function() {
+    $(dropdown).append('Error: Could not contact server.')
+  });
+});
+</script>
 {% endblock %}

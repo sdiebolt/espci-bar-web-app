@@ -1,10 +1,10 @@
-<div class="btn-group">
-  <button type="button" class="btn btn-md btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-    <span class="transaction">Deposit </span><span class="glyphicon glyphicon-ok"></span>
+<div class="dropdown">
+  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    Deposit
   </button>
-  <ul class="dropdown-menu dropdown-menu-right">
-    <li class="dropdown-header">User gave deposit?</li>
-    <li><a href="{{ url_for('main.deposit', username=user.username) }}">Yes</a></li>
-    <li><a href="#">No</a></li>
-  </ul>
+  <div class="dropdown-menu" aria-labelledby="dropdownDeposit">
+    <h6 class="dropdown-header">User gave deposit?</h6>
+    <a class="dropdown-item" href="{{ url_for('main.deposit', username=user.username) }}">Yes</a>
+    <a class="dropdown-item" href="#">No</a>
+  </div>
 </div>
