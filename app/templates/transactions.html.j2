@@ -39,14 +39,9 @@
         <td class="align-middle" {% if transaction.is_reverted %}style="text-decoration: line-through;"{% endif %}>{% if transaction.balance_change %}{{ '%0.2f' | format(transaction.balance_change) }}€{% endif %}</td>
         <td class="align-middle">
           <div class="btn-group" role="group" aria-label="Revert transaction">
-            <button class="btn btn-danger dropdown-toggle{% if transaction.is_reverted or 'Revert' in transaction.type %} disabled{% endif %}" type="button" id="dropdown-revert-transaction" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <button type="button" class="btn btn-danger{% if transaction.is_reverted or 'Revert' in transaction.type %} disabled{% endif %}" data-toggle="modal" data-target="#reverse-transaction-modal" data-name="{{ transaction.id }}" data-url="{{ url_for('main.revert_transaction', transaction_id=transaction.id) }}">
               <i class="material-icons align-middle">fast_rewind</i>
             </button>
-            <div class="dropdown-menu" aria-labelledby="dropdown-revert-transaction">
-              <h6 class="dropdown-header">Revert this transaction?</h6>
-              <a class="dropdown-item" href="{{ url_for('main.revert_transaction', transaction_id=transaction.id) }}">Yes</a>
-              <a class="dropdown-item" href="#">No</a>
-            </div>
           </div>
         </td>
       </tr>
@@ -70,4 +65,44 @@
     </li>
   </ul>
 </nav>
+{% endblock %}
+
+{% block modals %}
+{{ super () }}
+<!-- Revert transaction modal -->
+<div class="modal fade" id="reverse-transaction-modal" tabindex="-1" role="dialog" aria-labelledby="reverse-transaction-modal-label" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="reverse-transaction-modal-label">Reverse transaction</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <i class="material-icons align-middle">close</i>
+        </button>
+      </div>
+      <div class="modal-body">
+        Reverse transaction #<span class="name"></span>?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+        <a class="btn btn-primary" href="#" role="button">Yes</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super () }}
+<!-- Populate transaction reversion modal -->
+<script>
+// Populate item deletion modal with item name and url
+$('#reverse-transaction-modal').on('show.bs.modal', function (event) {
+  var button = $(event.relatedTarget) // Button that triggered the modal
+  var name = button.data('name') // Extract info from data-* attributes
+  var url = button.data('url') // Extract info from data-* attributes
+  var modal = $(this)
+  modal.find('.modal-footer a').attr('href', url)
+  modal.find('.modal-body .name').text(name)
+})
+</script>
 {% endblock %}

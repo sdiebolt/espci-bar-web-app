@@ -54,14 +54,9 @@
           <div class="btn-group" role="group" aria-label="Item actions">
             <a class="btn btn-success{% if item.id == quick_access_item.id %} disabled{% endif %}" href="{{ url_for('main.set_quick_access_item', item_name=item.name) }}" data-original-title="Set quick access item" role="button"><i class="material-icons align-middle">star</i></a>
             <a class="btn btn-warning" href="{{ url_for('main.edit_item', item_name=item.name) }}" data-original-title="Edit item" role="button"><i class="material-icons align-middle">edit</i></a>
-            <button class="btn btn-danger dropdown-toggle" type="button" id="dropdownDeleteItem" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete-item-modal" data-name="{{ item.name }}" data-url="{{ url_for('main.delete_item', item_name=item.name) }}">
               <i class="material-icons align-middle">delete</i>
             </button>
-            <div class="dropdown-menu" aria-labelledby="dropdownDeleteItem">
-              <h6 class="dropdown-header">Delete this item?</h6>
-              <a class="dropdown-item" href="{{ url_for('main.delete_item', item_name=item.name) }}">Yes</a>
-              <a class="dropdown-item" href="#">No</a>
-            </div>
           </div>
         </td>
       </tr>
@@ -85,4 +80,44 @@
     </li>
   </ul>
 </nav>
+{% endblock %}
+
+{% block modals %}
+{{ super () }}
+<!-- Item deletion modal -->
+<div class="modal fade" id="delete-item-modal" tabindex="-1" role="dialog" aria-labelledby="delete-item-modal-label" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="delete-item-modal-label">Delete item</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <i class="material-icons align-middle">close</i>
+        </button>
+      </div>
+      <div class="modal-body">
+        Delete item <span class="name"></span>?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+        <a class="btn btn-primary" href="#" role="button">Yes</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super () }}
+<!-- Populate item deletion modal -->
+<script>
+// Populate item deletion modal with item name and url
+$('#delete-item-modal').on('show.bs.modal', function (event) {
+  var button = $(event.relatedTarget) // Button that triggered the modal
+  var name = button.data('name') // Extract info from data-* attributes
+  var url = button.data('url') // Extract info from data-* attributes
+  var modal = $(this)
+  modal.find('.modal-footer a').attr('href', url)
+  modal.find('.modal-body .name').text(name)
+})
+</script>
 {% endblock %}

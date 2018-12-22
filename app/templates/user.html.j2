@@ -78,7 +78,12 @@
         <div class="btn-group" role="group" aria-label="User actions">
           <a class="btn {% if user.balance <= 0 %}btn-danger{% elif user.balance <= 5 %}btn-warning{% else %}btn-primary{% endif %}" href="{{ url_for('main.qrcode', username=user.username) }}" role="button"><i class="material-icons align-middle">camera_alt</i></a>
           {% include '_pay.html.j2' %}
-          {% include '_top_up.html.j2' %}
+
+          <!-- Top up modal button -->
+          <button type="button" class="btn user-card-btn btn {% if user.balance <= 0 %}btn-danger{% elif user.balance <= 5 %}btn-warning{% else %}btn-primary{% endif %}" data-toggle="modal" data-target="#top-up-modal">
+            <i class="material-icons icon align-middle">credit_card</i><span class="text">Top up</span>
+          </button>
+
           {% include '_quick_access_item.html.j2' %}
         </div>
         {% elif current_user.is_bartender %}
@@ -97,19 +102,61 @@
             <i class="material-icons align-middle">edit</i>
           </a>
 
-          <button class="btn btn-danger dropdown-toggle" type="button" id="dropdownDeleteUser" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete-user-modal">
             <i class="material-icons align-middle">delete</i>
           </button>
-          <div class="dropdown-menu" aria-labelledby="dropdownDeleteUser">
-            <h6 class="dropdown-header">Delete this user?</h6>
-            <a class="dropdown-item" href="{{ url_for('main.delete_user', username=user.username) }}">Yes</a>
-            <a class="dropdown-item" href="#">No</a>
-          </div>
         </div>
         {% endif %}
       </div>
     </div>
     {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+{% block modals %}
+<!-- User deletion modal -->
+<div class="modal fade" id="delete-user-modal" tabindex="-1" role="dialog" aria-labelledby="delete-user-modal-label" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="delete-user-modal-label">Delete user</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <i class="material-icons align-middle">close</i>
+        </button>
+      </div>
+      <div class="modal-body">
+        Delete user {{ user.first_name }} {{ user.last_name }}?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+        <a class="btn btn-primary" href="{{ url_for('main.delete_user', username=user.username) }}" role="button">Yes</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- User top up modal -->
+<div class="modal fade" id="top-up-modal" tabindex="-1" role="dialog" aria-labelledby="top-up-modal-label" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <form class="modal-content" action="{{ url_for('main.top_up', username=user.username) }}" method="post">
+      <div class="modal-header">
+        <h5 class="modal-title" id="top-up-modal-label">Top up – {{ user.first_name }} {{ user.last_name }}</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <i class="material-icons align-middle">close</i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="input-group">
+          <label for="topUpAmount" class="sr-only">Top Up</label>
+          <input class="form-control" type="number" name="amount" id="topUpAmount" step=0.01 min=0 name="amount" placeholder="Amount" aria-describedby="top-up-submit">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <input class="btn btn-primary" type="submit" value="Top up" role="button">
+      </div>
+    </div>
   </div>
 </div>
 {% endblock %}
