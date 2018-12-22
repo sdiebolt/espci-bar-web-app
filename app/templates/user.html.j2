@@ -76,7 +76,7 @@
       <div class="btn-toolbar justify-content-between" role="toolbar" aria-label="User button toolbar">
         {% if current_user.is_bartender and user.deposit %}
         <div class="btn-group" role="group" aria-label="User actions">
-          <a class="btn btn-primary" href="{{ url_for('main.qrcode', username=user.username) }}" role="button"><i data-feather="grid"></i></a>
+          <a class="btn {% if user.balance <= 0 %}btn-danger{% elif user.balance <= 5 %}btn-warning{% else %}btn-primary{% endif %}" href="{{ url_for('main.qrcode', username=user.username) }}" role="button"><i class="material-icons align-middle">camera_alt</i></a>
           {% include '_pay.html.j2' %}
           {% include '_top_up.html.j2' %}
           {% include '_quick_access_item.html.j2' %}
@@ -87,18 +87,18 @@
         </div>
         {% else %}
         <div class="btn-group" role="group" aria-label="User actions">
-          <a class="btn btn-primary" href="{{ url_for('main.qrcode', username=user.username) }}" role="button"><i data-feather="grid"></i></a>
+          <a class="btn btn-primary" href="{{ url_for('main.qrcode', username=user.username) }}" role="button"><i class="material-icons align-middle">camera_alt</i></a>
         </div>
         {% endif %}
-        
+
         {% if current_user.is_bartender %}
         <div class="btn-group">
           <a class="btn btn-warning" href="{{ url_for('main.edit_profile', username=user.username) }}" role="button">
-            <i data-feather="edit"></i>
+            <i class="material-icons align-middle">edit</i>
           </a>
 
           <button class="btn btn-danger dropdown-toggle" type="button" id="dropdownDeleteUser" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <i data-feather="x-square"></i>
+            <i class="material-icons align-middle">delete</i>
           </button>
           <div class="dropdown-menu" aria-labelledby="dropdownDeleteUser">
             <h6 class="dropdown-header">Delete this user?</h6>

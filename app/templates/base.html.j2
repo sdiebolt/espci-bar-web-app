@@ -16,6 +16,9 @@
     <!-- Bootstrap 4.1 core CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
 
+    <!-- Material Design icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
     <!-- Custom styles and favicon -->
     <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
@@ -68,7 +71,7 @@
         <form class="form-inline my-2 my-lg-0 ml-auto" method="get" action="{{ url_for('main.search') }}">
           {{ g.search_form.q(size=20, class_='form-control mr-sm-2', placeholder=g.search_form.q.label.text) }}
         </form>
-        <a class="btn btn-{% if request.path != '/scanqrcode' and current_user.is_bartender %}outline-{% endif %}primary mx-2 my-2 my-sm-0" href="{{ url_for('main.scanqrcode') }}" role="button"><i data-feather="grid"></i></a>
+        <a class="btn btn-{% if request.path != '/scanqrcode' and current_user.is_bartender %}outline-{% endif %}primary mx-2 my-2 my-sm-0" href="{{ url_for('main.scanqrcode') }}" role="button"><i class="material-icons align-middle">camera_alt</i></a>
         {% endif %}
         <ul class="navbar-nav">
           <li class="nav-item{% if request.path == '/user/'+current_user.username or request.path == '/edit_profile/'+current_user.username %} active{% endif %}">
@@ -89,7 +92,7 @@
       {% for category, message in messages %}
       <div class="alert alert-{{ category }} alert-dismissible" role="alert">
         {{ message }}
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><i data-feather="x"></i></button>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><i class="material-icons">close</i></button>
       </div>
       {% endfor %}
       {% endif %}
@@ -108,12 +111,6 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
     {{ moment.include_jquery() }}
     {{ moment.include_moment() }}
-
-    <!-- Icons -->
-    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
-    <script>
-      feather.replace()
-    </script>
 
     <!-- Graphs -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
