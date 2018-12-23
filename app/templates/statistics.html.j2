@@ -1,7 +1,36 @@
 {% extends 'base.html.j2' %}
 
 {% block app_content %}
-<div class="card-group">
+<div class="card-deck mt-3">
+  <div class="card shadow bg-primary text-white">
+    <div class="card-body">
+      <div class="media">
+        <i class="material-icons align-self-center md-48 mr-3">face</i>
+        <div class="media-body">
+          <h5 class="card-title mt-0">{{ nb_daily_clients }}</h5>
+          <h6 class="card-subtitle">Daily clients</h6>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card shadow bg-primary text-white">
+    <div class="card-body">
+      <div class="media">
+        <i class="material-icons align-self-center md-48 mr-3">face</i>
+        <div class="media-body">
+          <h5 class="card-title mt-0">{{ nb_daily_clients }}</h5>
+          <h6 class="card-subtitle">Daily clients</h6>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-body">
+      Test
+    </div>
+  </div>
+</div>
+<!-- <div class="card-group">
   <div class="card card-info">
     <div class="card-header">
       <h4 class="card-title">
@@ -46,13 +75,14 @@
       </div>
     </div>
   </div>
-</div>
+</div> -->
 {% endblock %}
 
 {% block scripts %}
 {{ super() }}
 
 <script>
+$('.toast').toast('show');
 function updateData(chart, chartData) {
   chart.data = chartData;
   chart.update();

@@ -196,7 +196,7 @@ def edit_profile(username):
         if (form.password.data != ''):
             user.set_password(form.password.data)
         db.session.commit()
-        flash('Your changes have been saved.', 'success')
+        flash('Your changes have been saved.', 'primary')
         return redirect(url_for('main.user', username=user.username))
     elif request.method == 'GET':
         form.first_name.data = user.first_name
@@ -240,7 +240,7 @@ def delete_user(username):
     user = User.query.filter_by(username=username).first_or_404()
     db.session.delete(user)
     db.session.commit()
-    flash('The user ' + username + ' has been deleted.', 'success')
+    flash('The user ' + username + ' has been deleted.', 'primary')
     return redirect(url_for('main.index'))
 
 def month_year_iter( start_month, start_year, end_month, end_year ):
@@ -264,6 +264,11 @@ def statistics():
     nb_bartenders = User.query.filter_by(is_bartender=True).count()
     # Number of active users
     nb_active_users = User.query.filter(User.transactions.any(Transaction.date > datetime.datetime.utcnow() - datetime.timedelta(days=current_app.config['DAYS_BEFORE_INACTIVE']))).count()
+
+    today = datetime.datetime.today()
+
+    # Daily clients
+    nb_daily_clients = User.query.filter(User.transactions.any(Transaction.date > datetime.datetime(year=today.year, month=today.month, day=today.day, hour=6))).count()
 
     # Get last 12 months range
     current_year = datetime.date.today().year
@@ -320,7 +325,8 @@ def statistics():
                             months_labels=months_labels,
                             paid_this_month=paid_this_month,
                             topped_this_month=topped_this_month,
-                            days_labels=days_labels)
+                            days_labels=days_labels,
+                            nb_daily_clients=nb_daily_clients)
 
 @bp.route('/transactions')
 @login_required
@@ -383,7 +389,7 @@ def revert_transaction():
     db.session.add(transaction)
     db.session.commit()
 
-    flash('The transaction #'+str(transaction_id)+' has been reverted.', 'success')
+    flash('The transaction #'+str(transaction_id)+' has been reverted.', 'primary')
     return redirect(request.referrer)
 
 @bp.route('/inventory')
@@ -454,7 +460,7 @@ def add_item():
                     is_favorite=form.is_favorite.data)
         db.session.add(item)
         db.session.commit()
-        flash('The item '+item.name+' was successfully added.', 'success')
+        flash('The item '+item.name+' was successfully added.', 'primary')
         return redirect(url_for('main.inventory'))
     return render_template('add_item.html.j2', title='Add item', form=form)
 
@@ -480,7 +486,7 @@ def edit_item(item_name):
         item.is_quantifiable = form.is_quantifiable.data
         item.is_favorite = form.is_favorite.data
         db.session.commit()
-        flash('Your changes have been saved.', 'success')
+        flash('Your changes have been saved.', 'primary')
         return redirect(url_for('main.inventory'))
     elif request.method == 'GET':
         form.name.data = item.name
@@ -508,7 +514,7 @@ def delete_item():
     item = Item.query.filter_by(name=item_name).first_or_404()
     db.session.delete(item)
     db.session.commit()
-    flash('The item ' + item_name + ' has been deleted.', 'success')
+    flash('The item ' + item_name + ' has been deleted.', 'primary')
     return redirect(request.referrer)
 
 @bp.route('/top_up', methods=['GET', 'POST'])
@@ -538,7 +544,7 @@ def top_up():
     db.session.commit()
 
     flash('You added ' + str(amount) + '€ to ' + user.first_name + ' ' + \
-            user.last_name + "'s account.", 'info')
+            user.last_name + "'s account.", 'primary')
     return redirect(request.referrer)
 
 @bp.route('/pay', methods=['GET'])
@@ -583,7 +589,7 @@ def pay():
 
     flash(user.first_name + ' ' + user.last_name + ' successfully bought ' +\
             item.name +\
-            ' (Balance: {:.2f}'.format(user.balance)+'€).', 'success')
+            ' (Balance: {:.2f}'.format(user.balance)+'€).', 'primary')
     return redirect(request.referrer)
 
 @bp.route('/scanqrcode')
@@ -641,7 +647,7 @@ def global_settings():
             s.value = form.value.data[index]
             current_app.config[s.key] = s.value
         db.session.commit()
-        flash('Global settings successfully updated.', 'success')
+        flash('Global settings successfully updated.', 'primary')
         return redirect(url_for('main.global_settings'))
     else:
         settings = GlobalSetting.query.all()

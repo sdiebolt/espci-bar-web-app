@@ -9,6 +9,9 @@ Thumbs.db
 *.jpg
 *.png
 
+# Whooshee
+whooshee/
+
 # PDF cards
 pdf
 latex

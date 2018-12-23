@@ -88,12 +88,21 @@
     <div class="container">
       {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
-      {% for category, message in messages %}
-      <div class="alert alert-{{ category }} alert-dismissible" role="alert">
-        {{ message }}
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><i class="material-icons">close</i></button>
+      <div style="position: absolute; top:60px; right: 10px;z-index:99999;">
+        {% for category, message in messages %}
+        <div class="toast bg-{{ category }} text-white" data-delay="4000" style="width:400px;">
+          <div class="toast-header">
+            <i class="material-icons mr-auto">announcement</i>
+            <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="toast-body">
+            {{ message }}
+          </div>
+        </div>
+        {% endfor %}
       </div>
-      {% endfor %}
       {% endif %}
       {% endwith %}
 
@@ -147,6 +156,11 @@
       modal.find('.modal-footer a').attr('href', url)
       modal.find('.modal-body .name').text(name)
     })
+
+    $(document).ready(function() {
+      console.log($('toast'));
+      $('.toast').toast('show');
+    });
     </script>
     {%- endblock scripts %}
     {%- endblock body %}
