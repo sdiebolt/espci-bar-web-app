@@ -261,9 +261,9 @@ def statistics():
 
     # Get current day start
     today = datetime.datetime.today()
+    yesterday = today - datetime.timedelta(days=1)
     current_year = today.year
     current_month = today.month
-    yesterday = today - datetime.timedelta(days=1)
     if today.hour < 6:
         current_day_start = datetime.datetime(year=yesterday.year, month=yesterday.month, day=yesterday.day, hour=6)
     else:
@@ -276,7 +276,8 @@ def statistics():
     alcohol_qty = Transaction.query.filter(Transaction.date > current_day_start).filter(Transaction.type.like('Pay%')).filter(Transaction.item.has(is_alcohol=True)).filter_by(is_reverted=False).count() * 0.25
 
     # Daily revenue
-    daily_revenue = -db.session.query(func.sum(Transaction.balance_change)).filter(Transaction.date > current_day_start).filter(Transaction.type.like('Pay%')).filter_by(is_reverted=False).scalar()
+    daily_transactions = Transaction.query.filter(Transaction.date > current_day_start).filter(Transaction.type.like('Pay%')).filter_by(is_reverted=False).all()
+    daily_revenue = sum([abs(t.balance_change) for t in daily_transactions])
 
     # Get money spent and topped up this month
     paid_this_month = []
