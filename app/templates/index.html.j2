@@ -92,16 +92,19 @@
 
 <!-- Populate pay dropdown -->
 <script>
-$(".pay-btn").click(function() {
-  var pay_btn = $(this)
-  var dropdown = $(pay_btn).find('.dropdown-menu')
-  $.post('/get_user_products', {
-    username: $(pay_btn).attr('id').replace('-pay-btn', '')
-  }).done(function(response) {
-    $(dropdown).append(response['html'])
-  }).fail(function() {
-    $(dropdown).append('Error: Could not contact server.')
-  });
-});
+$(document).ready(function() {
+  $(".pay-btn").one('click', function() {
+    var pay_btn = $(this)
+    var dropdown = $(pay_btn).find('.dropdown-menu')
+    $(dropdown).html('<div class="d-flex justify-content-center"><div class="spinner-border" role="status"><span class="sr-only">Loading...</span></div></div>')
+    $.post('/get_user_products', {
+      username: $(pay_btn).attr('id').replace('-pay-btn', '')
+    }).done(function(response) {
+      $(dropdown).html(response['html'])
+    }).fail(function() {
+      $(dropdown).html('Error: Could not contact server.')
+    })
+  })
+})
 </script>
 {% endblock %}
