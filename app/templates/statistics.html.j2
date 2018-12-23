@@ -45,10 +45,10 @@
 
 <div class="card border-primary">
   <div class="card-header">
-    <h4 class="card-title text-primary">Transactions</h4>
+    <h4 class="card-title text-primary">Monthly transactions</h4>
   </div>
   <div class="card-body">
-    <canvas id="transactions-chart" width="600" height="300" aria-label="transactions-chart" role="img"></canvas>
+    <canvas id="transactions-chart" width="600" height="400" aria-label="transactions-chart" role="img"></canvas>
   </div>
 </div>
 {% endblock %}
@@ -93,6 +93,7 @@ var transactionsChart = new Chart(ctx, {
   data: chartDataMonth,
   options: {
     responsive: true,
+    maintainAspectRatio: false,
     tooltips: {
       mode: 'index',
       intersect: false,

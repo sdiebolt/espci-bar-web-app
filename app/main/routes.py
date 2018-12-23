@@ -137,13 +137,16 @@ def get_user_products():
 
     return jsonify({'html': pay_template})
 
-@bp.route('/user/<username>')
+@bp.route('/user/<username>', methods=['GET'])
 @login_required
 def user(username):
     """ View user profile page. """
     if current_user.username != username and (not current_user.is_bartender):
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.index'))
+
+    # Get transactions page
+    page = request.args.get('page', 1, type=int)
 
     # Get user
     user = User.query.filter_by(username=username).first_or_404()
@@ -157,6 +160,8 @@ def user(username):
     amount_paid = sum([abs(t.balance_change) for t in transaction_paid])
     transactions_top_up = user.transactions.filter_by(is_reverted=False).filter(Transaction.type == 'Top up').all()
     amount_topped_up = sum([abs(t.balance_change) for t in transactions_top_up])
+
+    transactions = user.transactions.order_by(Transaction.id.desc()).paginate(page, 5, True)
 
     # Get inventory
     inventory = Item.query.order_by(Item.name.asc()).all()
@@ -175,7 +180,8 @@ def user(username):
                             inventory=inventory, amount_paid=amount_paid,
                             favorite_inventory=favorite_inventory,
                             quick_access_item=quick_access_item,
-                            amount_topped_up=amount_topped_up)
+                            amount_topped_up=amount_topped_up,
+                            transactions=transactions)
 
 @bp.route('/edit_profile/<username>', methods=['GET', 'POST'])
 @fresh_login_required

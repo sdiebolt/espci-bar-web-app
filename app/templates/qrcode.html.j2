@@ -1,7 +1,7 @@
 {% extends 'base.html.j2' %}
 
 {% block app_content %}
-  <div class="container">
-    <a href="{{ url_for('main.user', username=user.username) }}"><img alt="User picture" src="{{ user.qr() }}" class="img-responsive" style="margin: 0 auto; margin-top: 100px;"></a>
+  <div class="d-flex justify-content-center mt-5">
+    <a href="{{ url_for('main.user', username=user.username) }}"><img alt="User picture" src="{{ user.qr() }}" class="img-responsive"></a>
   </div>
 {% endblock %}
