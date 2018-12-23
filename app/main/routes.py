@@ -3,8 +3,9 @@ from calendar import monthrange
 from flask import render_template, flash, redirect, url_for, request, g, \
     jsonify, current_app
 from flask_login import current_user, login_required, fresh_login_required
-from sqlalchemy.sql.expression import and_
 from sqlalchemy import extract
+from sqlalchemy.sql.expression import and_
+from sqlalchemy import func
 from app import db
 from app.main.forms import EditProfileForm, EditItemForm, AddItemForm, \
     SearchForm, GlobalSettingsForm
@@ -113,7 +114,7 @@ def search():
                             favorite_inventory=favorite_inventory,
                             quick_access_item=quick_access_item)
 
-@bp.route('/get_user_products', methods=['POST'])
+@bp.route('/get_user_products', methods=['GET'])
 @login_required
 def get_user_products():
     """ Returns the list of products that a user can buy. """
@@ -122,7 +123,7 @@ def get_user_products():
         return redirect(url_for('main.index'))
 
     # Get user
-    user = User.query.filter_by(username=request.form['username']).first_or_404()
+    user = User.query.filter_by(username=request.args['username']).first_or_404()
 
     # Get inventory
     inventory = Item.query.order_by(Item.name.asc()).all()
@@ -258,49 +259,31 @@ def statistics():
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.index'))
 
-    # Number of clients
-    nb_users = User.query.count()
-    # Number of bartenders
-    nb_bartenders = User.query.filter_by(is_bartender=True).count()
-    # Number of active users
-    nb_active_users = User.query.filter(User.transactions.any(Transaction.date > datetime.datetime.utcnow() - datetime.timedelta(days=current_app.config['DAYS_BEFORE_INACTIVE']))).count()
-
+    # Get current day start
     today = datetime.datetime.today()
+    current_year = today.year
+    current_month = today.month
+    yesterday = today - datetime.timedelta(days=1)
+    if today.hour < 6:
+        current_day_start = datetime.datetime(year=yesterday.year, month=yesterday.month, day=yesterday.day, hour=6)
+    else:
+        current_day_start = datetime.datetime(year=today.year, month=today.month, day=today.day, hour=6)
 
     # Daily clients
-    nb_daily_clients = User.query.filter(User.transactions.any(Transaction.date > datetime.datetime(year=today.year, month=today.month, day=today.day, hour=6))).count()
+    nb_daily_clients = User.query.filter(User.transactions.any(Transaction.date > current_day_start)).count()
 
-    # Get last 12 months range
-    current_year = datetime.date.today().year
-    current_month = datetime.date.today().month
-    if current_month == 12:
-        previous_year = current_year
-    else:
-        previous_year = current_year - 1
-    previous_month = (current_month-12) % 12
+    # Daily alcohol consumption
+    alcohol_qty = Transaction.query.filter(Transaction.date > current_day_start).filter(Transaction.type.like('Pay%')).filter(Transaction.item.has(is_alcohol=True)).filter_by(is_reverted=False).count() * 0.25
 
-    # Get money spent and topped up last 12 months
-    paid_per_month = []
-    topped_per_month = []
-    for (y, m) in month_year_iter(previous_month+1, previous_year, current_month+1, current_year):
-        transactions_paid_y = Transaction.query.filter(and_(extract('month', Transaction.date) == m, extract('year', Transaction.date) == y)).filter(Transaction.type.like('Pay%')).filter_by(is_reverted=False).all()
-        transactions_topped_y = Transaction.query.filter(and_(extract('month', Transaction.date) == m, extract('year', Transaction.date) == y)).filter(Transaction.type.like('Top up')).filter_by(is_reverted=False).all()
-        paid_per_month.append(0)
-        for t in transactions_paid_y:
-            paid_per_month[-1] -= t.balance_change
-        topped_per_month.append(0)
-        for t in transactions_topped_y:
-            topped_per_month[-1] += t.balance_change
-
-    # Generate months labels
-    months_labels = ['%.2d' % m[1] + '/'+str(m[0]) for m in list(month_year_iter(previous_month+1, previous_year, current_month+1, current_year))]
+    # Daily revenue
+    daily_revenue = -db.session.query(func.sum(Transaction.balance_change)).filter(Transaction.date > current_day_start).filter(Transaction.type.like('Pay%')).filter_by(is_reverted=False).scalar()
 
     # Get money spent and topped up this month
     paid_this_month = []
     topped_this_month = []
     for day in range(1, monthrange(current_year, current_month)[1] + 1):
-        transactions_paid_m = Transaction.query.filter(and_(extract('day', Transaction.date) == day, and_(extract('month', Transaction.date) == m, extract('year', Transaction.date) == y))).filter(Transaction.type.like('Pay%')).filter_by(is_reverted=False).all()
-        transactions_topped_m = Transaction.query.filter(and_(extract('day', Transaction.date) == day, and_(extract('month', Transaction.date) == m, extract('year', Transaction.date) == y))).filter(Transaction.type.like('Top up')).filter_by(is_reverted=False).all()
+        transactions_paid_m = Transaction.query.filter(and_(extract('day', Transaction.date) == day, and_(extract('month', Transaction.date) == current_month, extract('year', Transaction.date) == current_year))).filter(Transaction.type.like('Pay%')).filter_by(is_reverted=False).all()
+        transactions_topped_m = Transaction.query.filter(and_(extract('day', Transaction.date) == day, and_(extract('month', Transaction.date) == current_month, extract('year', Transaction.date) == current_year))).filter(Transaction.type.like('Top up')).filter_by(is_reverted=False).all()
         paid_this_month.append(0)
         for t in transactions_paid_m:
             paid_this_month[-1] -= t.balance_change
@@ -311,22 +294,13 @@ def statistics():
     # Generate days labels
     days_labels = ['%.2d' % current_month + '/' + '%.2d' % day for day in range(1, monthrange(current_year, current_month)[1] + 1)]
 
-    # Number of transactions
-    nb_transactions = Transaction.query.count()
-    # Amount of money paid
-    transactions_paid = Transaction.query.filter_by(is_reverted=False).filter(Transaction.type.like('Pay%')).all()
-    amount_paid = sum([abs(t.balance_change) for t in transactions_paid])
-
     return render_template('statistics.html.j2', title='Statistics',
-                            nb_users=nb_users, nb_active_users=nb_active_users,
-                            nb_bartenders=nb_bartenders,
-                            paid_per_month=paid_per_month,
-                            topped_per_month=topped_per_month,
-                            months_labels=months_labels,
                             paid_this_month=paid_this_month,
                             topped_this_month=topped_this_month,
                             days_labels=days_labels,
-                            nb_daily_clients=nb_daily_clients)
+                            nb_daily_clients=nb_daily_clients,
+                            alcohol_qty=alcohol_qty,
+                            daily_revenue=daily_revenue)
 
 @bp.route('/transactions')
 @login_required

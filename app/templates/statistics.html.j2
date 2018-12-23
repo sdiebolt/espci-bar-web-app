@@ -1,88 +1,62 @@
 {% extends 'base.html.j2' %}
 
 {% block app_content %}
-<div class="card-deck mt-3">
-  <div class="card shadow bg-primary text-white">
-    <div class="card-body">
-      <div class="media">
-        <i class="material-icons align-self-center md-48 mr-3">face</i>
-        <div class="media-body">
-          <h5 class="card-title mt-0">{{ nb_daily_clients }}</h5>
-          <h6 class="card-subtitle">Daily clients</h6>
+<div class="row mt-3">
+  <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-12 mb-3">
+    <div class="card shadow bg-primary text-white">
+      <div class="card-body">
+        <div class="media">
+          <i class="material-icons align-self-center md-48 mr-3">face</i>
+          <div class="media-body">
+            <h5 class="card-title mt-0">{{ nb_daily_clients }}</h5>
+            <h6 class="card-subtitle">Daily clients</h6>
+          </div>
         </div>
       </div>
     </div>
   </div>
-  <div class="card shadow bg-primary text-white">
-    <div class="card-body">
-      <div class="media">
-        <i class="material-icons align-self-center md-48 mr-3">face</i>
-        <div class="media-body">
-          <h5 class="card-title mt-0">{{ nb_daily_clients }}</h5>
-          <h6 class="card-subtitle">Daily clients</h6>
+  <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-12 mb-3">
+    <div class="card shadow bg-primary text-white">
+      <div class="card-body">
+        <div class="media">
+          <i class="material-icons align-self-center md-48 mr-3">local_drink</i>
+          <div class="media-body">
+            <h5 class="card-title mt-0">{{ alcohol_qty }} liters</h5>
+            <h6 class="card-subtitle">Daily alcohol</h6>
+          </div>
         </div>
       </div>
     </div>
   </div>
-  <div class="card">
-    <div class="card-body">
-      Test
+  <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-12 mb-3">
+    <div class="card shadow bg-primary text-white">
+      <div class="card-body">
+        <div class="media">
+          <i class="material-icons align-self-center md-48 mr-3">euro_symbol</i>
+          <div class="media-body">
+            <h5 class="card-title mt-0">{{ '%0.2f' % daily_revenue | float }}€</h5>
+            <h6 class="card-subtitle">Daily revenue</h6>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
-<!-- <div class="card-group">
-  <div class="card card-info">
-    <div class="card-header">
-      <h4 class="card-title">
-        <a data-toggle="collapse" href="#collapse1">
-          Clients
-        </a>
-      </h4>
-    </div>
-    <div id="collapse1" class="card-collapse collapse in">
-      <ul class="list-group">
-        <li class="list-group-item"><span class="badge">{{ nb_users }}</span> Total</li>
-        <li class="list-group-item"><span class="badge">{{ nb_active_users }}</span><span class="glyphicon glyphicon-chevron-right"></span> Active</li>
-        <li class="list-group-item"><span class="badge">{{ nb_users - nb_active_users }}</span><span class="glyphicon glyphicon-chevron-right"></span> Inactive</li>
-        <li class="list-group-item"><span class="badge">{{ nb_bartenders }}</span><span class="glyphicon glyphicon-chevron-right"></span> Bartenders</li>
-      </ul>
-    </div>
-  </div>
 
-  <div class="card card-info">
-    <div class="card-header">
-      <h4 class="card-title">
-        <a data-toggle="collapse" href="#collapse2">
-          Transactions
-        </a>
-      </h4>
-    </div>
-    <div class="card-body">
-      <div id="collapse2" class="card-collapse collapse in">
-        <ul class="nav nav-tabs nav-justified">
-          <li id="btn1li" role="presentation">
-            <a id="btn1" href="#transactionsChart">
-              Last 12 months
-            </a>
-          </li>
-          <li id="btn2li" role="presentation" class="active">
-            <a id="btn2" href="#transactionsChart">
-              This month
-            </a>
-          </li>
-        </ul>
-        <canvas id="transactionsChart" width="600" height="400"></canvas>
-      </div>
-    </div>
+<div class="card border-primary">
+  <div class="card-header">
+    <h4 class="card-title text-primary">Transactions</h4>
   </div>
-</div> -->
+  <div class="card-body">
+    <canvas id="transactions-chart" width="600" height="300" aria-label="transactions-chart" role="img"></canvas>
+  </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
 {{ super() }}
 
 <script>
-$('.toast').toast('show');
 function updateData(chart, chartData) {
   chart.data = chartData;
   chart.update();
@@ -93,63 +67,59 @@ function updateData(chart, chartData) {
 Chart.defaults.global.responsive = true;
 
 // define the chart data
-var chartDataYear = {
-  labels: [{% for item in months_labels %}"{{ item }}", {% endfor %}],
-  datasets: [{
-      label: 'Amount paid',
-      fill: true,
-      lineTension: 0.1,
-      backgroundColor: "rgba(55,123,181,0.4)",
-      borderColor: "rgba(55,123,181,1)",
-      borderWidth: 1,
-      data: [{% for item in paid_per_month %}{{ '%0.2f'| format(item|float) }}, {% endfor %}],
-      spanGaps: false
-  },
-  {
-      label: 'Amount topped up',
-      fill: true,
-      lineTension: 0.1,
-      backgroundColor: "rgba(215,84,82,0.4)",
-      borderColor: "rgba(215,84,82,1)",
-      borderWidth: 1,
-      data: [{% for item in topped_per_month %}{{ '%0.2f'| format(item|float) }}, {% endfor %}],
-      spanGaps: false
-  }]
-};
-
 var chartDataMonth = {
   labels: [{% for item in days_labels %}"{{ item }}", {% endfor %}],
   datasets: [{
       label: 'Amount paid',
-      fill: true,
-      lineTension: 0.1,
-      backgroundColor: "rgba(55,123,181,0.4)",
-      borderColor: "rgba(55,123,181,1)",
-      borderWidth: 1,
+      fill: false,
+      backgroundColor: "#dc3545",
+      borderColor: "#dc3545",
       data: [{% for item in paid_this_month %}{{ '%0.2f'| format(item|float) }}, {% endfor %}],
-      spanGaps: false
   },
   {
       label: 'Amount topped up',
-      fill: true,
-      lineTension: 0.1,
-      backgroundColor: "rgba(215,84,82,0.4)",
-      borderColor: "rgba(215,84,82,1)",
-      borderWidth: 1,
+      fill: false,
+      backgroundColor: "#007bff",
+      borderColor: "#007bff",
       data: [{% for item in topped_this_month %}{{ '%0.2f'| format(item|float) }}, {% endfor %}],
-      spanGaps: false
   }]
 };
 
 // Get chart canvas
-var ctx = document.querySelector('#transactionsChart').getContext('2d');
+var ctx = document.querySelector('#transactions-chart').getContext('2d');
 // Create the chart using the chart canvas
 var transactionsChart = new Chart(ctx, {
-  type: 'bar',
+  type: 'line',
   data: chartDataMonth,
   options: {
+    responsive: true,
+    tooltips: {
+      mode: 'index',
+      intersect: false,
+      callbacks: {
+        label: function(tooltipItems, data) {
+          return '€' + tooltipItems.yLabel;
+        }
+      }
+    },
+    hover: {
+      mode: 'nearest',
+      intersect: true
+    },
     scales: {
+      xAxes: [{
+        display: true,
+        scaleLabel: {
+          display: true,
+          labelString: 'Day'
+        }
+      }],
       yAxes: [{
+        display: true,
+        scaleLabel: {
+          display: true,
+          labelString: 'Amount'
+        },
         ticks: {
           // Include a euro sign in the ticks
           callback: function(value, index, values) {
@@ -157,29 +127,8 @@ var transactionsChart = new Chart(ctx, {
           }
         }
       }]
-    },
-    tooltips: {
-      enabled: true,
-      mode: 'single',
-      callbacks: {
-        label: function(tooltipItems, data) {
-          return '€' + tooltipItems.yLabel;
-        }
-      }
-    },
+    }
   }
-});
-
-$("#btn1").on("click", function() {
-  updateData(transactionsChart, chartDataYear);
-  document.getElementById('btn2li').classList.remove('active');
-  document.getElementById('btn1li').classList.add('active');
-});
-
-$("#btn2").on("click", function() {
-  updateData(transactionsChart, chartDataMonth);
-  document.getElementById('btn1li').classList.remove('active');
-  document.getElementById('btn2li').classList.add('active');
 });
 </script>
 {% endblock %}

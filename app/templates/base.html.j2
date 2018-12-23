@@ -44,22 +44,23 @@
       <div class="collapse navbar-collapse navbarMain">
         {% if current_user.is_bartender %}
         <ul class="navbar-nav mr-auto">
-          <li class="nav-item{% if (request.path == '/index' or request.path == '/') and current_user.is_bartender %} active{% endif %}">
+          <li class="nav-item{% if (request.path == '/index' or request.path == '/') %} active{% endif %}">
             <a class="nav-link" href="{{ url_for('main.index') }}">Customers</a>
           </li>
-          <li class="nav-item{% if (request.path == '/inventory') and current_user.is_bartender %} active{% endif %}">
+          <li class="nav-item{% if (request.path == '/inventory') %} active{% endif %}">
             <a class="nav-link" href="{{ url_for('main.inventory')}}">Inventory</a>
           </li>
-          <li class="nav-item{% if (request.path == '/transactions') and current_user.is_bartender %} active{% endif %}">
+          <li class="nav-item{% if (request.path == '/transactions') %} active{% endif %}">
             <a class="nav-link" href="{{ url_for('main.transactions') }}">Transactions</a>
           </li>
-          <li class="nav-item{% if (request.path == '/global_settings') and current_user.is_bartender %} active{% endif %}">
-            <a class="nav-link" href="{{ url_for('main.global_settings')}}">Settings</a>
+          <li class="nav-item{% if (request.path == '/statistics') %} active{% endif %}">
+            <a class="nav-link" href="{{ url_for('main.statistics') }}">Statistics</a>
           </li>
-          <li class="nav-item dropdown{% if (request.path == '/tools' or request.path == '/auth/register') and current_user.is_bartender %} active{% endif %}">
+          <li class="nav-item dropdown{% if (request.path == '/tools' or request.path == '/auth/register' or request.path == '/global_settings') %} active{% endif %}">
             <a class="nav-link dropdown-toggle" href="#" id="dropdownTools" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Tools</a>
             <div class="dropdown-menu" aria-labelledby="dropdownTools">
               <a class="dropdown-item" href="{{ url_for('auth.register') }}">Add user</a>
+              <a class="dropdown-item" href="{{ url_for('main.global_settings')}}">Settings</a>
             </div>
           </li>
         </ul>

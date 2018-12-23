@@ -169,12 +169,12 @@
 $(".pay-btn").each(function() {
   var pay_btn = $(this)
   var dropdown = $(pay_btn).find('.dropdown-menu')
-  $.post('/get_user_products', {
+  $.get('/get_user_products', {
     username: $(pay_btn).attr('id').replace('-pay-btn', '')
   }).done(function(response) {
     $(dropdown).append(response['html'])
   }).fail(function() {
-    $(dropdown).append('Error: Could not contact server.')
+    $(dropdown).html('<div class="d-flex justify-content-center"><i class="material-icons">error</i></div>')
   });
 });
 </script>
