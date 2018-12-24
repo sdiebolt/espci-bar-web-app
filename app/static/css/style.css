@@ -56,9 +56,9 @@ body {
 .user-card-btn .text {
   display: none;
 }
-.btn {
+/* .btn {
   height: 40px;
-}
+} */
 @media (min-width: 576px) {
   .quick-access-item .text {
     max-width: 105px;

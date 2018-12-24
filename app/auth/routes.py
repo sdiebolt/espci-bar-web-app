@@ -55,7 +55,7 @@ def login():
         next_page = request.args.get('next')
         if not next_page or url_parse(next_page).netloc != '':
             next_page = url_for('main.index')
-        flash('You were successfully logged in.', 'success')
+        flash('You were successfully logged in.', 'primary')
         return redirect(next_page)
     return render_template('auth/login.html.j2', title='Sign In', form=form)
 
@@ -63,7 +63,7 @@ def login():
 @login_required
 def logout():
     logout_user()
-    flash('You were successfully logged out.', 'success')
+    flash('You were successfully logged out.', 'primary')
     return redirect(url_for('auth.login'))
 
 @bp.route('/register', methods=['GET', 'POST'])
@@ -103,7 +103,7 @@ def register():
         db.session.add(user)
         db.session.commit()
         flash('Congratulations, the user '+user.username+' has been added with password '+password+'.',
-                'success')
+                'primary')
         return redirect(url_for('main.index'))
     return render_template('auth/register.html.j2', title='Register',
                             form=form)
@@ -119,7 +119,7 @@ def reset_password_request():
         if user:
             send_password_reset_email(user)
         flash('Check your email for the instructions to reset your password.',
-                'success')
+                'primary')
         return redirect(url_for('auth.login'))
     return render_template('auth/reset_password_request.html.j2',
                             title='Reset Password', form=form)
@@ -136,6 +136,6 @@ def reset_password(token):
     if form.validate_on_submit():
         user.set_password(form.password.data)
         db.session.commit()
-        flash('Your password has been reset.', 'success')
+        flash('Your password has been reset.', 'primary')
         return redirect(url_for('auth.login'))
     return render_template('auth/reset_password.html.j2', form=form)

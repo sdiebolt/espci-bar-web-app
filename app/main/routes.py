@@ -1,5 +1,6 @@
 import datetime
 from calendar import monthrange
+from jinja2 import Template
 from flask import render_template, flash, redirect, url_for, request, g, \
     jsonify, current_app
 from flask_login import current_user, login_required, fresh_login_required
@@ -335,7 +336,7 @@ def transactions():
 @bp.route('/revert_transaction')
 @login_required
 def revert_transaction():
-    """ Delete item from the inventory. """
+    """ Revert a transaction. """
     if not current_user.is_bartender:
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.index'))
@@ -350,6 +351,12 @@ def revert_transaction():
 
     # Revert client balance
     if transaction.client:
+        # Check if user balance stays positive before reverting
+        if transaction.client.balance - transaction.balance_change < 0:
+            flash(transaction.client.first_name + ' ' +\
+                    transaction.client.last_name + '\'s balance would be ' +\
+                    'negative if this transaction were reverted.', 'warning')
+            return redirect(request.referrer)
         transaction.client.balance -= transaction.balance_change
         if transaction.item and transaction.item.is_alcohol:
             transaction.client.last_drink = None
@@ -370,14 +377,14 @@ def revert_transaction():
     db.session.add(transaction)
     db.session.commit()
 
-    flash('The transaction #'+str(transaction_id)+' has been reverted.', 'primary')
+    flash('The transaction #'+str(transaction_id)+' has been reverted.',
+            'primary')
     return redirect(request.referrer)
 
 @bp.route('/inventory')
 @login_required
 def inventory():
-    """View inventory page.
-    """
+    """ View inventory page. """
     if not current_user.is_bartender:
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.index'))
@@ -525,7 +532,8 @@ def top_up():
     db.session.commit()
 
     flash('You added ' + str(amount) + '€ to ' + user.first_name + ' ' + \
-            user.last_name + "'s account.", 'primary')
+            user.last_name + "'s account. " +\
+            render_template('_revert_button.html.j2', transaction=transaction), 'primary')
     return redirect(request.referrer)
 
 @bp.route('/pay', methods=['GET'])
@@ -570,7 +578,9 @@ def pay():
 
     flash(user.first_name + ' ' + user.last_name + ' successfully bought ' +\
             item.name +\
-            ' (Balance: {:.2f}'.format(user.balance)+'€).', 'primary')
+            ' (Balance: {:.2f}'.format(user.balance)+'€). ' +\
+            render_template('_revert_button.html.j2', transaction=transaction),
+            'primary')
     return redirect(request.referrer)
 
 @bp.route('/scanqrcode')

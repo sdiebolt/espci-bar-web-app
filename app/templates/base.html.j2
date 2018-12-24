@@ -29,20 +29,13 @@
     {% block body -%}
     {% block navbar %}
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
-      {% if current_user.is_bartender %}
-      <a class="navbar-brand" href="{{ url_for('main.index') }}">ESPCI Bar</a>
-      {% elif current_user.is_anonymous %}
-      <a class="navbar-brand" href="{{ url_for('auth.login') }}">ESPCI Bar</a>
-      {% else %}
-      <a class="navbar-brand" href="{{ url_for('main.user', username=current_user.username) }}">ESPCI Bar</a>
-      {% endif %}
-
+      <a class="navbar-brand" href="{% if current_user.is_bartender %}{{ url_for('main.index') }}{% elif current_user.is_anonymous %}{{ url_for('auth.login') }}{% else %}{{ url_for('main.user', username=current_user.username) }}{% endif %}">ESPCI Bar</a>
       {% if not current_user.is_anonymous %}
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-main" aria-controls="navbar-main" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="material-icons align-middle">menu</i>
       </button>
-      <div class="collapse navbar-collapse navbarMain">
-        {% if current_user.is_bartender %}
+      {% if current_user.is_bartender %}
+      <div class="collapse navbar-collapse navbar-main">
         <ul class="navbar-nav mr-auto">
           <li class="nav-item{% if (request.path == '/index' or request.path == '/') %} active{% endif %}">
             <a class="nav-link" href="{{ url_for('main.index') }}">Customers</a>
@@ -64,14 +57,18 @@
             </div>
           </li>
         </ul>
-        {% endif %}
       </div>
-      <div class="collapse navbar-collapse navbarMain">
+      {% endif %}
+      <div class="collapse navbar-collapse navbar-main">
         {% if current_user.is_bartender %}
         <form class="form-inline my-2 my-lg-0 ml-auto" method="get" action="{{ url_for('main.search') }}">
-          {{ g.search_form.q(size=20, class_='form-control mr-sm-2', placeholder=g.search_form.q.label.text) }}
+          <div class="input-group mr-2">
+          {{ g.search_form.q(size=20, class_='form-control', placeholder=g.search_form.q.label.text) }}
+          <div class="input-group-append">
+            <a class="btn btn-{% if request.path != '/scanqrcode' and current_user.is_bartender %}outline-{% endif %}primary" href="{{ url_for('main.scanqrcode') }}" role="button" style="height:38px;"><i class="material-icons align-middle">camera_alt</i></a>
+          </div>
+          </div>
         </form>
-        <a class="btn btn-{% if request.path != '/scanqrcode' and current_user.is_bartender %}outline-{% endif %}primary mx-2 my-2 my-sm-0" href="{{ url_for('main.scanqrcode') }}" role="button"><i class="material-icons align-middle">camera_alt</i></a>
         {% endif %}
         <ul class="navbar-nav">
           <li class="nav-item{% if request.path == '/user/'+current_user.username or request.path == '/edit_profile/'+current_user.username %} active{% endif %}">
@@ -90,14 +87,14 @@
     {% if messages %}
     <div style="position: fixed; top:60px; right: 10px;z-index:99999;">
       {% for category, message in messages %}
-      <div class="toast bg-{{ category }} text-white" data-delay="4000" style="width:400px;">
+      <div class="toast bg-{{ category }} text-white" data-delay="10000" style="width:400px;">
         <div class="toast-header">
           <i class="material-icons mr-auto">announcement</i>
           <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
-        <div class="toast-body">
+        <div class="toast-body text-left">
           {{ message }}
         </div>
       </div>
@@ -111,6 +108,7 @@
     </div>
 
     {% block modals %}
+    {% if current_user.is_bartender %}
     <!-- User deposit modal -->
     <div class="modal fade" id="deposit-modal" tabindex="-1" role="dialog" aria-labelledby="deposit-modal-label" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered" role="document">
@@ -131,6 +129,7 @@
         </div>
       </div>
     </div>
+    {% endif %}
     {% endblock %}
     {%- endblock content %}
 
@@ -144,9 +143,8 @@
 
     <!-- Graphs -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
-
-    <!-- Populate deposit modal -->
     <script>
+    {%- if current_user.is_bartender -%}
     // Populate deposit modal with user name and url
     $('#deposit-modal').on('show.bs.modal', function (event) {
       var button = $(event.relatedTarget) // Button that triggered the modal
@@ -156,6 +154,7 @@
       modal.find('.modal-footer a').attr('href', url)
       modal.find('.modal-body .name').text(name)
     })
+    {% endif -%}
 
     $(document).ready(function() {
       $('.toast').toast('show');

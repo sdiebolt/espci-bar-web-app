@@ -48,7 +48,7 @@
     </div>
 
     <div class="card-body">
-      <div class="row">
+      <div class="row align-items-center">
         <div class="col-md-4 col-lg-3 mb-4" align="center">
           <!-- User picture -->
           <a href="{{ url_for('main.qrcode', username=user.username) }}">
@@ -119,6 +119,9 @@
                   <th>Bartender</th>
                   <th>Type</th>
                   <th>Balance</th>
+                  {% if current_user.is_bartender %}
+                  <th>Revert</th>
+                  {% endif %}
                 </tr>
               </thead>
 
@@ -130,6 +133,15 @@
                   <td class="align-middle" {% if transaction.is_reverted %}style="text-decoration: line-through;"{% endif %}>{{ transaction.barman }}</td>
                   <td class="align-middle text-nowrap" {% if transaction.is_reverted %}style="text-decoration: line-through;"{% endif %}>{{ transaction.type }}</td>
                   <td class="align-middle" {% if transaction.is_reverted %}style="text-decoration: line-through;"{% endif %}>{% if transaction.balance_change %}{{ '%0.2f' | format(transaction.balance_change) }}€{% endif %}</td>
+                  {% if current_user.is_bartender %}
+                  <td class="align-middle">
+                    <div class="btn-group" role="group" aria-label="Revert transaction">
+                      <button type="button" class="btn btn-danger{% if transaction.is_reverted or 'Revert' in transaction.type %} disabled{% endif %}" data-toggle="modal" data-target="#revert-transaction-modal" data-name="{{ transaction.id }}" data-url="{{ url_for('main.revert_transaction', transaction_id=transaction.id) }}">
+                        <i class="material-icons align-middle">fast_rewind</i>
+                      </button>
+                    </div>
+                  </td>
+                  {% endif %}
                 </tr>
                 {% endfor %}
               </tbody>
@@ -155,10 +167,10 @@
       </div>
     </div>
 
-    {% if user.deposit or current_user.is_bartender %}
+    {% if current_user.is_bartender %}
     <div class="card-footer">
       <div class="btn-toolbar justify-content-between" role="toolbar" aria-label="User button toolbar">
-        {% if current_user.is_bartender and user.deposit %}
+        {% if user.deposit %}
         <div class="btn-group" role="group" aria-label="User actions">
           {% include '_pay.html.j2' %}
 
@@ -169,27 +181,20 @@
 
           {% include '_quick_access_item.html.j2' %}
         </div>
-        {% elif current_user.is_bartender %}
+        {% else %}
         <div class="btn-group" role="group" aria-label="Deposit">
           {% include '_deposit.html.j2' %}
         </div>
-        {% else %}
-        <div class="btn-group" role="group" aria-label="User actions">
-          <a class="btn btn-primary" href="{{ url_for('main.qrcode', username=user.username) }}" role="button"><i class="material-icons align-middle">camera_alt</i></a>
-        </div>
         {% endif %}
 
-        {% if current_user.is_bartender %}
         <div class="btn-group">
           <a class="btn btn-warning" href="{{ url_for('main.edit_profile', username=user.username) }}" role="button">
             <i class="material-icons align-middle">edit</i>
           </a>
-
           <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete-user-modal">
             <i class="material-icons align-middle">delete</i>
           </button>
         </div>
-        {% endif %}
       </div>
     </div>
     {% endif %}
@@ -198,6 +203,9 @@
 {% endblock %}
 
 {% block modals %}
+{% if current_user.is_bartender %}
+{{ super () }}
+
 <!-- User deletion modal -->
 <div class="modal fade" id="delete-user-modal" tabindex="-1" role="dialog" aria-labelledby="delete-user-modal-label" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered" role="document">
@@ -231,24 +239,47 @@
       </div>
       <div class="modal-body">
         <div class="input-group">
-          <label for="topUpAmount" class="sr-only">Top Up</label>
-          <input class="form-control" type="number" name="amount" id="topUpAmount" step=0.01 min=0 name="amount" placeholder="Amount" aria-describedby="top-up-submit">
+          <label for="top-up-amount" class="sr-only">Top Up</label>
+          <input class="form-control" type="number" name="amount" id="top-up-amount" step=0.01 min=0.01 name="amount" placeholder="Amount" aria-describedby="top-up-submit" autofocus>
         </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
         <input class="btn btn-primary" type="submit" value="Top up" role="button">
       </div>
+    </form>
+  </div>
+</div>
+
+<!-- Revert transaction modal -->
+<div class="modal fade" id="revert-transaction-modal" tabindex="-1" role="dialog" aria-labelledby="revert-transaction-modal-label" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="revert-transaction-modal-label">Revert transaction</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <i class="material-icons align-middle">close</i>
+        </button>
+      </div>
+      <div class="modal-body">
+        Revert transaction #<span class="name"></span>?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+        <a class="btn btn-primary" href="#" role="button">Yes</a>
+      </div>
     </div>
   </div>
 </div>
+{% endif %}
 {% endblock %}
 
 {% block scripts %}
 {{ super() }}
+{% if current_user.is_bartender %}
 
-<!-- Populate pay dropdown -->
 <script>
+// Populate pay dropdown
 $(".pay-btn").each(function() {
   var pay_btn = $(this)
   var dropdown = $(pay_btn).find('.dropdown-menu')
@@ -260,5 +291,21 @@ $(".pay-btn").each(function() {
     $(dropdown).html('<div class="d-flex justify-content-center"><i class="material-icons">error</i></div>')
   });
 });
+
+// Autofocus on top up input
+$('.modal').on('shown.bs.modal', function() {
+  $(this).find('[autofocus]').focus();
+});
+
+// Populate item deletion modal with item name and url
+$('#revert-transaction-modal').on('show.bs.modal', function (event) {
+  var button = $(event.relatedTarget) // Button that triggered the modal
+  var name = button.data('name') // Extract info from data-* attributes
+  var url = button.data('url') // Extract info from data-* attributes
+  var modal = $(this)
+  modal.find('.modal-footer a').attr('href', url)
+  modal.find('.modal-body .name').text(name)
+})
 </script>
+{% endif %}
 {% endblock %}
