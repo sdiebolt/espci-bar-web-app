@@ -146,23 +146,22 @@
                 {% endfor %}
               </tbody>
             </table>
-
-            <nav aria-label="Page navigation">
-              <ul class="pagination justify-content-center">
-                {%- for page in transactions.iter_pages() %}
-                <li class="page-item{% if page == transactions.page %} active{% endif %}{%if not page %} disabled{% endif %}">
-                  <a class="page-link" href="{{ url_for('main.user', username=user.username, page=page) }}">
-                    {% if page %}
-                    {{ page }}
-                    {% else %}
-                    <span class=ellipsis>…</span>
-                    {% endif %}
-                  </a>
-                  {%- endfor %}
-                </li>
-              </ul>
-            </nav>
           </div>
+          <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+              {%- for page in transactions.iter_pages(left_edge=1, left_current=1, right_current=2, right_edge=1) %}
+              <li class="page-item{% if page == transactions.page %} active{% endif %}{%if not page %} disabled{% endif %}">
+                <a class="page-link" href="{{ url_for('main.user', username=user.username, page=page) }}">
+                  {% if page %}
+                  {{ page }}
+                  {% else %}
+                  <span class=ellipsis>…</span>
+                  {% endif %}
+                </a>
+                {%- endfor %}
+              </li>
+            </ul>
+          </nav>
         </div>
       </div>
     </div>

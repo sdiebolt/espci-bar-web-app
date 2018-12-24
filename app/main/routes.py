@@ -156,12 +156,7 @@ def user(username):
     age = today.year - user.birthdate.year - \
         ((today.month, today.day) < (user.birthdate.month, user.birthdate.day))
 
-    # Get transactions statistics
-    transaction_paid = user.transactions.filter_by(is_reverted=False).filter(Transaction.type.like('Pay%')).all()
-    amount_paid = sum([abs(t.balance_change) for t in transaction_paid])
-    transactions_top_up = user.transactions.filter_by(is_reverted=False).filter(Transaction.type == 'Top up').all()
-    amount_topped_up = sum([abs(t.balance_change) for t in transactions_top_up])
-
+    # Get user transactions
     transactions = user.transactions.order_by(Transaction.id.desc()).paginate(page, 5, True)
 
     # Get inventory
@@ -178,10 +173,9 @@ def user(username):
 
     return render_template('user.html.j2', title=username + ' profile',
                             age=age, is_admin=is_admin, user=user,
-                            inventory=inventory, amount_paid=amount_paid,
+                            inventory=inventory,
                             favorite_inventory=favorite_inventory,
                             quick_access_item=quick_access_item,
-                            amount_topped_up=amount_topped_up,
                             transactions=transactions)
 
 @bp.route('/edit_profile/<username>', methods=['GET', 'POST'])
