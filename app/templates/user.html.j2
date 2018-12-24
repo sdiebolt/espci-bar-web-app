@@ -1,5 +1,45 @@
 {% extends 'base.html.j2' %}
 
+{% block styles %}
+{{ super() }}
+<style>
+.fadein {
+  position:relative;
+}
+.fadein img {
+  -webkit-animation-name: fade;
+  -webkit-animation-iteration-count: infinite;
+  -webkit-animation-duration: 8s;
+  animation-name: fade;
+  animation-iteration-count: infinite;
+  animation-duration: 8s;
+}
+
+@-webkit-keyframes fade {
+    0% {opacity: 0;}
+    20% {opacity: 1;}
+    33% {opacity: 1;}
+    53% {opacity: 0;}
+    100% {opacity: 0;}
+}
+@keyframes fade {
+    0% {opacity: 0;}
+    20% {opacity: 1;}
+    33% {opacity: 1;}
+    53% {opacity: 0;}
+    100% {opacity: 0;}
+}
+
+#f2 {
+  position:absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  -webkit-animation-delay: -4s;
+}
+</style>
+{% endblock %}
+
 {% block app_content %}
 <div class="container">
   <div class="card mt-3 shadow {% if not user.deposit %}border-secondary{% elif user.balance <= 0 %}border-danger{% elif user.balance <= 5 %}border-warning{% else %}border-primary{% endif %}">
@@ -9,31 +49,36 @@
 
     <div class="card-body">
       <div class="row">
-        <div class="col-md-3 col-lg-3 mb-4" align="center">
+        <div class="col-md-4 col-lg-3 mb-4" align="center">
           <!-- User picture -->
-          <img src="{{ user.avatar() }}" alt="{{ user.username }}">
+          <a href="{{ url_for('main.qrcode', username=user.username) }}">
+            <div class="container fadein">
+              <img id="f1" src="{{ user.avatar() }}" alt="{{ user.username }}">
+              <img class="text-center" id="f2" alt="User picture" src="{{ user.qr() }}">
+            </div>
+          </a>
         </div>
 
-        <div class="table-responsive-sm col-md-9 col-lg-9">
+        <div class="table-responsive-sm col-md-8 col-lg-9">
           <table class="table table-striped">
             <tbody>
               <tr>
-                <td><strong>Username:</strong></td>
+                <td><strong><i class="material-icons">person</i></strong></td>
                 <td>{{ user.username }}</td>
               </tr>
               <tr>
-                <td><strong>Email:</strong></td>
+                <td><strong><i class="material-icons">alternate_email</i></strong></td>
                 <td><a href="mailto:{{ user.email }}">{{ user.email }}</a></td>
               </tr>
               <tr>
-                <td><strong>Age:</strong></td>
+                <td><strong><i class="material-icons">cake</i></strong></td>
                 <td>{{ age }} years old</td>
               <tr>
-                <td><strong>Graduating class:</strong></td>
+                <td><strong><i class="material-icons">school</i></strong></td>
                 <td>{% if user.grad_class != 0 %}{{ user.grad_class }}{% else %}Extern{% endif %}</td>
               </tr>
               <tr>
-                <td><strong>Last drink:</strong></td>
+                <td><strong><i class="material-icons">local_bar</i></strong></td>
                 <td>
                   {% if user.last_drink %}
                   {{ moment(user.last_drink).fromNow() }}
@@ -43,7 +88,7 @@
                 </td>
               </tr>
               <tr>
-                <td><strong>Balance:</strong></td>
+                <td><strong><i class="material-icons">account_balance_wallet</i></strong></td>
                 <td>
                   <div class="progress mt-1" style="height: 18px;">
                     <div class="progress-bar bg-{% if not user.deposit %}secondary{% elif user.balance <= 0 %}danger{% elif user.balance <= 5 %}warning{% else %}primary{% endif %}" role="progressbar" aria-valuenow="{{ user.balance }}" aria-valuemin="0" aria-valuemax="50" style="width: {{ user.balance }}%; min-width: 3em; max-width: 100%">
@@ -72,7 +117,6 @@
                   <th>#</th>
                   <th>Date</th>
                   <th>Bartender</th>
-                  <th>Client</th>
                   <th>Type</th>
                   <th>Balance</th>
                 </tr>
@@ -84,7 +128,6 @@
                   <th class="align-middle" {% if transaction.is_reverted %}style="text-decoration: line-through;"{% endif %}>{{ transaction.id }}</th>
                   <td class="align-middle text-nowrap" {% if transaction.is_reverted %}style="text-decoration: line-through;"{% endif %}>{{ moment(transaction.date).format('lll') }}</td>
                   <td class="align-middle" {% if transaction.is_reverted %}style="text-decoration: line-through;"{% endif %}>{{ transaction.barman }}</td>
-                  <td class="align-middle" {% if transaction.is_reverted %}style="text-decoration: line-through;"{% endif %}>{{ transaction.client.username }}</td>
                   <td class="align-middle text-nowrap" {% if transaction.is_reverted %}style="text-decoration: line-through;"{% endif %}>{{ transaction.type }}</td>
                   <td class="align-middle" {% if transaction.is_reverted %}style="text-decoration: line-through;"{% endif %}>{% if transaction.balance_change %}{{ '%0.2f' | format(transaction.balance_change) }}€{% endif %}</td>
                 </tr>
@@ -117,7 +160,6 @@
       <div class="btn-toolbar justify-content-between" role="toolbar" aria-label="User button toolbar">
         {% if current_user.is_bartender and user.deposit %}
         <div class="btn-group" role="group" aria-label="User actions">
-          <a class="btn {% if user.balance <= 0 %}btn-danger{% elif user.balance <= 5 %}btn-warning{% else %}btn-primary{% endif %}" href="{{ url_for('main.qrcode', username=user.username) }}" role="button"><i class="material-icons align-middle">camera_alt</i></a>
           {% include '_pay.html.j2' %}
 
           <!-- Top up modal button -->
