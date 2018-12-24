@@ -1,3 +1,5 @@
+"""Main blueprint init file."""
+
 from flask import Blueprint
 
 bp = Blueprint('main', __name__)

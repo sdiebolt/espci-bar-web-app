@@ -1,69 +1,84 @@
+"""View function for the main URLs."""
+
 import datetime
 from calendar import monthrange
-from jinja2 import Template
 from flask import render_template, flash, redirect, url_for, request, g, \
     jsonify, current_app
 from flask_login import current_user, login_required, fresh_login_required
 from sqlalchemy import extract
 from sqlalchemy.sql.expression import and_
-from sqlalchemy import func
 from app import db
 from app.main.forms import EditProfileForm, EditItemForm, AddItemForm, \
     SearchForm, GlobalSettingsForm
 from app.models import User, Item, Transaction, GlobalSetting
 from app.main import bp
 
+
 @bp.before_app_request
 def before_request():
+    """Create the search form before each request."""
     if not current_user.is_anonymous:
         if current_user.is_bartender:
             g.search_form = SearchForm()
+
 
 @bp.route('/', methods=['GET'])
 @bp.route('/index', methods=['GET'])
 @login_required
 def index():
-    """ View index page. For bartenders, it's the customers page and for clients,
-        it redirects to the profile. """
+    """Render the index page.
+
+    - For bartenders, it renders the customers page.
+    - For customers, it redirects to the user profile.
+    - For anonymous users, it redirects to the login page.
+    """
     if not current_user.is_bartender:
         return redirect(url_for('main.user', username=current_user.username))
 
     # Get arguments
     page = request.args.get('page', 1, type=int)
     sort = request.args.get('sort', 'asc', type=str)
-    grad_class = request.args.get('grad_class', str(current_app.config['CURRENT_GRAD_CLASS']), type=int)
+    grad_class = request.\
+        args.get('grad_class', str(current_app.config['CURRENT_GRAD_CLASS']),
+                 type=int)
 
     # Get graduating classes
-    grad_classes_query = db.session.query(User.grad_class.distinct().label('grad_class'))
+    grad_classes_query = db.session.query(User.grad_class.distinct().
+                                          label('grad_class'))
     grad_classes = [row.grad_class for row in grad_classes_query.all()]
 
     # Get inventory
     inventory = Item.query.order_by(Item.name.asc()).all()
 
     # Get favorite items
-    favorite_inventory = Item.query.filter_by(is_favorite=True).order_by(Item.name.asc()).all()
+    favorite_inventory = Item.query.filter_by(is_favorite=True).\
+        order_by(Item.name.asc()).all()
 
     # Get quick access item
-    quick_access_item = Item.query.filter_by(id=current_app.config['QUICK_ACCESS_ITEM_ID']).first()
+    quick_access_item = Item.query.\
+        filter_by(id=current_app.config['QUICK_ACCESS_ITEM_ID']).first()
 
     # Sort users alphabetically
     if sort == 'asc':
-        users = User.query.filter_by(grad_class=grad_class).order_by(User.last_name.asc()).paginate(page,
-            current_app.config['USERS_PER_PAGE'], True)
+        users = User.query.filter_by(grad_class=grad_class).\
+            order_by(User.last_name.asc()).\
+            paginate(page, current_app.config['USERS_PER_PAGE'], True)
     else:
-        users = User.query.filter_by(grad_class=grad_class).order_by(User.last_name.desc()).paginate(page,
-            current_app.config['USERS_PER_PAGE'], True)
+        users = User.query.filter_by(grad_class=grad_class).\
+            order_by(User.last_name.desc()).\
+            paginate(page, current_app.config['USERS_PER_PAGE'], True)
 
     return render_template('index.html.j2', title='Checkout',
-                            users=users, sort=sort, inventory=inventory,
-                            favorite_inventory=favorite_inventory,
-                            quick_access_item=quick_access_item,
-                            grad_class=grad_class, grad_classes=grad_classes)
+                           users=users, sort=sort, inventory=inventory,
+                           favorite_inventory=favorite_inventory,
+                           quick_access_item=quick_access_item,
+                           grad_class=grad_class, grad_classes=grad_classes)
+
 
 @bp.route('/search', methods=['GET'])
 @login_required
 def search():
-    """ View search page. """
+    """Render search page."""
     if not current_user.is_bartender:
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.index'))
@@ -83,65 +98,72 @@ def search():
     inventory = Item.query.order_by(Item.name.asc()).all()
 
     # Get favorite items
-    favorite_inventory = Item.query.filter_by(is_favorite=True).order_by(Item.name.asc()).all()
+    favorite_inventory = Item.query.filter_by(is_favorite=True).\
+        order_by(Item.name.asc()).all()
 
     # Get quick access item
-    quick_access_item = Item.query.filter_by(id=current_app.config['QUICK_ACCESS_ITEM_ID']).first()
+    quick_access_item = Item.query.\
+        filter_by(id=current_app.config['QUICK_ACCESS_ITEM_ID']).first()
 
     # Get users corresponding to the query
     query_text = g.search_form.q.data
     final_query = User.query.whooshee_search(query_text)
-    # username_query = User.query.filter(User.username.ilike('%'+query_text+'%'))
-    # nickname_query = User.query.filter(User.nickname.ilike('%'+query_text+'%'))
-    # first_name_query = User.query.filter(User.first_name.ilike('%'+query_text+'%'))
-    # last_name_query = User.query.filter(User.last_name.ilike('%'+query_text+'%'))
-    # final_query = username_query.union(first_name_query).union(last_name_query).union(nickname_query)
     total = final_query.count()
 
     # Sort users alphabetically
     if sort == 'asc':
-        users = final_query.order_by(User.last_name.asc()).paginate(page,
-            current_app.config['USERS_PER_PAGE'], True)
+        users = final_query.\
+            order_by(User.last_name.asc()).\
+            paginate(page, current_app.config['USERS_PER_PAGE'], True)
     else:
-        users = final_query.order_by(User.last_name.desc()).paginate(page,
-            current_app.config['USERS_PER_PAGE'], True)
+        users = final_query.\
+            order_by(User.last_name.desc()).\
+            paginate(page, current_app.config['USERS_PER_PAGE'], True)
 
     # If only one user, redirect to his profile
     if total == 1:
         return redirect(url_for('main.user', username=users.items[0].username))
 
     return render_template('search.html.j2', title='Search', users=users,
-                            sort=sort, inventory=inventory, total=total,
-                            favorite_inventory=favorite_inventory,
-                            quick_access_item=quick_access_item)
+                           sort=sort, inventory=inventory, total=total,
+                           favorite_inventory=favorite_inventory,
+                           quick_access_item=quick_access_item)
+
 
 @bp.route('/get_user_products', methods=['GET'])
 @login_required
 def get_user_products():
-    """ Returns the list of products that a user can buy. """
+    """Return the list of products that a user can buy."""
     if not current_user.is_bartender:
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.index'))
 
     # Get user
-    user = User.query.filter_by(username=request.args['username']).first_or_404()
+    user = User.query.filter_by(username=request.args['username']).\
+        first_or_404()
 
     # Get inventory
     inventory = Item.query.order_by(Item.name.asc()).all()
 
     # Get favorite items
-    favorite_inventory = Item.query.filter_by(is_favorite=True).order_by(Item.name.asc()).all()
+    favorite_inventory = Item.query.filter_by(is_favorite=True).\
+        order_by(Item.name.asc()).all()
 
     pay_template = render_template('_user_products.html.j2', user=user,
-                                    inventory=inventory,
-                                    favorite_inventory=favorite_inventory)
+                                   inventory=inventory,
+                                   favorite_inventory=favorite_inventory)
 
     return jsonify({'html': pay_template})
+
 
 @bp.route('/user/<username>', methods=['GET'])
 @login_required
 def user(username):
-    """ View user profile page. """
+    """Render the user profile page.
+
+    Keyword arguments:
+    username -- the user's username
+    """
     if current_user.username != username and (not current_user.is_bartender):
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.index'))
@@ -157,31 +179,39 @@ def user(username):
         ((today.month, today.day) < (user.birthdate.month, user.birthdate.day))
 
     # Get user transactions
-    transactions = user.transactions.order_by(Transaction.id.desc()).paginate(page, 5, True)
+    transactions = user.transactions.order_by(Transaction.id.desc()).\
+        paginate(page, 5, True)
 
     # Get inventory
     inventory = Item.query.order_by(Item.name.asc()).all()
 
     # Get favorite items
-    favorite_inventory = Item.query.filter_by(is_favorite=True).order_by(Item.name.asc()).all()
+    favorite_inventory = Item.query.filter_by(is_favorite=True).\
+        order_by(Item.name.asc()).all()
 
     # Get quick access item
-    quick_access_item = Item.query.filter_by(id=current_app.config['QUICK_ACCESS_ITEM_ID']).first()
+    quick_access_item = Item.query.\
+        filter_by(id=current_app.config['QUICK_ACCESS_ITEM_ID']).first()
 
     # Check if user is an admin
     is_admin = user.email in current_app.config['ADMINS']
 
     return render_template('user.html.j2', title=username + ' profile',
-                            age=age, is_admin=is_admin, user=user,
-                            inventory=inventory,
-                            favorite_inventory=favorite_inventory,
-                            quick_access_item=quick_access_item,
-                            transactions=transactions)
+                           age=age, is_admin=is_admin, user=user,
+                           inventory=inventory,
+                           favorite_inventory=favorite_inventory,
+                           quick_access_item=quick_access_item,
+                           transactions=transactions)
+
 
 @bp.route('/edit_profile/<username>', methods=['GET', 'POST'])
 @fresh_login_required
 def edit_profile(username):
-    """ Edit user. """
+    """Render the user editing page.
+
+    Keyword arguments:
+    username -- the user's username
+    """
     if not current_user.is_bartender:
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.index'))
@@ -210,10 +240,11 @@ def edit_profile(username):
     return render_template('edit_profile.html.j2', title='Edit profile',
                            form=form)
 
+
 @bp.route('/deposit', methods=['GET'])
 @login_required
 def deposit():
-    """ User gave a deposit. """
+    """Set a user deposit state."""
     if not current_user.is_bartender:
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.index'))
@@ -221,7 +252,7 @@ def deposit():
     username = request.args.get('username', None, type=str)
     user = User.query.filter_by(username=username).first_or_404()
 
-    if user.deposit == True:
+    if user.deposit is True:
         flash('User already gave a deposit.', 'warning')
         return redirect(request.referrer)
 
@@ -231,13 +262,15 @@ def deposit():
     return redirect(request.referrer)
 
 
-@bp.route('/delete_user/<username>')
+@bp.route('/delete_user', methods=['GET'])
 @fresh_login_required
-def delete_user(username):
-    """ Delete user. """
+def delete_user():
+    """Delete a user."""
     if not current_user.is_bartender:
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.index'))
+
+    username = request.args.get('username', None, type=str)
 
     user = User.query.filter_by(username=username).first_or_404()
     db.session.delete(user)
@@ -245,17 +278,20 @@ def delete_user(username):
     flash('The user ' + username + ' has been deleted.', 'primary')
     return redirect(url_for('main.index'))
 
-def month_year_iter( start_month, start_year, end_month, end_year ):
-    ym_start= 12*start_year + start_month - 1
-    ym_end= 12*end_year + end_month - 1
+
+def month_year_iter(start_month, start_year, end_month, end_year):
+    """Return an iterator on the last twelve month."""
+    ym_start = 12 * start_year + start_month - 1
+    ym_end = 12 * end_year + end_month - 1
     for ym in range(ym_start, ym_end):
         y, m = divmod(ym, 12)
         yield y, m+1
 
+
 @bp.route('/statistics')
 @login_required
 def statistics():
-    """ View statistics page. """
+    """Render the statistics page."""
     if not current_user.is_bartender:
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.index'))
@@ -266,26 +302,51 @@ def statistics():
     current_year = today.year
     current_month = today.month
     if today.hour < 6:
-        current_day_start = datetime.datetime(year=yesterday.year, month=yesterday.month, day=yesterday.day, hour=6)
+        current_day_start = datetime.\
+            datetime(year=yesterday.year, month=yesterday.month,
+                     day=yesterday.day, hour=6)
     else:
-        current_day_start = datetime.datetime(year=today.year, month=today.month, day=today.day, hour=6)
+        current_day_start = datetime.\
+            datetime(year=today.year, month=today.month,
+                     day=today.day, hour=6)
 
     # Daily clients
-    nb_daily_clients = User.query.filter(User.transactions.any(Transaction.date > current_day_start)).count()
+    nb_daily_clients = User.query.\
+        filter(User.transactions.any(Transaction.date > current_day_start)).\
+        count()
 
     # Daily alcohol consumption
-    alcohol_qty = Transaction.query.filter(Transaction.date > current_day_start).filter(Transaction.type.like('Pay%')).filter(Transaction.item.has(is_alcohol=True)).filter_by(is_reverted=False).count() * 0.25
+    alcohol_qty = Transaction.query.\
+        filter(Transaction.date > current_day_start).\
+        filter(Transaction.type.like('Pay%')).\
+        filter(Transaction.item.has(is_alcohol=True)).\
+        filter_by(is_reverted=False).count() * 0.25
 
     # Daily revenue
-    daily_transactions = Transaction.query.filter(Transaction.date > current_day_start).filter(Transaction.type.like('Pay%')).filter_by(is_reverted=False).all()
+    daily_transactions = Transaction.query.\
+        filter(Transaction.date > current_day_start).\
+        filter(Transaction.type.like('Pay%')).\
+        filter_by(is_reverted=False).all()
     daily_revenue = sum([abs(t.balance_change) for t in daily_transactions])
 
     # Get money spent and topped up this month
     paid_this_month = []
     topped_this_month = []
     for day in range(1, monthrange(current_year, current_month)[1] + 1):
-        transactions_paid_m = Transaction.query.filter(and_(extract('day', Transaction.date) == day, and_(extract('month', Transaction.date) == current_month, extract('year', Transaction.date) == current_year))).filter(Transaction.type.like('Pay%')).filter_by(is_reverted=False).all()
-        transactions_topped_m = Transaction.query.filter(and_(extract('day', Transaction.date) == day, and_(extract('month', Transaction.date) == current_month, extract('year', Transaction.date) == current_year))).filter(Transaction.type.like('Top up')).filter_by(is_reverted=False).all()
+        transactions_paid_m = Transaction.query.\
+            filter(
+                and_(extract('day', Transaction.date) == day,
+                     and_(extract('month', Transaction.date) == current_month,
+                          extract('year', Transaction.date) == current_year))
+                  ).filter(Transaction.type.like('Pay%')).\
+            filter_by(is_reverted=False).all()
+        transactions_topped_m = Transaction.query.\
+            filter(
+                and_(extract('day', Transaction.date) == day,
+                     and_(extract('month', Transaction.date) == current_month,
+                          extract('year', Transaction.date) == current_year))
+                  ).filter(Transaction.type.like('Top up')).\
+            filter_by(is_reverted=False).all()
         paid_this_month.append(0)
         for t in transactions_paid_m:
             paid_this_month[-1] -= t.balance_change
@@ -294,20 +355,22 @@ def statistics():
             topped_this_month[-1] += t.balance_change
 
     # Generate days labels
-    days_labels = ['%.2d' % current_month + '/' + '%.2d' % day for day in range(1, monthrange(current_year, current_month)[1] + 1)]
+    days_labels = ['%.2d' % current_month + '/' + '%.2d' % day for day in
+                   range(1, monthrange(current_year, current_month)[1] + 1)]
 
     return render_template('statistics.html.j2', title='Statistics',
-                            paid_this_month=paid_this_month,
-                            topped_this_month=topped_this_month,
-                            days_labels=days_labels,
-                            nb_daily_clients=nb_daily_clients,
-                            alcohol_qty=alcohol_qty,
-                            daily_revenue=daily_revenue)
+                           paid_this_month=paid_this_month,
+                           topped_this_month=topped_this_month,
+                           days_labels=days_labels,
+                           nb_daily_clients=nb_daily_clients,
+                           alcohol_qty=alcohol_qty,
+                           daily_revenue=daily_revenue)
+
 
 @bp.route('/transactions')
 @login_required
 def transactions():
-    """ View transactions page. """
+    """Render the transactions page."""
     if not current_user.is_bartender:
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.index'))
@@ -318,19 +381,20 @@ def transactions():
 
     # Sort transactions alphabetically
     if sort == 'asc':
-        transactions = Transaction.query.order_by(Transaction.id.asc()).paginate(page,
-            current_app.config['ITEMS_PER_PAGE'], True)
+        transactions = Transaction.query.order_by(Transaction.id.asc()).\
+            paginate(page, current_app.config['ITEMS_PER_PAGE'], True)
     else:
-        transactions = Transaction.query.order_by(Transaction.id.desc()).paginate(page,
-            current_app.config['ITEMS_PER_PAGE'], True)
+        transactions = Transaction.query.order_by(Transaction.id.desc()).\
+            paginate(page, current_app.config['ITEMS_PER_PAGE'], True)
 
     return render_template('transactions.html.j2', title='Transactions',
-        transactions=transactions, sort=sort)
+                           transactions=transactions, sort=sort)
+
 
 @bp.route('/revert_transaction')
 @login_required
 def revert_transaction():
-    """ Revert a transaction. """
+    """Revert a transaction."""
     if not current_user.is_bartender:
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.index'))
@@ -347,9 +411,9 @@ def revert_transaction():
     if transaction.client:
         # Check if user balance stays positive before reverting
         if transaction.client.balance - transaction.balance_change < 0:
-            flash(transaction.client.first_name + ' ' +\
-                    transaction.client.last_name + '\'s balance would be ' +\
-                    'negative if this transaction were reverted.', 'warning')
+            flash(transaction.client.first_name + ' ' +
+                  transaction.client.last_name + '\'s balance would be ' +
+                  'negative if this transaction were reverted.', 'warning')
             return redirect(request.referrer)
         transaction.client.balance -= transaction.balance_change
         if transaction.item and transaction.item.is_alcohol:
@@ -363,22 +427,23 @@ def revert_transaction():
     transaction.is_reverted = True
 
     transaction = Transaction(client_id=None,
-                            barman=current_user.username,
-                            date=datetime.datetime.utcnow(),
-                            type='Revert #'+str(transaction_id),
-                            balance_change=None)
+                              barman=current_user.username,
+                              date=datetime.datetime.utcnow(),
+                              type='Revert #'+str(transaction_id),
+                              balance_change=None)
 
     db.session.add(transaction)
     db.session.commit()
 
     flash('The transaction #'+str(transaction_id)+' has been reverted.',
-            'primary')
+          'primary')
     return redirect(request.referrer)
+
 
 @bp.route('/inventory')
 @login_required
 def inventory():
-    """ View inventory page. """
+    """Render the inventory page."""
     if not current_user.is_bartender:
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.index'))
@@ -388,32 +453,39 @@ def inventory():
     sort = request.args.get('sort', 'asc', type=str)
 
     # Get quick access item
-    quick_access_item = Item.query.filter_by(id=current_app.config['QUICK_ACCESS_ITEM_ID']).first()
+    quick_access_item = Item.query.\
+        filter_by(id=current_app.config['QUICK_ACCESS_ITEM_ID']).first()
 
     # Sort items alphabetically
     if sort == 'asc':
-        inventory = Item.query.order_by(Item.name.asc()).paginate(page,
-            current_app.config['ITEMS_PER_PAGE'], True)
+        inventory = Item.query.order_by(Item.name.asc()).\
+            paginate(page, current_app.config['ITEMS_PER_PAGE'], True)
     else:
-        inventory = Item.query.order_by(Item.name.desc()).paginate(page,
-            current_app.config['ITEMS_PER_PAGE'], True)
+        inventory = Item.query.order_by(Item.name.desc()).\
+            paginate(page, current_app.config['ITEMS_PER_PAGE'], True)
 
     return render_template('inventory.html.j2', title='Inventory',
-        inventory=inventory, sort=sort, quick_access_item=quick_access_item)
+                           inventory=inventory, sort=sort,
+                           quick_access_item=quick_access_item)
 
-@bp.route('/set_quick_access_item/<item_name>')
+
+@bp.route('/set_quick_access_item')
 @login_required
-def set_quick_access_item(item_name):
-    """ Set the quick access item. """
+def set_quick_access_item():
+    """Set the quick access item."""
     if not current_user.is_bartender:
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.index'))
+
+    # Get arguments
+    item_name = request.args.get('item_name', None, type=str)
 
     # Get item
     item = Item.query.filter_by(name=item_name).first_or_404()
 
     # Get current quick access item
-    quick_access_item = GlobalSetting.query.filter_by(key='QUICK_ACCESS_ITEM_ID').first_or_404()
+    quick_access_item = GlobalSetting.query.\
+        filter_by(key='QUICK_ACCESS_ITEM_ID').first_or_404()
 
     # Update the quick access item
     current_app.config['QUICK_ACCESS_ITEM_ID'] = item.id
@@ -426,7 +498,7 @@ def set_quick_access_item(item_name):
 @bp.route('/add_item', methods=['GET', 'POST'])
 @login_required
 def add_item():
-    """ Add item. """
+    """Add an item to the inventory."""
     if not current_user.is_bartender:
         flash("You don't have the rights to acces this page.", 'danger')
         return redirect(url_for('main.index'))
@@ -446,10 +518,15 @@ def add_item():
         return redirect(url_for('main.inventory'))
     return render_template('add_item.html.j2', title='Add item', form=form)
 
+
 @bp.route('/edit_item/<item_name>', methods=['GET', 'POST'])
 @fresh_login_required
 def edit_item(item_name):
-    """ Edit item. """
+    """Render the item editing page.
+
+    Keyword arguments:
+    item_name -- the item's name
+    """
     if not current_user.is_bartender:
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.index'))
@@ -481,17 +558,16 @@ def edit_item(item_name):
     return render_template('edit_item.html.j2', title='Edit item',
                            form=form)
 
-    return redirect(request.referrer)
 
 @bp.route('/delete_item')
 @login_required
 def delete_item():
-    """ Delete item from the inventory. """
+    """Delete an item from the inventory."""
     if not current_user.is_bartender:
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.index'))
 
-    item_name = request.args.get('item_name', 'none', type=str)
+    item_name = request.args.get('item_name', None, type=str)
 
     item = Item.query.filter_by(name=item_name).first_or_404()
     db.session.delete(item)
@@ -499,10 +575,11 @@ def delete_item():
     flash('The item ' + item_name + ' has been deleted.', 'primary')
     return redirect(request.referrer)
 
+
 @bp.route('/top_up', methods=['GET', 'POST'])
 @login_required
 def top_up():
-    """ Top up user and redirect to last page. """
+    """Top up the user's balance and redirect to the last page."""
     if not current_user.is_bartender:
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.index'))
@@ -520,20 +597,22 @@ def top_up():
     user.balance += amount
 
     transaction = Transaction(client_id=user.id, barman=current_user.username,
-                            date=datetime.datetime.utcnow(), type='Top up',
-                            balance_change=amount)
+                              date=datetime.datetime.utcnow(), type='Top up',
+                              balance_change=amount)
     db.session.add(transaction)
     db.session.commit()
 
-    flash('You added ' + str(amount) + '€ to ' + user.first_name + ' ' + \
-            user.last_name + "'s account. " +\
-            render_template('_revert_button.html.j2', transaction=transaction), 'primary')
+    flash('You added ' + str(amount) + '€ to ' + user.first_name + ' ' +
+          user.last_name + "'s account. " +
+          render_template('_revert_button.html.j2', transaction=transaction),
+          'primary')
     return redirect(request.referrer)
+
 
 @bp.route('/pay', methods=['GET'])
 @login_required
 def pay():
-    """ Substract the item price to username's balance. """
+    """Substract the item price to the user's balance."""
     if not current_user.is_bartender:
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.index'))
@@ -545,7 +624,7 @@ def pay():
     item = Item.query.filter_by(name=item_name).first_or_404()
 
     if not user.deposit:
-        flask(user.username+" hasn't given a deposit.", 'warning')
+        flash(user.username+" hasn't given a deposit.", 'warning')
         return redirect(request.referrer)
 
     user_can_buy = user.can_buy(item)
@@ -564,35 +643,36 @@ def pay():
         user.last_drink = datetime.datetime.utcnow()
 
     transaction = Transaction(client_id=user.id, item_id=item.id,
-                            barman=current_user.username,
-                            date=datetime.datetime.utcnow(), type='Pay '+item.name,
-                            balance_change=-item.price)
+                              barman=current_user.username,
+                              date=datetime.datetime.utcnow(),
+                              type='Pay ' + item.name,
+                              balance_change=-item.price)
     db.session.add(transaction)
     db.session.commit()
 
-    flash(user.first_name + ' ' + user.last_name + ' successfully bought ' +\
-            item.name +\
-            ' (Balance: {:.2f}'.format(user.balance)+'€). ' +\
-            render_template('_revert_button.html.j2', transaction=transaction),
-            'primary')
+    flash(user.first_name + ' ' + user.last_name + ' successfully bought ' +
+          item.name +
+          ' (Balance: {:.2f}'.format(user.balance)+'€). ' +
+          render_template('_revert_button.html.j2', transaction=transaction),
+          'primary')
     return redirect(request.referrer)
+
 
 @bp.route('/scanqrcode')
 @login_required
 def scanqrcode():
-    """ QR code scan to easily find a user. """
+    """Render the QR code scanner page."""
     if not current_user.is_bartender:
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.index'))
 
     return render_template('scanqrcode.html.j2', title='Scan QR code')
 
+
 @bp.route('/get_user_from_qr')
 @login_required
 def get_user_from_qr():
-    """ The QR code scanner redirects to this page when a QR code is scanned.
-        The corresponding user is retrieved and this page redirects to the
-        user's profile. """
+    """Redirect to the user profile corresponding to the QR code."""
     if not current_user.is_bartender:
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.index'))
@@ -605,10 +685,15 @@ def get_user_from_qr():
 
     return redirect(url_for('main.user', username=user.username))
 
+
 @bp.route('/qrcode/<username>')
 @login_required
 def qrcode(username):
-    """ View user's QR code. """
+    """Render the user QR code page.
+
+    Keyword arguments:
+    username -- the user's username
+    """
     if current_user.username != username and (not current_user.is_bartender):
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.index'))
@@ -617,10 +702,11 @@ def qrcode(username):
 
     return render_template('qrcode.html.j2', title='QR code', user=user)
 
+
 @bp.route('/global_settings', methods=['GET', 'POST'])
 @login_required
 def global_settings():
-    """ Set global web app settings. """
+    """Render the global settings page."""
     if not current_user.is_bartender:
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.index'))
@@ -639,4 +725,5 @@ def global_settings():
         for index, s in enumerate(settings):
             form.value.append_entry(s.value)
             form.value.entries[index].label.text = s.name
-    return render_template('global_settings.html.j2', title='Global settings', form=form)
+    return render_template('global_settings.html.j2', title='Global settings',
+                           form=form)

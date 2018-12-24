@@ -12,7 +12,7 @@
     {{ form.username(placeholder='Username', id='inputUsername', class_='form-control') }}
 
     {{ form.password.label(class_='sr-only')}}
-    {{ form.password(placeholder='Password', id='inputPassword', class_='form-control') }}
+    {{ form.password(placeholder='Password', id='inputPassword', class_='form-control', autocomplete='off') }}
 
     <div class="checkbox mb-3">
       {{ form.remember_me() }} {{ form.remember_me.label }}
