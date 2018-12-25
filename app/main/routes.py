@@ -1,4 +1,4 @@
-"""View function for the main URLs."""
+"""View functions for the main routes."""
 
 import datetime
 from calendar import monthrange

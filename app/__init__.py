@@ -1,7 +1,12 @@
+"""Flask application init file.
+
+Creates the app instance to eliminate the need of a global app variable.
+"""
+
 import logging
 from logging.handlers import SMTPHandler, RotatingFileHandler
 import os
-from flask import Flask, request, current_app, session
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
@@ -20,9 +25,9 @@ mail = Mail()
 moment = Moment()
 whooshee = Whooshee()
 
+
 def create_app(config_class=Config):
-    """ Constructs a Flask application instance, thus eliminating the need for
-        a global app variable. """
+    """Create a Flask application instance."""
     app = Flask(__name__)
     app.config.from_object(config_class)
 
@@ -38,11 +43,16 @@ def create_app(config_class=Config):
     with app.app_context():
         # Create database entries if they don't exist yet
         global_settings = {
-            'MINUTES_BEFORE_NEXT_DRINK': 'Time (in minutes) between alcoholic drinks',
-            'MAX_ALCOHOLIC_DRINKS_PER_DAY': 'Maximum number of alcoholic drinks per day',
-            'DAYS_BEFORE_INACTIVE': 'Number of days after which a user is counted as inactive',
-            'MINIMUM_LEGAL_AGE': 'Minimum legal age',
-            'QUICK_ACCESS_ITEM_ID': 'Quick access item'
+            'MINUTES_BEFORE_NEXT_DRINK':
+                'Time (in minutes) between alcoholic drinks',
+            'MAX_ALCOHOLIC_DRINKS_PER_DAY':
+                'Maximum number of alcoholic drinks per day',
+            'DAYS_BEFORE_INACTIVE':
+                'Number of days after which a user is counted as inactive',
+            'MINIMUM_LEGAL_AGE':
+                'Minimum legal age',
+            'QUICK_ACCESS_ITEM_ID':
+                'Quick access item'
             }
         for key, name in global_settings.items():
             if GlobalSetting.query.filter_by(key=key).first() is None:
@@ -90,7 +100,7 @@ def create_app(config_class=Config):
             if not os.path.exists('logs'):
                 os.mkdir('logs')
             file_handler = RotatingFileHandler('logs/espcibar.log',
-                                                maxBytes=10240, backupCount=10)
+                                               maxBytes=10240, backupCount=10)
             file_handler.setFormatter(logging.Formatter(
                 '%(asctime)s %(levelname)s: %(message)s '
                 '[in %(pathname)s:%(lineno)d]'))

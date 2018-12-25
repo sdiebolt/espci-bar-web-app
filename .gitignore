@@ -16,13 +16,6 @@ whooshee/
 pdf
 latex
 
-# Helper scripts
-134.txt
-135.txt
-136.txt
-137.txt
-bulk_add.py
-
 # Environment variables
 *.env
 
@@ -44,6 +37,7 @@ develop-eggs
 lib
 lib64
 __pycache__
+pep8.py.fixflak8
 
 # Installer logs
 pip-log.txt
@@ -56,3 +50,4 @@ nosetests.xml
 venv
 app.db
 *.log*
+logs/
