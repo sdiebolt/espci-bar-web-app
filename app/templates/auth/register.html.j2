@@ -25,9 +25,9 @@
         {{ form.grad_class.label()}}
         {{ form.grad_class(class_='form-control') }}
       </div>
-      <div class="form-group form-check">
-        {{ form.is_bartender(class_='form-check-input') }}
-        {{ form.is_bartender.label()}}
+      <div class="form-group">
+        {{ form.account_type.label()}}
+        {{ form.account_type(class_='form-control custom-select') }}
       </div>
       {{ form.submit(class_='btn btn-primary') }}
   </div>

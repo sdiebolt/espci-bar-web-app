@@ -20,10 +20,25 @@ $ source venv/bin/activate
 
 2. Configure your environment in a .env at the root of the project:
 ```
-SECRET_KEY=52cb883e323b48d78a0a36e8e951ba4a
-MAIL_SERVER=localhost
-MAIL_PORT=25
-DATABASE_URL=mysql+pymysql://user:<db-password>@localhost:3306/espci_bar
+SECRET_KEY = yoursecretkey
+DATABASE_URL = mysql+pymysql://user:password@localhost:3306/bar_webapp
+
+SESSION_TYPE = sqlalchemy
+
+MAIL_SERVER = localhost
+MAIL_PORT = 25
+MAIL_USE_TLS = 1
+
+USERS_PER_PAGE = 12
+ITEMS_PER_PAGE = 10
+
+CURRENT_GRAD_CLASS = 137
+
+MINUTES_BEFORE_NEXT_DRINK = 30
+MAX_ALCOHOLIC_DRINKS_PER_DAY = 4
+DAYS_BEFORE_INACTIVE = 30
+MINIMUM_LEGAL_AGE = 18
+QUICK_ACCESS_ITEM_ID = 1
 ```
 
 3. Configure Flask:
@@ -34,8 +49,8 @@ DATABASE_URL=mysql+pymysql://user:<db-password>@localhost:3306/espci_bar
 4. Create the MySQL database:
 ```
 mysql> create database bar character set utf8 collate utf8_bin;
-mysql> create user 'user'@'espci_bar' identified by '<db-password>';
-mysql> grant all privileges on user.* to 'espci_bar'@'localhost';
+mysql> create user 'user'@'bar_webapp' identified by '<db-password>';
+mysql> grant all privileges on user.* to 'bar_webapp'@'localhost';
 mysql> flush privileges;
 mysql> quit;
 ```
@@ -54,8 +69,13 @@ mysql> quit;
 
 ## Built With
 
-* [Flask](http://flask.pocoo.org) - The web framework used
-* [jsQR](https://github.com/cozmo/jsQR) - The javascript QR code reading library
+* [Flask](http://flask.pocoo.org) - Flask is a microframework for Python based on Werkzeug, Jinja 2 and good intentions.
+* [jQuery](https://jquery.com) - jQuery is a fast, small, and feature-rich JavaScript library.
+* [Popper.js](https://popper.js.org) - A kickass library
+used to manage poppers in web applications.
+* [Bootstrap](https://getbootstrap.com) - Bootstrap is an open source toolkit for developing with HTML, CSS, and JS.
+* [Chart.js](https://www.chartjs.org) - Simple yet flexible JavaScript charting for designers & developers.
+* [jsQR](https://github.com/cozmo/jsQR) - A pure javascript QR code reading library.
 
 ## Authors
 

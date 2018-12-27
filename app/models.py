@@ -26,15 +26,20 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(128), nullable=False)
     qrcode_hash = db.Column(db.String(128), nullable=False)
 
+    # Account type
+    is_observer = db.Column(db.Boolean, default=False, nullable=False)
+    is_customer = db.Column(db.Boolean, default=False, nullable=False)
+    is_bartender = db.Column(db.Boolean, default=False, nullable=False)
+    is_admin = db.Column(db.Boolean, default=False, nullable=False)
+
     # Personal info
     first_name = db.Column(db.String(64), index=True, nullable=False)
     last_name = db.Column(db.String(64), index=True, nullable=False)
     nickname = db.Column(db.String(64), index=True)
     birthdate = db.Column(db.Date, nullable=False)
-    is_bartender = db.Column(db.Boolean, default=False, nullable=False)
     grad_class = db.Column(db.Integer, index=True, default=0, nullable=False)
 
-    # Technical info
+    # Account info
     balance = db.Column(db.Float, default=0.0, nullable=False)
     last_drink = db.Column(db.DateTime, default=None, nullable=True)
     transactions = db.relationship('Transaction', backref='client',

@@ -28,11 +28,11 @@ def before_request():
 def dashboard():
     """Render the index page.
 
-    - For bartenders, it renders the dashboard.
+    - For admins, bartenders and observers, it renders the dashboard.
     - For customers, it redirects to the user profile.
     - For anonymous users, it redirects to the login page.
     """
-    if not current_user.is_bartender:
+    if not (current_user.is_bartender or current_user.is_observer):
         return redirect(url_for('main.user', username=current_user.username))
 
     # Get current day start
@@ -224,11 +224,8 @@ def user(username):
     quick_access_item = Item.query.\
         filter_by(id=current_app.config['QUICK_ACCESS_ITEM_ID']).first()
 
-    # Check if user is an admin
-    is_admin = user.email in current_app.config['ADMINS']
-
     return render_template('user.html.j2', title=username + ' profile',
-                           age=age, is_admin=is_admin, user=user,
+                           age=age, user=user,
                            inventory=inventory,
                            favorite_inventory=favorite_inventory,
                            quick_access_item=quick_access_item,
@@ -243,7 +240,7 @@ def edit_profile(username):
     Keyword arguments:
     username -- the user's username
     """
-    if not current_user.is_bartender:
+    if not current_user.is_admin:
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.dashboard'))
 
@@ -255,7 +252,18 @@ def edit_profile(username):
         user.birthdate = form.birthdate.data
         user.nickname = form.nickname.data
         user.email = form.email.data
-        user.is_bartender = form.is_bartender.data
+
+        # Set account type
+        user.is_observer = form.account_type.data == 'observer' or \
+            form.account_type.data == 'bartender' or \
+            form.account_type.data == 'admin'
+        user.is_customer = form.account_type.data == 'customer' or \
+            form.account_type.data == 'bartender' or \
+            form.account_type.data == 'admin'
+        user.is_bartender = form.account_type.data == 'bartender' or \
+            form.account_type.data == 'admin'
+        user.is_admin = form.account_type.data == 'admin'
+
         if (form.password.data != ''):
             user.set_password(form.password.data)
         db.session.commit()
@@ -267,7 +275,14 @@ def edit_profile(username):
         form.birthdate.data = user.birthdate
         form.nickname.data = user.nickname
         form.email.data = user.email
-        form.is_bartender.data = user.is_bartender
+        if user.is_observer:
+            form.account_type.data = 'observer'
+        if user.is_customer:
+            form.account_type.data = 'customer'
+        if user.is_bartender:
+            form.account_type.data = 'bartender'
+        if user.is_admin:
+            form.account_type.data = 'admin'
     return render_template('edit_profile.html.j2', title='Edit profile',
                            form=form)
 
@@ -297,7 +312,7 @@ def deposit():
 @fresh_login_required
 def delete_user():
     """Delete a user."""
-    if not current_user.is_bartender:
+    if not current_user.is_admin:
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.dashboard'))
 
@@ -317,85 +332,6 @@ def month_year_iter(start_month, start_year, end_month, end_year):
     for ym in range(ym_start, ym_end):
         y, m = divmod(ym, 12)
         yield y, m+1
-
-
-@bp.route('/statistics')
-@login_required
-def statistics():
-    """Render the statistics page."""
-    if not current_user.is_bartender:
-        flash("You don't have the rights to access this page.", 'danger')
-        return redirect(url_for('main.dashboard'))
-
-    # Get current day start
-    today = datetime.datetime.today()
-    yesterday = today - datetime.timedelta(days=1)
-    current_year = today.year
-    current_month = today.month
-    if today.hour < 6:
-        current_day_start = datetime.\
-            datetime(year=yesterday.year, month=yesterday.month,
-                     day=yesterday.day, hour=6)
-    else:
-        current_day_start = datetime.\
-            datetime(year=today.year, month=today.month,
-                     day=today.day, hour=6)
-
-    # Daily clients
-    nb_daily_clients = User.query.\
-        filter(User.transactions.any(Transaction.date > current_day_start)).\
-        count()
-
-    # Daily alcohol consumption
-    alcohol_qty = Transaction.query.\
-        filter(Transaction.date > current_day_start).\
-        filter(Transaction.type.like('Pay%')).\
-        filter(Transaction.item.has(is_alcohol=True)).\
-        filter_by(is_reverted=False).count() * 0.25
-
-    # Daily revenue
-    daily_transactions = Transaction.query.\
-        filter(Transaction.date > current_day_start).\
-        filter(Transaction.type.like('Pay%')).\
-        filter_by(is_reverted=False).all()
-    daily_revenue = sum([abs(t.balance_change) for t in daily_transactions])
-
-    # Get money spent and topped up this month
-    paid_this_month = []
-    topped_this_month = []
-    for day in range(1, monthrange(current_year, current_month)[1] + 1):
-        transactions_paid_m = Transaction.query.\
-            filter(
-                and_(extract('day', Transaction.date) == day,
-                     and_(extract('month', Transaction.date) == current_month,
-                          extract('year', Transaction.date) == current_year))
-                  ).filter(Transaction.type.like('Pay%')).\
-            filter_by(is_reverted=False).all()
-        transactions_topped_m = Transaction.query.\
-            filter(
-                and_(extract('day', Transaction.date) == day,
-                     and_(extract('month', Transaction.date) == current_month,
-                          extract('year', Transaction.date) == current_year))
-                  ).filter(Transaction.type.like('Top up')).\
-            filter_by(is_reverted=False).all()
-        paid_this_month.append(0)
-        for t in transactions_paid_m:
-            paid_this_month[-1] -= t.balance_change
-        topped_this_month.append(0)
-        for t in transactions_topped_m:
-            topped_this_month[-1] += t.balance_change
-
-    # Generate days labels
-    days_labels = ['%.2d' % current_month + '/' + '%.2d' % day for day in
-                   range(1, monthrange(current_year, current_month)[1] + 1)]
-
-    return render_template('statistics.html.j2', title='Statistics',
-                           paid_this_month=paid_this_month,
-                           topped_this_month=topped_this_month,
-                           days_labels=days_labels,
-                           nb_daily_clients=nb_daily_clients,
-                           alcohol_qty=alcohol_qty,
-                           daily_revenue=daily_revenue)
 
 
 @bp.route('/transactions')
@@ -738,7 +674,7 @@ def qrcode(username):
 @login_required
 def global_settings():
     """Render the global settings page."""
-    if not current_user.is_bartender:
+    if not current_user.is_admin:
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.dashboard'))
 

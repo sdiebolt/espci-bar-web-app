@@ -4,7 +4,7 @@
 <div class="container">
   <div class="card mt-3 shadow {% if not user.deposit %}border-secondary{% elif user.balance <= 0 %}border-danger{% elif user.balance <= 5 %}border-warning{% else %}border-primary{% endif %}">
     <div class="card-header">
-      <h3 class="card-title {% if not user.deposit %}text-secondary{% elif user.balance <= 0 %}text-danger{% elif user.balance <= 5 %}text-warning{% else %}text-primary{% endif %}">{{ user.first_name }}{% if current_user.is_bartender and user.nickname %} "{{ user.nickname }}"{% endif %} {{ user.last_name }}{% if is_admin %} – Administrator{% elif user.is_bartender %} – Bartender{% endif %}</h3>
+      <h3 class="card-title {% if not user.deposit %}text-secondary{% elif user.balance <= 0 %}text-danger{% elif user.balance <= 5 %}text-warning{% else %}text-primary{% endif %}">{{ user.first_name }}{% if current_user.is_bartender and user.nickname %} "{{ user.nickname }}"{% endif %} {{ user.last_name }}</h3>
     </div>
 
     <div class="card-body">
@@ -25,6 +25,10 @@
               <tr>
                 <td><strong><i class="material-icons">person</i></strong></td>
                 <td>{{ user.username }}</td>
+              </tr>
+              <tr>
+                <td><strong><i class="material-icons">info</i></strong></td>
+                <td>{% if user.is_admin %}Administrator{% elif user.is_bartender %}Bartender{% elif user.is_observer %}Observer{% else %}Customer{% endif %}</td>
               </tr>
               <tr>
                 <td><strong><i class="material-icons">alternate_email</i></strong></td>

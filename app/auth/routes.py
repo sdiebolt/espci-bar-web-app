@@ -115,6 +115,17 @@ def register():
                                 lower()).partition('-')[0][:7]
         password = gen_password()
 
+        # Set account type
+        is_observer = form.account_type.data == 'observer' or \
+            form.account_type.data == 'bartender' or \
+            form.account_type.data == 'admin'
+        is_customer = form.account_type.data == 'customer' or \
+            form.account_type.data == 'bartender' or \
+            form.account_type.data == 'admin'
+        is_bartender = form.account_type.data == 'bartender' or \
+            form.account_type.data == 'admin'
+        is_admin = form.account_type.data == 'admin'
+
         # Generate pdf
         # create_pdf(cols[1], cols[0], gc, username, password)
 
@@ -130,7 +141,10 @@ def register():
                     birthdate=form.birthdate.data,
                     grad_class=grad_class,
                     username=username, email=form.email.data.lower(),
-                    is_bartender=form.is_bartender.data)
+                    is_observer=is_observer,
+                    is_customer=is_customer,
+                    is_bartender=is_bartender,
+                    is_admin=is_admin)
         user.set_password(password)
         user.set_qrcode()
         db.session.add(user)

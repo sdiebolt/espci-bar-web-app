@@ -3,7 +3,7 @@
 from flask_wtf import FlaskForm
 import datetime
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, \
-    IntegerField, DateField
+    IntegerField, DateField, SelectField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, \
     optional
 from app.models import User
@@ -32,7 +32,11 @@ class RegistrationForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
     grad_class = IntegerField('Graduating class (empty if non student)',
                               [optional()])
-    is_bartender = BooleanField('Bartender')
+
+    account_type = SelectField(
+        'Account type',
+        choices=[('observer', 'Observer'), ('customer', 'Customer'),
+                 ('bartender', 'Bartender'), ('admin', 'Administrator')])
 
     submit = SubmitField('Register')
 

@@ -4,7 +4,8 @@ import safe
 from flask import request
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, PasswordField, FloatField, \
-                    IntegerField, BooleanField, DateField, FieldList
+                    IntegerField, BooleanField, DateField, FieldList, \
+                    SelectField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, \
                                optional
 from app.models import User, Item
@@ -28,7 +29,10 @@ class EditProfileForm(FlaskForm):
     password2 = PasswordField('Repeat password',
                               validators=[EqualTo('password')])
 
-    is_bartender = BooleanField('Bartender')
+    account_type = SelectField(
+        'Account type',
+        choices=[('observer', 'Observer'), ('customer', 'Customer'),
+                 ('bartender', 'Bartender'), ('admin', 'Administrator')])
 
     submit = SubmitField('Submit')
 
