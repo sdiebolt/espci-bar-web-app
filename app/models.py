@@ -7,6 +7,7 @@ from flask import current_app, url_for
 from flask_login import UserMixin
 from sqlalchemy.sql.expression import and_
 from werkzeug.security import generate_password_hash, check_password_hash
+import hashlib
 import jwt
 import qrcode
 from app import db, login, whooshee
@@ -62,10 +63,14 @@ class User(UserMixin, db.Model):
         qr.add_data(self.qrcode_hash)
         qr.make(fit=True)
 
+        # md5 encode qrcode_hash to get jpg filename
+        qrcode_name = hashlib.md5()
+        qrcode_name.update(self.qrcode_hash.encode('utf-8'))
+
         # Create QR code image and save it to static folder
         img = qr.make_image()
         img = img.resize((160, 160))
-        img.save('app/static/img/qr/'+self.username+'_qr.jpg')
+        img.save('app/static/img/qr/'+qrcode_name.hexdigest()+'.jpg')
 
     def check_password(self, password):
         """Check password against stored hash."""
@@ -86,13 +91,15 @@ class User(UserMixin, db.Model):
 
     def qr(self):
         """Return url for qr code file."""
-        qr_path = 'img/qr/'+self.username+'_qr'
-        if os.path.isfile(os.path.join('app', 'static', qr_path+'.jpg')):
-            qr_filename = url_for('static', filename=qr_path+'.jpg')
+        # md5 encode qrcode_hash to get jpg filename
+        qrcode_name = hashlib.md5()
+        qrcode_name.update(self.qrcode_hash.encode('utf-8'))
+        qr_path = os.path.join('img', 'qr',
+                               qrcode_name.hexdigest()+'.jpg')
+        if os.path.isfile(os.path.join('app', 'static', qr_path)):
+            qr_filename = url_for('static', filename=qr_path)
             return qr_filename
-        elif os.path.isfile(os.path.join('app', 'static', qr_path+'.png')):
-            qr_filename = url_for('static', filename=qr_path+'.png')
-            return qr_filename
+        return None
 
     def get_reset_password_token(self, expires_in=600):
         """Return the reset password token."""
