@@ -150,6 +150,7 @@
         </div>
         {% endif %}
 
+        {% if current_user.is_admin %}
         <div class="btn-group">
           <a class="btn btn-warning" href="{{ url_for('main.edit_profile', username=user.username) }}" role="button">
             <i class="material-icons align-middle">edit</i>
@@ -158,6 +159,7 @@
             <i class="material-icons align-middle">delete</i>
           </button>
         </div>
+        {% endif %}
       </div>
     </div>
     {% endif %}

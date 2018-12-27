@@ -34,12 +34,13 @@
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-main" aria-controls="navbar-main" aria-expanded="false" aria-label="Toggle navigation">
         <i class="material-icons align-middle">menu</i>
       </button>
-      {% if current_user.is_bartender %}
+      {% if current_user.is_observer %}
       <div class="collapse navbar-collapse navbar-main">
         <ul class="navbar-nav mr-auto">
           <li class="nav-item{% if (request.path == '/dashboard' or request.path == '/') %} active{% endif %}">
             <a class="nav-link" href="{{ url_for('main.dashboard') }}">Dashboard</a>
           </li>
+          {% if current_user.is_bartender %}
           <li class="nav-item{% if (request.path == '/inventory') %} active{% endif %}">
             <a class="nav-link" href="{{ url_for('main.inventory')}}">Inventory</a>
           </li>
@@ -50,9 +51,12 @@
             <a class="nav-link dropdown-toggle" href="#" id="dropdownTools" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Tools</a>
             <div class="dropdown-menu" aria-labelledby="dropdownTools">
               <a class="dropdown-item" href="{{ url_for('auth.register') }}">Add user</a>
+              {% if current_user.is_admin %}
               <a class="dropdown-item" href="{{ url_for('main.global_settings')}}">Settings</a>
+              {% endif %}
             </div>
           </li>
+          {% endif %}
         </ul>
       </div>
       {% endif %}

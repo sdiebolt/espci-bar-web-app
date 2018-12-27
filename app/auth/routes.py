@@ -116,10 +116,11 @@ def register():
         password = gen_password()
 
         # Set account type
-        is_observer = form.account_type.data == 'observer' or \
+        is_customer = form.account_type.data == 'customer' or \
             form.account_type.data == 'bartender' or \
             form.account_type.data == 'admin'
-        is_customer = form.account_type.data == 'customer' or \
+        is_observer = form.account_type.data == 'observer' or \
+            form.account_type.data == 'customer' or \
             form.account_type.data == 'bartender' or \
             form.account_type.data == 'admin'
         is_bartender = form.account_type.data == 'bartender' or \

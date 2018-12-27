@@ -254,10 +254,11 @@ def edit_profile(username):
         user.email = form.email.data
 
         # Set account type
-        user.is_observer = form.account_type.data == 'observer' or \
+        user.is_customer = form.account_type.data == 'customer' or \
+            form.account_type.data == 'observer' or \
             form.account_type.data == 'bartender' or \
             form.account_type.data == 'admin'
-        user.is_customer = form.account_type.data == 'customer' or \
+        user.is_observer = form.account_type.data == 'observer' or \
             form.account_type.data == 'bartender' or \
             form.account_type.data == 'admin'
         user.is_bartender = form.account_type.data == 'bartender' or \
