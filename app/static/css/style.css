@@ -40,9 +40,48 @@ body {
 .material-icons.md-light { color: rgba(255, 255, 255, 1); }
 .material-icons.md-light.md-inactive { color: rgba(255, 255, 255, 0.3); }
 
-/*************************/
-/* Index and search page */
-/*************************/
+/**********************/
+/*  User profile page */
+/**********************/
+
+.fadein {
+  position:relative;
+}
+.fadein img {
+  -webkit-animation-name: fade;
+  -webkit-animation-iteration-count: infinite;
+  -webkit-animation-duration: 8s;
+  animation-name: fade;
+  animation-iteration-count: infinite;
+  animation-duration: 8s;
+}
+
+@-webkit-keyframes fade {
+    0% {opacity: 0;}
+    20% {opacity: 1;}
+    33% {opacity: 1;}
+    53% {opacity: 0;}
+    100% {opacity: 0;}
+}
+@keyframes fade {
+    0% {opacity: 0;}
+    20% {opacity: 1;}
+    33% {opacity: 1;}
+    53% {opacity: 0;}
+    100% {opacity: 0;}
+}
+
+#f2 {
+  position:absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  -webkit-animation-delay: -4s;
+}
+
+/****************/
+/*  Search page */
+/****************/
 
 .user-card-title {
   overflow: hidden;

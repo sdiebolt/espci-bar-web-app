@@ -1,45 +1,5 @@
 {% extends 'base.html.j2' %}
 
-{% block styles %}
-{{ super() }}
-<style>
-.fadein {
-  position:relative;
-}
-.fadein img {
-  -webkit-animation-name: fade;
-  -webkit-animation-iteration-count: infinite;
-  -webkit-animation-duration: 8s;
-  animation-name: fade;
-  animation-iteration-count: infinite;
-  animation-duration: 8s;
-}
-
-@-webkit-keyframes fade {
-    0% {opacity: 0;}
-    20% {opacity: 1;}
-    33% {opacity: 1;}
-    53% {opacity: 0;}
-    100% {opacity: 0;}
-}
-@keyframes fade {
-    0% {opacity: 0;}
-    20% {opacity: 1;}
-    33% {opacity: 1;}
-    53% {opacity: 0;}
-    100% {opacity: 0;}
-}
-
-#f2 {
-  position:absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  -webkit-animation-delay: -4s;
-}
-</style>
-{% endblock %}
-
 {% block app_content %}
 <div class="container">
   <div class="card mt-3 shadow {% if not user.deposit %}border-secondary{% elif user.balance <= 0 %}border-danger{% elif user.balance <= 5 %}border-warning{% else %}border-primary{% endif %}">
