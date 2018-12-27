@@ -23,56 +23,87 @@ def before_request():
 
 
 @bp.route('/', methods=['GET'])
-@bp.route('/index', methods=['GET'])
+@bp.route('/dashboard', methods=['GET'])
 @login_required
-def index():
+def dashboard():
     """Render the index page.
 
-    - For bartenders, it renders the customers page.
+    - For bartenders, it renders the dashboard.
     - For customers, it redirects to the user profile.
     - For anonymous users, it redirects to the login page.
     """
     if not current_user.is_bartender:
         return redirect(url_for('main.user', username=current_user.username))
 
-    # Get arguments
-    page = request.args.get('page', 1, type=int)
-    sort = request.args.get('sort', 'asc', type=str)
-    grad_class = request.\
-        args.get('grad_class', str(current_app.config['CURRENT_GRAD_CLASS']),
-                 type=int)
-
-    # Get graduating classes
-    grad_classes_query = db.session.query(User.grad_class.distinct().
-                                          label('grad_class'))
-    grad_classes = [row.grad_class for row in grad_classes_query.all()]
-
-    # Get inventory
-    inventory = Item.query.order_by(Item.name.asc()).all()
-
-    # Get favorite items
-    favorite_inventory = Item.query.filter_by(is_favorite=True).\
-        order_by(Item.name.asc()).all()
-
-    # Get quick access item
-    quick_access_item = Item.query.\
-        filter_by(id=current_app.config['QUICK_ACCESS_ITEM_ID']).first()
-
-    # Sort users alphabetically
-    if sort == 'asc':
-        users = User.query.filter_by(grad_class=grad_class).\
-            order_by(User.last_name.asc()).\
-            paginate(page, current_app.config['USERS_PER_PAGE'], True)
+    # Get current day start
+    today = datetime.datetime.today()
+    yesterday = today - datetime.timedelta(days=1)
+    current_year = today.year
+    current_month = today.month
+    if today.hour < 6:
+        current_day_start = datetime.\
+            datetime(year=yesterday.year, month=yesterday.month,
+                     day=yesterday.day, hour=6)
     else:
-        users = User.query.filter_by(grad_class=grad_class).\
-            order_by(User.last_name.desc()).\
-            paginate(page, current_app.config['USERS_PER_PAGE'], True)
+        current_day_start = datetime.\
+            datetime(year=today.year, month=today.month,
+                     day=today.day, hour=6)
 
-    return render_template('index.html.j2', title='Checkout',
-                           users=users, sort=sort, inventory=inventory,
-                           favorite_inventory=favorite_inventory,
-                           quick_access_item=quick_access_item,
-                           grad_class=grad_class, grad_classes=grad_classes)
+    # Daily clients
+    nb_daily_clients = User.query.\
+        filter(User.transactions.any(Transaction.date > current_day_start)).\
+        count()
+
+    # Daily alcohol consumption
+    alcohol_qty = Transaction.query.\
+        filter(Transaction.date > current_day_start).\
+        filter(Transaction.type.like('Pay%')).\
+        filter(Transaction.item.has(is_alcohol=True)).\
+        filter_by(is_reverted=False).count() * 0.25
+
+    # Daily revenue
+    daily_transactions = Transaction.query.\
+        filter(Transaction.date > current_day_start).\
+        filter(Transaction.type.like('Pay%')).\
+        filter_by(is_reverted=False).all()
+    daily_revenue = sum([abs(t.balance_change) for t in daily_transactions])
+
+    # Get money spent and topped up this month
+    paid_this_month = []
+    topped_this_month = []
+    for day in range(1, monthrange(current_year, current_month)[1] + 1):
+        transactions_paid_m = Transaction.query.\
+            filter(
+                and_(extract('day', Transaction.date) == day,
+                     and_(extract('month', Transaction.date) == current_month,
+                          extract('year', Transaction.date) == current_year))
+                  ).filter(Transaction.type.like('Pay%')).\
+            filter_by(is_reverted=False).all()
+        transactions_topped_m = Transaction.query.\
+            filter(
+                and_(extract('day', Transaction.date) == day,
+                     and_(extract('month', Transaction.date) == current_month,
+                          extract('year', Transaction.date) == current_year))
+                  ).filter(Transaction.type.like('Top up')).\
+            filter_by(is_reverted=False).all()
+        paid_this_month.append(0)
+        for t in transactions_paid_m:
+            paid_this_month[-1] -= t.balance_change
+        topped_this_month.append(0)
+        for t in transactions_topped_m:
+            topped_this_month[-1] += t.balance_change
+
+    # Generate days labels
+    days_labels = ['%.2d' % current_month + '/' + '%.2d' % day for day in
+                   range(1, monthrange(current_year, current_month)[1] + 1)]
+
+    return render_template('dashboard.html.j2', title='Dashboard',
+                           paid_this_month=paid_this_month,
+                           topped_this_month=topped_this_month,
+                           days_labels=days_labels,
+                           nb_daily_clients=nb_daily_clients,
+                           alcohol_qty=alcohol_qty,
+                           daily_revenue=daily_revenue)
 
 
 @bp.route('/search', methods=['GET'])
@@ -81,9 +112,9 @@ def search():
     """Render search page."""
     if not current_user.is_bartender:
         flash("You don't have the rights to access this page.", 'danger')
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.dashboard'))
     if not g.search_form.validate():
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.dashboard'))
 
     # Get arguments
     page = request.args.get('page', 1, type=int)
@@ -92,7 +123,7 @@ def search():
 
     # If the query is empty, redirect to the index page
     if query == '':
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.dashboard'))
 
     # Get inventory
     inventory = Item.query.order_by(Item.name.asc()).all()
@@ -136,7 +167,7 @@ def get_user_products():
     """Return the list of products that a user can buy."""
     if not current_user.is_bartender:
         flash("You don't have the rights to access this page.", 'danger')
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.dashboard'))
 
     # Get user
     user = User.query.filter_by(username=request.args['username']).\
@@ -166,7 +197,7 @@ def user(username):
     """
     if current_user.username != username and (not current_user.is_bartender):
         flash("You don't have the rights to access this page.", 'danger')
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.dashboard'))
 
     # Get transactions page
     page = request.args.get('page', 1, type=int)
@@ -214,7 +245,7 @@ def edit_profile(username):
     """
     if not current_user.is_bartender:
         flash("You don't have the rights to access this page.", 'danger')
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.dashboard'))
 
     user = User.query.filter_by(username=username).first_or_404()
     form = EditProfileForm(user.email)
@@ -247,7 +278,7 @@ def deposit():
     """Set a user deposit state."""
     if not current_user.is_bartender:
         flash("You don't have the rights to access this page.", 'danger')
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.dashboard'))
 
     username = request.args.get('username', None, type=str)
     user = User.query.filter_by(username=username).first_or_404()
@@ -268,7 +299,7 @@ def delete_user():
     """Delete a user."""
     if not current_user.is_bartender:
         flash("You don't have the rights to access this page.", 'danger')
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.dashboard'))
 
     username = request.args.get('username', None, type=str)
 
@@ -276,7 +307,7 @@ def delete_user():
     db.session.delete(user)
     db.session.commit()
     flash('The user ' + username + ' has been deleted.', 'primary')
-    return redirect(url_for('main.index'))
+    return redirect(url_for('main.dashboard'))
 
 
 def month_year_iter(start_month, start_year, end_month, end_year):
@@ -294,7 +325,7 @@ def statistics():
     """Render the statistics page."""
     if not current_user.is_bartender:
         flash("You don't have the rights to access this page.", 'danger')
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.dashboard'))
 
     # Get current day start
     today = datetime.datetime.today()
@@ -373,7 +404,7 @@ def transactions():
     """Render the transactions page."""
     if not current_user.is_bartender:
         flash("You don't have the rights to access this page.", 'danger')
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.dashboard'))
 
     # Get arguments
     page = request.args.get('page', 1, type=int)
@@ -397,7 +428,7 @@ def revert_transaction():
     """Revert a transaction."""
     if not current_user.is_bartender:
         flash("You don't have the rights to access this page.", 'danger')
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.dashboard'))
 
     transaction_id = request.args.get('transaction_id', -1, type=int)
 
@@ -446,7 +477,7 @@ def inventory():
     """Render the inventory page."""
     if not current_user.is_bartender:
         flash("You don't have the rights to access this page.", 'danger')
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.dashboard'))
 
     # Get arguments
     page = request.args.get('page', 1, type=int)
@@ -475,7 +506,7 @@ def set_quick_access_item():
     """Set the quick access item."""
     if not current_user.is_bartender:
         flash("You don't have the rights to access this page.", 'danger')
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.dashboard'))
 
     # Get arguments
     item_name = request.args.get('item_name', None, type=str)
@@ -501,7 +532,7 @@ def add_item():
     """Add an item to the inventory."""
     if not current_user.is_bartender:
         flash("You don't have the rights to acces this page.", 'danger')
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.dashboard'))
 
     form = AddItemForm()
     if form.validate_on_submit():
@@ -529,7 +560,7 @@ def edit_item(item_name):
     """
     if not current_user.is_bartender:
         flash("You don't have the rights to access this page.", 'danger')
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.dashboard'))
 
     item = Item.query.filter_by(name=item_name).first_or_404()
     form = EditItemForm(item.name)
@@ -565,7 +596,7 @@ def delete_item():
     """Delete an item from the inventory."""
     if not current_user.is_bartender:
         flash("You don't have the rights to access this page.", 'danger')
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.dashboard'))
 
     item_name = request.args.get('item_name', None, type=str)
 
@@ -582,7 +613,7 @@ def top_up():
     """Top up the user's balance and redirect to the last page."""
     if not current_user.is_bartender:
         flash("You don't have the rights to access this page.", 'danger')
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.dashboard'))
 
     username = request.args.get('username', 'none', type=str)
     user = User.query.filter_by(username=username).first_or_404()
@@ -615,7 +646,7 @@ def pay():
     """Substract the item price to the user's balance."""
     if not current_user.is_bartender:
         flash("You don't have the rights to access this page.", 'danger')
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.dashboard'))
 
     username = request.args.get('username', 'none', type=str)
     item_name = request.args.get('item_name', 'none', type=str)
@@ -664,7 +695,7 @@ def scanqrcode():
     """Render the QR code scanner page."""
     if not current_user.is_bartender:
         flash("You don't have the rights to access this page.", 'danger')
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.dashboard'))
 
     return render_template('scanqrcode.html.j2', title='Scan QR code')
 
@@ -675,7 +706,7 @@ def get_user_from_qr():
     """Redirect to the user profile corresponding to the QR code."""
     if not current_user.is_bartender:
         flash("You don't have the rights to access this page.", 'danger')
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.dashboard'))
 
     # Get arguments
     qrcode_hash = request.args.get('qrcode_hash', 'None', type=str)
@@ -696,7 +727,7 @@ def qrcode(username):
     """
     if current_user.username != username and (not current_user.is_bartender):
         flash("You don't have the rights to access this page.", 'danger')
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.dashboard'))
 
     user = User.query.filter_by(username=username).first_or_404()
 
@@ -709,7 +740,7 @@ def global_settings():
     """Render the global settings page."""
     if not current_user.is_bartender:
         flash("You don't have the rights to access this page.", 'danger')
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.dashboard'))
 
     form = GlobalSettingsForm()
     if form.validate_on_submit():

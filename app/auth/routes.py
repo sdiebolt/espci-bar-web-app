@@ -68,7 +68,7 @@ def login():
     """Render the login page and log user in."""
     if current_user.is_authenticated:
         flash("You can't access this page while being logged in.", 'danger')
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.dashboard'))
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
@@ -78,7 +78,7 @@ def login():
         login_user(user, remember=form.remember_me.data)
         next_page = request.args.get('next')
         if not next_page or url_parse(next_page).netloc != '':
-            next_page = url_for('main.index')
+            next_page = url_for('main.dashboard')
         flash('You were successfully logged in.', 'primary')
         return redirect(next_page)
     return render_template('auth/login.html.j2', title='Sign In', form=form)
@@ -99,7 +99,7 @@ def register():
     """Render the register page."""
     if not current_user.is_bartender:
         flash("You don't have the rights to access this page.", 'danger')
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.dashboard'))
 
     form = RegistrationForm()
     if form.validate_on_submit():
@@ -138,7 +138,7 @@ def register():
         flash('Congratulations, the user ' + user.username +
               ' has been added with password '+password+'.',
               'primary')
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.dashboard'))
     return render_template('auth/register.html.j2', title='Register',
                            form=form)
 
@@ -148,7 +148,7 @@ def reset_password_request():
     """Render the reset password request page."""
     if current_user.is_authenticated:
         flash("You can't access this page while being logged in.", 'danger')
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.dashboard'))
     form = ResetPasswordRequestForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
@@ -166,10 +166,10 @@ def reset_password(token):
     """Render the reset password page."""
     if current_user.is_authenticated:
         flash("You can't access this page while being logged in.", 'danger')
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.dashboard'))
     user = User.verify_reset_password_token(token)
     if not user:
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.dashboard'))
     form = ResetPasswordForm()
     if form.validate_on_submit():
         user.set_password(form.password.data)

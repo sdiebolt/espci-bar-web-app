@@ -29,7 +29,7 @@
     {% block body -%}
     {% block navbar %}
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
-      <a class="navbar-brand" href="{% if current_user.is_bartender %}{{ url_for('main.index') }}{% elif current_user.is_anonymous %}{{ url_for('auth.login') }}{% else %}{{ url_for('main.user', username=current_user.username) }}{% endif %}">ESPCI Bar</a>
+      <a class="navbar-brand" href="{% if current_user.is_bartender %}{{ url_for('main.dashboard') }}{% elif current_user.is_anonymous %}{{ url_for('auth.login') }}{% else %}{{ url_for('main.user', username=current_user.username) }}{% endif %}">ESPCI Bar</a>
       {% if not current_user.is_anonymous %}
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-main" aria-controls="navbar-main" aria-expanded="false" aria-label="Toggle navigation">
         <i class="material-icons align-middle">menu</i>
@@ -37,17 +37,14 @@
       {% if current_user.is_bartender %}
       <div class="collapse navbar-collapse navbar-main">
         <ul class="navbar-nav mr-auto">
-          <li class="nav-item{% if (request.path == '/index' or request.path == '/') %} active{% endif %}">
-            <a class="nav-link" href="{{ url_for('main.index') }}">Customers</a>
+          <li class="nav-item{% if (request.path == '/dashboard' or request.path == '/') %} active{% endif %}">
+            <a class="nav-link" href="{{ url_for('main.dashboard') }}">Dashboard</a>
           </li>
           <li class="nav-item{% if (request.path == '/inventory') %} active{% endif %}">
             <a class="nav-link" href="{{ url_for('main.inventory')}}">Inventory</a>
           </li>
           <li class="nav-item{% if (request.path == '/transactions') %} active{% endif %}">
             <a class="nav-link" href="{{ url_for('main.transactions') }}">Transactions</a>
-          </li>
-          <li class="nav-item{% if (request.path == '/statistics') %} active{% endif %}">
-            <a class="nav-link" href="{{ url_for('main.statistics') }}">Statistics</a>
           </li>
           <li class="nav-item dropdown{% if (request.path == '/tools' or request.path == '/auth/register' or request.path == '/global_settings') %} active{% endif %}">
             <a class="nav-link dropdown-toggle" href="#" id="dropdownTools" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Tools</a>
