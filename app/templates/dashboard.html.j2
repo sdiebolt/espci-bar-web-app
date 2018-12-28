@@ -63,10 +63,9 @@ function updateData(chart, chartData) {
 }
 
 // Global parameters:
-// do not resize the chart canvas when its container does (keep at 600x400px)
 Chart.defaults.global.responsive = true;
 
-// define the chart data
+// Define the chart data
 var chartDataMonth = {
   labels: [{% for item in days_labels %}"{{ item }}", {% endfor %}],
   datasets: [{

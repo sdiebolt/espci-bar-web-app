@@ -47,8 +47,6 @@ def create_app(config_class=Config):
                 'Time (in minutes) between alcoholic drinks',
             'MAX_ALCOHOLIC_DRINKS_PER_DAY':
                 'Maximum number of alcoholic drinks per day',
-            'DAYS_BEFORE_INACTIVE':
-                'Number of days after which a user is counted as inactive',
             'MINIMUM_LEGAL_AGE':
                 'Minimum legal age',
             'QUICK_ACCESS_ITEM_ID':
@@ -59,11 +57,6 @@ def create_app(config_class=Config):
                 gs = GlobalSetting(key=key, value=app.config[key], name=name)
                 db.session.add(gs)
             db.session.commit()
-
-        # Update application configuration with database entries
-        settings = GlobalSetting.query.all()
-        for s in settings:
-            app.config[s.key] = int(s.value)
 
     # Register error, auth and main blueprints
     from app.errors import bp as errors_bp

@@ -97,7 +97,8 @@ def dashboard():
     days_labels = ['%.2d' % current_month + '/' + '%.2d' % day for day in
                    range(1, monthrange(current_year, current_month)[1] + 1)]
 
-    return render_template('dashboard.html.j2', title='Dashboard',
+    return render_template('dashboard.html.j2',
+                           title='Dashboard',
                            paid_this_month=paid_this_month,
                            topped_this_month=topped_this_month,
                            days_labels=days_labels,
@@ -133,8 +134,10 @@ def search():
         order_by(Item.name.asc()).all()
 
     # Get quick access item
+    quick_access_item_id = GlobalSetting.query.\
+        filter_by(key='QUICK_ACCESS_ITEM_ID').first()
     quick_access_item = Item.query.\
-        filter_by(id=current_app.config['QUICK_ACCESS_ITEM_ID']).first()
+        filter_by(id=quick_access_item_id).first()
 
     # Get users corresponding to the query
     query_text = g.search_form.q.data
@@ -221,8 +224,10 @@ def user(username):
         order_by(Item.name.asc()).all()
 
     # Get quick access item
+    quick_access_item_id = GlobalSetting.query.\
+        filter_by(key='QUICK_ACCESS_ITEM_ID').first()
     quick_access_item = Item.query.\
-        filter_by(id=current_app.config['QUICK_ACCESS_ITEM_ID']).first()
+        filter_by(id=quick_access_item_id).first()
 
     return render_template('user.html.j2', title=username + ' profile',
                            age=age, user=user,
@@ -421,8 +426,10 @@ def inventory():
     sort = request.args.get('sort', 'asc', type=str)
 
     # Get quick access item
+    quick_access_item_id = GlobalSetting.query.\
+        filter_by(key='QUICK_ACCESS_ITEM_ID').first()
     quick_access_item = Item.query.\
-        filter_by(id=current_app.config['QUICK_ACCESS_ITEM_ID']).first()
+        filter_by(id=quick_access_item_id).first()
 
     # Sort items alphabetically
     if sort == 'asc':
@@ -451,13 +458,12 @@ def set_quick_access_item():
     # Get item
     item = Item.query.filter_by(name=item_name).first_or_404()
 
-    # Get current quick access item
-    quick_access_item = GlobalSetting.query.\
-        filter_by(key='QUICK_ACCESS_ITEM_ID').first_or_404()
+    # Get quick access item id
+    quick_access_item_id = GlobalSetting.query.\
+        filter_by(key='QUICK_ACCESS_ITEM_ID').first()
 
-    # Update the quick access item
-    current_app.config['QUICK_ACCESS_ITEM_ID'] = item.id
-    quick_access_item.value = item.id
+    # Update the quick access item id
+    quick_access_item_id.value = item.id
     db.session.commit()
 
     return redirect(request.referrer)
@@ -684,7 +690,6 @@ def global_settings():
         settings = GlobalSetting.query.all()
         for index, s in enumerate(settings):
             s.value = form.value.data[index]
-            current_app.config[s.key] = s.value
         db.session.commit()
         flash('Global settings successfully updated.', 'primary')
         return redirect(url_for('main.global_settings'))

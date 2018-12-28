@@ -34,7 +34,7 @@
 
 {% block content %}
 
-<div id="loadingMessage">🎥 Unable to access video stream (please make sure you have a webcam enabled)</div>
+<div id="loadingMessage">Unable to access video stream (please make sure you have a webcam enabled)</div>
 <canvas class="mt-5" id="canvas" hidden></canvas>
 <div id="output" hidden>
   <div id="outputMessage">No QR code detected.</div>
@@ -64,7 +64,7 @@
     canvas.strokeStyle = color;
     canvas.stroke();
   }
-  // Use facingMode: environment to attemt to get the front camera on phones
+  // Use facingMode: environment to attempt to get the front camera on phones
   navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then(function(stream) {
     video.srcObject = stream;
     video.setAttribute("playsinline", true); // required to tell iOS safari we don't want fullscreen
@@ -72,8 +72,9 @@
     requestAnimationFrame(tick);
   });
   function tick() {
-    loadingMessage.innerText = "⌛ Loading video..."
+    loadingMessage.innerText = 'Loading video...'
     if (video.readyState === video.HAVE_ENOUGH_DATA) {
+      console.log('test')
       loadingMessage.hidden = true;
       canvasElement.hidden = false;
       outputContainer.hidden = false;
