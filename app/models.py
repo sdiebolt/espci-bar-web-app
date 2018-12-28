@@ -1,7 +1,7 @@
 """Flask app models."""
 
 import os.path
-from datetime import date, datetime, timedelta
+import datetime
 from time import time
 from flask import current_app, url_for
 from flask_login import UserMixin
@@ -56,7 +56,8 @@ class User(UserMixin, db.Model):
 
     def set_qrcode(self):
         """Set user QR code hash."""
-        self.qrcode_hash = generate_password_hash(str(datetime.utcnow()))
+        self.qrcode_hash = \
+            generate_password_hash(str(datetime.datetime.utcnow()))
 
         # Create QR code object
         qr = qrcode.QRCode(
@@ -117,32 +118,45 @@ class User(UserMixin, db.Model):
         """Return the user's right to buy the item."""
         if not item:
             return False
-        today = date.today()
+        # Get current day start
+        today = datetime.datetime.today()
+        yesterday = today - datetime.timedelta(days=1)
+        if today.hour < 6:
+            current_day_start = datetime.\
+                datetime(year=yesterday.year, month=yesterday.month,
+                         day=yesterday.day, hour=6)
+        else:
+            current_day_start = datetime.\
+                datetime(year=today.year, month=today.month,
+                         day=today.day, hour=6)
+
+        # Get global app settings
+        minimum_legal_age = \
+            int(GlobalSetting.query.
+                filter_by(key='MINIMUM_LEGAL_AGE').first().value)
+        max_alcoholic_drinks_per_day = \
+            int(GlobalSetting.query.
+                filter_by(key='MAX_ALCOHOLIC_DRINKS_PER_DAY').first().value)
+
+        # Get user age
         age = today.year - self.birthdate.year - \
             ((today.month, today.day) <
                 (self.birthdate.month, self.birthdate.day))
+
+        # Get user daily alcoholic drinks
         nb_alcoholic_drinks = self.transactions.\
             filter_by(is_reverted=False).\
             filter(and_(Transaction.item.has(is_alcohol=True),
-                        Transaction.date >
-                        datetime.utcnow() - timedelta(hours=12))).count()
-        if self.last_drink:
-            time_to_wait = current_app.config['MINUTES_BEFORE_NEXT_DRINK'] - \
-                (datetime.utcnow() - self.last_drink).seconds//60
-        else:
-            time_to_wait = 0
-        if item.is_alcohol and age < current_app.config['MINIMUM_LEGAL_AGE']:
+                        Transaction.date > current_day_start)).count()
+        if item.is_alcohol and age < minimum_legal_age:
             return "{} {} isn't old enough, the minimum legal age being {}.".\
                 format(self.first_name, self.last_name,
-                       current_app.config['MINIMUM_LEGAL_AGE'])
-        elif item.is_alcohol and time_to_wait > 0:
-            return '{} {} must wait {} minutes to buy alcohol.'.\
-                format(self.first_name, self.last_name, time_to_wait)
+                       minimum_legal_age)
         elif item.is_alcohol and nb_alcoholic_drinks >= \
-                current_app.config['MAX_ALCOHOLIC_DRINKS_PER_DAY']:
+                max_alcoholic_drinks_per_day:
             return '{} {} has reached the limit of {} drinks per night.'.\
                 format(self.first_name, self.last_name,
-                       current_app.config['MAX_ALCOHOLIC_DRINKS_PER_DAY'])
+                       max_alcoholic_drinks_per_day)
         elif self.balance < item.price:
             return "{} {} doesn't have enough funds to buy {}.".\
                 format(self.first_name, self.last_name, item.name)
@@ -199,7 +213,7 @@ class Transaction(db.Model):
     # back to False
     is_reverted = db.Column(db.Boolean, default=False)
 
-    date = db.Column(db.DateTime, index=True, default=datetime.utcnow,
+    date = db.Column(db.DateTime, index=True, default=datetime.datetime.utcnow,
                      nullable=False)
 
     # The barman who made the transaction

@@ -43,10 +43,9 @@ def create_app(config_class=Config):
     with app.app_context():
         # Create database entries if they don't exist yet
         global_settings = {
-            'MINUTES_BEFORE_NEXT_DRINK':
-                'Time (in minutes) between alcoholic drinks',
-            'MAX_ALCOHOLIC_DRINKS_PER_DAY':
-                'Maximum number of alcoholic drinks per day',
+            'MAX_DAILY_ALCOHOLIC_DRINKS_PER_USER':
+                'Maximum daily number of alcoholic drinks per user '
+                '(0 for infinite)',
             'MINIMUM_LEGAL_AGE':
                 'Minimum legal age',
             'QUICK_ACCESS_ITEM_ID':

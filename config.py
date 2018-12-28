@@ -33,10 +33,7 @@ class Config(object):
     CURRENT_GRAD_CLASS = int(os.environ.get('CURRENT_GRAD_CLASS'))
 
     # Default values for global settings
-    MINUTES_BEFORE_NEXT_DRINK = \
-        int(os.environ.get('MINUTES_BEFORE_NEXT_DRINK'))
-    MAX_ALCOHOLIC_DRINKS_PER_DAY = \
-        int(os.environ.get('MAX_ALCOHOLIC_DRINKS_PER_DAY'))
-    DAYS_BEFORE_INACTIVE = int(os.environ.get('DAYS_BEFORE_INACTIVE'))
+    MAX_DAILY_ALCOHOLIC_DRINKS_PER_USER = \
+        int(os.environ.get('MAX_DAILY_ALCOHOLIC_DRINKS_PER_USER'))
     MINIMUM_LEGAL_AGE = int(os.environ.get('MINIMUM_LEGAL_AGE'))
     QUICK_ACCESS_ITEM_ID = int(os.environ.get('QUICK_ACCESS_ITEM_ID'))

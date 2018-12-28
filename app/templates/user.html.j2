@@ -42,16 +42,6 @@
                 <td>{% if user.grad_class != 0 %}{{ user.grad_class }}{% else %}Extern{% endif %}</td>
               </tr>
               <tr>
-                <td><strong><i class="material-icons">local_bar</i></strong></td>
-                <td>
-                  {% if user.last_drink %}
-                  {{ moment(user.last_drink).fromNow() }}
-                  {% else %}
-                  Non-existent or reverted
-                  {% endif %}
-                </td>
-              </tr>
-              <tr>
                 <td><strong><i class="material-icons">account_balance_wallet</i></strong></td>
                 <td>
                   <div class="progress mt-1" style="height: 18px;">
