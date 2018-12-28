@@ -136,7 +136,8 @@ class User(UserMixin, db.Model):
                 filter_by(key='MINIMUM_LEGAL_AGE').first().value)
         max_alcoholic_drinks_per_day = \
             int(GlobalSetting.query.
-                filter_by(key='MAX_ALCOHOLIC_DRINKS_PER_DAY').first().value)
+                filter_by(key='MAX_DAILY_ALCOHOLIC_DRINKS_PER_USER').
+                first().value)
 
         # Get user age
         age = today.year - self.birthdate.year - \
