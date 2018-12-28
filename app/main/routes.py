@@ -137,7 +137,7 @@ def search():
     quick_access_item_id = GlobalSetting.query.\
         filter_by(key='QUICK_ACCESS_ITEM_ID').first()
     quick_access_item = Item.query.\
-        filter_by(id=quick_access_item_id).first()
+        filter_by(id=quick_access_item_id.value).first()
 
     # Get users corresponding to the query
     query_text = g.search_form.q.data
@@ -227,7 +227,7 @@ def user(username):
     quick_access_item_id = GlobalSetting.query.\
         filter_by(key='QUICK_ACCESS_ITEM_ID').first()
     quick_access_item = Item.query.\
-        filter_by(id=quick_access_item_id).first()
+        filter_by(id=quick_access_item_id.value).first()
 
     return render_template('user.html.j2', title=username + ' profile',
                            age=age, user=user,
@@ -429,7 +429,7 @@ def inventory():
     quick_access_item_id = GlobalSetting.query.\
         filter_by(key='QUICK_ACCESS_ITEM_ID').first()
     quick_access_item = Item.query.\
-        filter_by(id=quick_access_item_id).first()
+        filter_by(id=quick_access_item_id.value).first()
 
     # Sort items alphabetically
     if sort == 'asc':
