@@ -85,6 +85,46 @@ def get_yearly_transactions():
                     'months_labels': months_labels})
 
 
+@bp.route('/get_daily_statistics', methods=['GET'])
+@login_required
+def get_daily_statistics():
+    """Return daily statistics."""
+    # Get current day start
+    today = datetime.datetime.today()
+    yesterday = today - datetime.timedelta(days=1)
+    if today.hour < 6:
+        current_day_start = datetime.\
+            datetime(year=yesterday.year, month=yesterday.month,
+                     day=yesterday.day, hour=6)
+    else:
+        current_day_start = datetime.\
+            datetime(year=today.year, month=today.month,
+                     day=today.day, hour=6)
+
+    # Daily clients
+    nb_daily_clients = User.query.\
+        filter(User.transactions.any(Transaction.date > current_day_start)).\
+        count()
+
+    # Daily alcohol consumption
+    alcohol_qty = Transaction.query.\
+        filter(Transaction.date > current_day_start).\
+        filter(Transaction.type.like('Pay%')).\
+        filter(Transaction.item.has(is_alcohol=True)).\
+        filter_by(is_reverted=False).count() * 0.25
+
+    # Daily revenue
+    daily_transactions = Transaction.query.\
+        filter(Transaction.date > current_day_start).\
+        filter(Transaction.type.like('Pay%')).\
+        filter_by(is_reverted=False).all()
+    daily_revenue = sum([abs(t.balance_change) for t in daily_transactions])
+
+    return jsonify({'nb_daily_clients': nb_daily_clients,
+                    'alcohol_qty': alcohol_qty,
+                    'daily_revenue': daily_revenue})
+
+
 @bp.route('/', methods=['GET'])
 @bp.route('/dashboard', methods=['GET'])
 @login_required

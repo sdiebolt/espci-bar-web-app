@@ -238,7 +238,7 @@
 $(".pay-btn").each(function() {
   var pay_btn = $(this)
   var dropdown = $(pay_btn).find('.dropdown-menu')
-  $.get('/get_user_products', {
+  $.get('{{ url_for('main.get_user_products') }}', {
     username: $(pay_btn).attr('id').replace('-pay-btn', '')
   }).done(function(response) {
     $(dropdown).append(response['html'])

@@ -8,7 +8,7 @@
         <div class="media">
           <i class="material-icons align-self-center md-48 mr-3">group</i>
           <div class="media-body">
-            <h5 class="card-title mt-0">{{ nb_daily_clients }}</h5>
+            <h5 class="card-title mt-0" id="daily-clients">{{ nb_daily_clients }}</h5>
             <h6 class="card-subtitle">Daily clients</h6>
           </div>
         </div>
@@ -21,7 +21,7 @@
         <div class="media">
           <i class="material-icons align-self-center md-48 mr-3">local_bar</i>
           <div class="media-body">
-            <h5 class="card-title mt-0">{{ alcohol_qty }} liters</h5>
+            <h5 class="card-title mt-0" id="daily-alcohol-qty">{{ alcohol_qty }} liters</h5>
             <h6 class="card-subtitle">Daily alcohol</h6>
           </div>
         </div>
@@ -34,7 +34,7 @@
         <div class="media">
           <i class="material-icons align-self-center md-48 mr-3">euro_symbol</i>
           <div class="media-body">
-            <h5 class="card-title mt-0">{{ '%0.2f' % daily_revenue | float }}€</h5>
+            <h5 class="card-title mt-0" id="daily-revenue">{{ '%0.2f' % daily_revenue | float }}€</h5>
             <h6 class="card-subtitle">Daily revenue</h6>
           </div>
         </div>
@@ -65,7 +65,18 @@
 {{ super() }}
 
 <script>
-function updateData(chart, chartData, xLabel) {
+// Update daily statistics cards 30s
+setInterval(function() {
+  $.get('{{ url_for('main.get_daily_statistics')}}', {
+  }).done(function(response) {
+    $('#daily-clients').html(response['nb_daily_clients']);
+    $('#daily-alcohol-qty').html(parseFloat(Math.round(response['alcohol_qty'] * 100) / 100).toFixed(2) + ' liters');
+    $('#daily-revenue').html(parseFloat(Math.round(response['daily_revenue'] * 100) / 100).toFixed(2) + '€');
+  });
+}, 1000 * 60 * 0.5);
+
+// Update transactions chart
+function updateChart(chart, chartData, xLabel) {
   chart.data = chartData;
   chart.update();
   chart.options.scales.xAxes[0].scaleLabel.labelString = xLabel;
@@ -141,7 +152,7 @@ var transactionsChart = new Chart(ctx, {
 });
 
 $("#monthly-transactions").on("click", function() {
-  updateData(transactionsChart, chartDataMonth, 'Day');
+  updateChart(transactionsChart, chartDataMonth, 'Day');
   document.getElementById('yearly-transactions').classList.remove('active');
   document.getElementById('monthly-transactions').classList.add('active');
 });
@@ -149,7 +160,6 @@ $("#monthly-transactions").on("click", function() {
 $("#yearly-transactions").on("click", function() {
   $.get('{{ url_for('main.get_yearly_transactions') }}', {
   }).done(function(response) {
-    console.log(response['months_labels']);
     var chartDataYear = {
       labels: response['months_labels'],
       datasets: [{
@@ -168,7 +178,7 @@ $("#yearly-transactions").on("click", function() {
       }]
     };
 
-    updateData(transactionsChart, chartDataYear, 'Month');
+    updateChart(transactionsChart, chartDataYear, 'Month');
     document.getElementById('monthly-transactions').classList.remove('active');
     document.getElementById('yearly-transactions').classList.add('active');
   });
