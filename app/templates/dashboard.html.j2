@@ -45,7 +45,15 @@
 
 <div class="card border-primary">
   <div class="card-header">
-    <h4 class="card-title text-primary">Monthly transactions</h4>
+    <!-- <h4 class="card-title text-primary">Monthly transactions</h4> -->
+    <ul class="nav nav-pills">
+      <li class="nav-item">
+        <a class="nav-link active" id="monthly-transactions" href="#">Monthly transactions</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" id="yearly-transactions" href="#">Yearly transactions</a>
+      </li>
+    </ul>
   </div>
   <div class="card-body">
     <canvas id="transactions-chart" width="600" height="400" aria-label="transactions-chart" role="img"></canvas>
@@ -57,15 +65,34 @@
 {{ super() }}
 
 <script>
-function updateData(chart, chartData) {
+function updateData(chart, chartData, xLabel) {
   chart.data = chartData;
   chart.update();
+  chart.options.scales.xAxes[0].scaleLabel.labelString = xLabel;
 }
 
 // Global parameters:
 Chart.defaults.global.responsive = true;
 
 // Define the chart data
+var chartDataYear = {
+  labels: [{% for item in months_labels %}"{{ item }}", {% endfor %}],
+  datasets: [{
+      label: 'Amount paid',
+      fill: false,
+      backgroundColor: "#dc3545",
+      borderColor: "#dc3545",
+      data: [{% for item in paid_per_month %}{{ '%0.2f'| format(item|float) }}, {% endfor %}],
+  },
+  {
+      label: 'Amount topped up',
+      fill: false,
+      backgroundColor: "#007bff",
+      borderColor: "#007bff",
+      data: [{% for item in topped_per_month %}{{ '%0.2f'| format(item|float) }}, {% endfor %}],
+  }]
+};
+
 var chartDataMonth = {
   labels: [{% for item in days_labels %}"{{ item }}", {% endfor %}],
   datasets: [{
@@ -129,6 +156,18 @@ var transactionsChart = new Chart(ctx, {
       }]
     }
   }
+});
+
+$("#monthly-transactions").on("click", function() {
+  updateData(transactionsChart, chartDataMonth, 'Day');
+  document.getElementById('yearly-transactions').classList.remove('active');
+  document.getElementById('monthly-transactions').classList.add('active');
+});
+
+$("#yearly-transactions").on("click", function() {
+  updateData(transactionsChart, chartDataYear, 'Month');
+  document.getElementById('monthly-transactions').classList.remove('active');
+  document.getElementById('yearly-transactions').classList.add('active');
 });
 </script>
 {% endblock %}

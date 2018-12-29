@@ -22,6 +22,15 @@ def before_request():
             g.search_form = SearchForm()
 
 
+def month_year_iter(start_month, start_year, end_month, end_year):
+    """Return month iterator."""
+    ym_start = 12*start_year + start_month - 1
+    ym_end = 12*end_year + end_month - 1
+    for ym in range(ym_start, ym_end):
+        y, m = divmod(ym, 12)
+        yield y, m+1
+
+
 @bp.route('/', methods=['GET'])
 @bp.route('/dashboard', methods=['GET'])
 @login_required
@@ -68,6 +77,33 @@ def dashboard():
         filter_by(is_reverted=False).all()
     daily_revenue = sum([abs(t.balance_change) for t in daily_transactions])
 
+    # Get money spent and topped up last 12 months
+    paid_per_month = []
+    topped_per_month = []
+    for (y, m) in month_year_iter(1, current_year, 13, current_year):
+        transactions_paid_y = Transaction.query.\
+            filter(
+                and_(extract('month', Transaction.date) == m,
+                     extract('year', Transaction.date) == y)).\
+            filter(Transaction.type.like('Pay%')).\
+            filter_by(is_reverted=False).all()
+        transactions_topped_y = Transaction.query.\
+            filter(
+                and_(extract('month', Transaction.date) == m,
+                     extract('year', Transaction.date) == y)).\
+            filter(Transaction.type.like('Top up')).\
+            filter_by(is_reverted=False).all()
+        paid_per_month.append(0)
+        for t in transactions_paid_y:
+            paid_per_month[-1] -= t.balance_change
+        topped_per_month.append(0)
+        for t in transactions_topped_y:
+            topped_per_month[-1] += t.balance_change
+
+    # Generate months labels
+    months_labels = ['%.2d' % m[1] + '/'+str(m[0]) for m in
+                     list(month_year_iter(1, current_year, 13, current_year))]
+
     # Get money spent and topped up this month
     paid_this_month = []
     topped_this_month = []
@@ -102,6 +138,9 @@ def dashboard():
                            paid_this_month=paid_this_month,
                            topped_this_month=topped_this_month,
                            days_labels=days_labels,
+                           paid_per_month=paid_per_month,
+                           topped_per_month=topped_per_month,
+                           months_labels=months_labels,
                            nb_daily_clients=nb_daily_clients,
                            alcohol_qty=alcohol_qty,
                            daily_revenue=daily_revenue)
@@ -329,15 +368,6 @@ def delete_user():
     db.session.commit()
     flash('The user ' + username + ' has been deleted.', 'primary')
     return redirect(url_for('main.dashboard'))
-
-
-def month_year_iter(start_month, start_year, end_month, end_year):
-    """Return an iterator on the last twelve month."""
-    ym_start = 12 * start_year + start_month - 1
-    ym_end = 12 * end_year + end_month - 1
-    for ym in range(ym_start, ym_end):
-        y, m = divmod(ym, 12)
-        yield y, m+1
 
 
 @bp.route('/transactions')

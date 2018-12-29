@@ -106,6 +106,12 @@
     <div class="container">
       {# application content needs to be provided in the app_content block #}
       {% block app_content %}{% endblock %}
+
+      <footer class="footer mt-auto pt-5 text-center">
+        <div class="container">
+          <span class="text-muted">© 2018–2019 by Samuel Diebolt</span>
+        </div>
+      </footer>
     </div>
 
     {% block modals %}
@@ -144,6 +150,7 @@
 
     <!-- Graphs -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
+
     <script>
     {%- if current_user.is_bartender -%}
     // Populate deposit modal with user name and url
