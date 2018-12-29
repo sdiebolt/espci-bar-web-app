@@ -58,6 +58,13 @@ def dashboard():
             datetime(year=today.year, month=today.month,
                      day=today.day, hour=6)
 
+    # Get last 12 months range
+    if current_month == 12:
+        previous_year = current_year
+    else:
+        previous_year = current_year - 1
+    previous_month = (current_month-12) % 12
+
     # Daily clients
     nb_daily_clients = User.query.\
         filter(User.transactions.any(Transaction.date > current_day_start)).\
@@ -80,7 +87,8 @@ def dashboard():
     # Get money spent and topped up last 12 months
     paid_per_month = []
     topped_per_month = []
-    for (y, m) in month_year_iter(1, current_year, 13, current_year):
+    for (y, m) in month_year_iter(previous_month+1, previous_year,
+                                  current_month+1, current_year):
         transactions_paid_y = Transaction.query.\
             filter(
                 and_(extract('month', Transaction.date) == m,
@@ -102,7 +110,8 @@ def dashboard():
 
     # Generate months labels
     months_labels = ['%.2d' % m[1] + '/'+str(m[0]) for m in
-                     list(month_year_iter(1, current_year, 13, current_year))]
+                     list(month_year_iter(previous_month+1, previous_year,
+                                          current_month+1, current_year))]
 
     # Get money spent and topped up this month
     paid_this_month = []
