@@ -31,32 +31,17 @@ def month_year_iter(start_month, start_year, end_month, end_year):
         yield y, m+1
 
 
-@bp.route('/', methods=['GET'])
-@bp.route('/dashboard', methods=['GET'])
+@bp.route('/get_yearly_transactions', methods=['GET'])
 @login_required
-def dashboard():
-    """Render the index page.
-
-    - For admins, bartenders and observers, it renders the dashboard.
-    - For customers, it redirects to the user profile.
-    - For anonymous users, it redirects to the login page.
-    """
+def get_yearly_transactions():
+    """Return transaction from last 12 months."""
     if not (current_user.is_bartender or current_user.is_observer):
         return redirect(url_for('main.user', username=current_user.username))
 
-    # Get current day start
+    # Get current day, month, year
     today = datetime.datetime.today()
-    yesterday = today - datetime.timedelta(days=1)
     current_year = today.year
     current_month = today.month
-    if today.hour < 6:
-        current_day_start = datetime.\
-            datetime(year=yesterday.year, month=yesterday.month,
-                     day=yesterday.day, hour=6)
-    else:
-        current_day_start = datetime.\
-            datetime(year=today.year, month=today.month,
-                     day=today.day, hour=6)
 
     # Get last 12 months range
     if current_month == 12:
@@ -64,25 +49,6 @@ def dashboard():
     else:
         previous_year = current_year - 1
     previous_month = (current_month-12) % 12
-
-    # Daily clients
-    nb_daily_clients = User.query.\
-        filter(User.transactions.any(Transaction.date > current_day_start)).\
-        count()
-
-    # Daily alcohol consumption
-    alcohol_qty = Transaction.query.\
-        filter(Transaction.date > current_day_start).\
-        filter(Transaction.type.like('Pay%')).\
-        filter(Transaction.item.has(is_alcohol=True)).\
-        filter_by(is_reverted=False).count() * 0.25
-
-    # Daily revenue
-    daily_transactions = Transaction.query.\
-        filter(Transaction.date > current_day_start).\
-        filter(Transaction.type.like('Pay%')).\
-        filter_by(is_reverted=False).all()
-    daily_revenue = sum([abs(t.balance_change) for t in daily_transactions])
 
     # Get money spent and topped up last 12 months
     paid_per_month = []
@@ -112,6 +78,58 @@ def dashboard():
     months_labels = ['%.2d' % m[1] + '/'+str(m[0]) for m in
                      list(month_year_iter(previous_month+1, previous_year,
                                           current_month+1, current_year))]
+    print(months_labels)
+
+    return jsonify({'paid_per_month': paid_per_month,
+                    'topped_per_month': topped_per_month,
+                    'months_labels': months_labels})
+
+
+@bp.route('/', methods=['GET'])
+@bp.route('/dashboard', methods=['GET'])
+@login_required
+def dashboard():
+    """Render the index page.
+
+    - For admins, bartenders and observers, it renders the dashboard.
+    - For customers, it redirects to the user profile.
+    - For anonymous users, it redirects to the login page.
+    """
+    if not (current_user.is_bartender or current_user.is_observer):
+        return redirect(url_for('main.user', username=current_user.username))
+
+    # Get current day start
+    today = datetime.datetime.today()
+    yesterday = today - datetime.timedelta(days=1)
+    current_year = today.year
+    current_month = today.month
+    if today.hour < 6:
+        current_day_start = datetime.\
+            datetime(year=yesterday.year, month=yesterday.month,
+                     day=yesterday.day, hour=6)
+    else:
+        current_day_start = datetime.\
+            datetime(year=today.year, month=today.month,
+                     day=today.day, hour=6)
+
+    # Daily clients
+    nb_daily_clients = User.query.\
+        filter(User.transactions.any(Transaction.date > current_day_start)).\
+        count()
+
+    # Daily alcohol consumption
+    alcohol_qty = Transaction.query.\
+        filter(Transaction.date > current_day_start).\
+        filter(Transaction.type.like('Pay%')).\
+        filter(Transaction.item.has(is_alcohol=True)).\
+        filter_by(is_reverted=False).count() * 0.25
+
+    # Daily revenue
+    daily_transactions = Transaction.query.\
+        filter(Transaction.date > current_day_start).\
+        filter(Transaction.type.like('Pay%')).\
+        filter_by(is_reverted=False).all()
+    daily_revenue = sum([abs(t.balance_change) for t in daily_transactions])
 
     # Get money spent and topped up this month
     paid_this_month = []
@@ -147,9 +165,6 @@ def dashboard():
                            paid_this_month=paid_this_month,
                            topped_this_month=topped_this_month,
                            days_labels=days_labels,
-                           paid_per_month=paid_per_month,
-                           topped_per_month=topped_per_month,
-                           months_labels=months_labels,
                            nb_daily_clients=nb_daily_clients,
                            alcohol_qty=alcohol_qty,
                            daily_revenue=daily_revenue)

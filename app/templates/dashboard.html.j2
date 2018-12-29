@@ -75,24 +75,6 @@ function updateData(chart, chartData, xLabel) {
 Chart.defaults.global.responsive = true;
 
 // Define the chart data
-var chartDataYear = {
-  labels: [{% for item in months_labels %}"{{ item }}", {% endfor %}],
-  datasets: [{
-      label: 'Amount paid',
-      fill: false,
-      backgroundColor: "#dc3545",
-      borderColor: "#dc3545",
-      data: [{% for item in paid_per_month %}{{ '%0.2f'| format(item|float) }}, {% endfor %}],
-  },
-  {
-      label: 'Amount topped up',
-      fill: false,
-      backgroundColor: "#007bff",
-      borderColor: "#007bff",
-      data: [{% for item in topped_per_month %}{{ '%0.2f'| format(item|float) }}, {% endfor %}],
-  }]
-};
-
 var chartDataMonth = {
   labels: [{% for item in days_labels %}"{{ item }}", {% endfor %}],
   datasets: [{
@@ -165,9 +147,31 @@ $("#monthly-transactions").on("click", function() {
 });
 
 $("#yearly-transactions").on("click", function() {
-  updateData(transactionsChart, chartDataYear, 'Month');
-  document.getElementById('monthly-transactions').classList.remove('active');
-  document.getElementById('yearly-transactions').classList.add('active');
+  $.get('{{ url_for('main.get_yearly_transactions') }}', {
+  }).done(function(response) {
+    console.log(response['months_labels']);
+    var chartDataYear = {
+      labels: response['months_labels'],
+      datasets: [{
+          label: 'Amount paid',
+          fill: false,
+          backgroundColor: "#dc3545",
+          borderColor: "#dc3545",
+          data: response['paid_per_month'].map(function(each_element){return Number(each_element.toFixed(2))}),
+      },
+      {
+          label: 'Amount topped up',
+          fill: false,
+          backgroundColor: "#007bff",
+          borderColor: "#007bff",
+          data: response['topped_per_month'].map(function(each_element){return Number(each_element.toFixed(2))}),
+      }]
+    };
+
+    updateData(transactionsChart, chartDataYear, 'Month');
+    document.getElementById('monthly-transactions').classList.remove('active');
+    document.getElementById('yearly-transactions').classList.add('active');
+  });
 });
 </script>
 {% endblock %}
