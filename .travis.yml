@@ -4,17 +4,15 @@ python:
   - 3.4
   - 3.5
   - 3.6
-  - 3.7
 install:
   - pip install -r requirements/development.txt
-  - pip install tox-travis
 before_script:
   - export FLASK_APP="$TRAVIS_BUILD_DIR/espci_bar_web_app.py"
   - export FLASK_DEBUG=1
+  - export SECRET_KEY='notsosecret'
 
 script:
-  - tox
-  - coverage run -m py.test
+  - py.test --cov=app tests/
   - coverage report -m
 
 after_success:

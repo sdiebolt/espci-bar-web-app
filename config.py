@@ -13,23 +13,21 @@ class Config(object):
     SECRET_KEY = os.environ.get('SECRET_KEY')
     if not SECRET_KEY:
         raise ValueError("No secret key set for Flask application")
-    APP_DIR = os.path.abspath(os.path.dirname(__file__))  # This directory
-    PROJECT_ROOT = os.path.abspath(os.path.join(APP_DIR, os.pardir))
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     LOG_TO_STDOUT = os.environ.get('LOG_TO_STDOUT')
 
-    USERS_PER_PAGE = int(os.environ.get('USERS_PER_PAGE'))
-    ITEMS_PER_PAGE = int(os.environ.get('ITEMS_PER_PAGE'))
+    USERS_PER_PAGE = int(os.environ.get('USERS_PER_PAGE')) or 12
+    ITEMS_PER_PAGE = int(os.environ.get('ITEMS_PER_PAGE')) or 12
 
     CURRENT_GRAD_CLASS = int(os.environ.get('CURRENT_GRAD_CLASS'))
 
     # Default values for global settings
     MAX_DAILY_ALCOHOLIC_DRINKS_PER_USER = \
-        int(os.environ.get('MAX_DAILY_ALCOHOLIC_DRINKS_PER_USER'))
-    MINIMUM_LEGAL_AGE = int(os.environ.get('MINIMUM_LEGAL_AGE'))
-    QUICK_ACCESS_ITEM_ID = int(os.environ.get('QUICK_ACCESS_ITEM_ID'))
+        int(os.environ.get('MAX_DAILY_ALCOHOLIC_DRINKS_PER_USER')) or 4
+    MINIMUM_LEGAL_AGE = int(os.environ.get('MINIMUM_LEGAL_AGE')) or 18
+    QUICK_ACCESS_ITEM_ID = int(os.environ.get('QUICK_ACCESS_ITEM_ID')) or 1
 
 
 class ProductionConfig(Config):
