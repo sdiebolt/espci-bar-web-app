@@ -30,6 +30,7 @@ before_script:
   - mysql -u root -e "grant all privileges on test.* to 'user'@'localhost';"
   - mysql -u root -e 'flush privileges;'
   - flask db upgrade
+  - mkdir app/static/img/qr
 
 script:
   - tox
