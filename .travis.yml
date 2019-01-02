@@ -22,6 +22,7 @@ env:
 
 install:
   - pip install -r requirements/development.txt
+  - pip install tox-travis
 
 before_script:
   - mysql -u root -e 'create database test character set utf8 collate utf8_bin;'
@@ -31,8 +32,7 @@ before_script:
   - flask db upgrade
 
 script:
-  - py.test --cov=app tests/
-  - coverage report -m
+  - tox
 
 after_success:
   - coveralls

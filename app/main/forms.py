@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 """Forms for the main blueprint."""
-
 import safe
 from flask import request
 from flask_wtf import FlaskForm

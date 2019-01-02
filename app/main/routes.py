@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 """View functions for the main routes."""
-
 import datetime
 from calendar import monthrange
 from flask import render_template, flash, redirect, url_for, request, g, \

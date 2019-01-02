@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 """Defines fixtures available to all tests."""
-
 import pytest
 from app import create_app
 from app import db as _db

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 """Flask app models."""
-
 import os.path
 import datetime
 from flask import url_for
