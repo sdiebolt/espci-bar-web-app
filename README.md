@@ -4,6 +4,7 @@
 
 [![Build Status](https://travis-ci.org/Stryars/espci-bar-web-app.svg?branch=master)](https://travis-ci.org/Stryars/espci-bar-web-app)
 [![Coverage Status](https://coveralls.io/repos/github/Stryars/espci-bar-web-app/badge.svg)](https://coveralls.io/github/Stryars/espci-bar-web-app)
+[![Requirements Status](https://requires.io/github/Stryars/espci-bar-web-app/requirements.svg?branch=master)](https://requires.io/github/Stryars/espci-bar-web-app/requirements/?branch=master)
 [![GitHub license](https://img.shields.io/badge/License-MIT-green.svg)](https://raw.githubusercontent.com/Stryars/espci-bar-web-app/master/LICENSE.md)
 
 This is the final version of the ESPCI student bar web app, still in development. Written using Python Flask.
@@ -24,17 +25,17 @@ $ source venv/bin/activate
 
 2. Configure your environment in a .env at the root of the project:
 ```
-SECRET_KEY = yoursecretkey
-DATABASE_URL = mysql+pymysql://user:password@localhost:3306/bar_webapp
+SECRET_KEY=yoursecretkey
+DATABASE_URL=mysql+pymysql://user:password@localhost:3306/bar_webapp
 
-USERS_PER_PAGE = 12
-ITEMS_PER_PAGE = 10
+USERS_PER_PAGE=12
+ITEMS_PER_PAGE=10
 
-CURRENT_GRAD_CLASS = 137
+CURRENT_GRAD_CLASS=137
 
-MAX_ALCOHOLIC_DRINKS_PER_DAY = 4
-MINIMUM_LEGAL_AGE = 18
-QUICK_ACCESS_ITEM_ID = 1
+MAX_ALCOHOLIC_DRINKS_PER_DAY=4
+MINIMUM_LEGAL_AGE=18
+QUICK_ACCESS_ITEM_ID=1
 ```
 
 3. Configure Flask:
