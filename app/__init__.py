@@ -32,25 +32,6 @@ def create_app(config_class=ProductionConfig):
     moment.init_app(app)
     whooshee.init_app(app)
 
-    # Initialize global settings from database
-    from app.models import GlobalSetting
-    with app.app_context():
-        # Create database entries if they don't exist yet
-        global_settings = {
-            'MAX_DAILY_ALCOHOLIC_DRINKS_PER_USER':
-                'Maximum daily number of alcoholic drinks per user '
-                '(0 for infinite)',
-            'MINIMUM_LEGAL_AGE':
-                'Minimum legal age',
-            'QUICK_ACCESS_ITEM_ID':
-                'Quick access item'
-            }
-        for key, name in global_settings.items():
-            if GlobalSetting.query.filter_by(key=key).first() is None:
-                gs = GlobalSetting(key=key, value=app.config[key], name=name)
-                db.session.add(gs)
-            db.session.commit()
-
     # Register error, auth and main blueprints
     from app.errors import bp as errors_bp
     app.register_blueprint(errors_bp)
