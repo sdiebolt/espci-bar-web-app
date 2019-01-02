@@ -18,8 +18,6 @@ class Config(object):
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-    LOG_TO_STDOUT = os.environ.get('LOG_TO_STDOUT')
-
     USERS_PER_PAGE = int(os.environ.get('USERS_PER_PAGE'))
     ITEMS_PER_PAGE = int(os.environ.get('ITEMS_PER_PAGE'))
 

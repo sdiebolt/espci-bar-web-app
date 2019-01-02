@@ -34,7 +34,8 @@ class User(UserMixin, db.Model):
     first_name = db.Column(db.String(64), index=True, nullable=False)
     last_name = db.Column(db.String(64), index=True, nullable=False)
     nickname = db.Column(db.String(64), index=True)
-    birthdate = db.Column(db.Date, nullable=False)
+    birthdate = db.Column(db.Date, default=datetime.datetime.today(),
+                          nullable=False)
     grad_class = db.Column(db.Integer, index=True, default=0, nullable=False)
 
     # Account info
@@ -86,9 +87,6 @@ class User(UserMixin, db.Model):
         if os.path.isfile(os.path.join('app', 'static', avatar_path+'.jpg')):
             avatar_filename = url_for('static', filename=avatar_path+'.jpg')
             return avatar_filename
-        elif os.path.isfile(os.path.join('app', 'static', avatar_path+'.png')):
-            avatar_filename = url_for('static', filename=avatar_path+'.png')
-            return avatar_filename
         else:
             return url_for('static',
                            filename='img/avatar/avatar_placeholder.png')
@@ -107,8 +105,14 @@ class User(UserMixin, db.Model):
 
     def can_buy(self, item):
         """Return the user's right to buy the item."""
+        if not self.deposit:
+            return "{} {} hasn't given a deposit.".\
+                format(self.first_name, self.last_name)
         if not item:
-            return False
+            return 'No item selected.'
+        if (item.is_quantifiable and item.quantity <= 0):
+            return 'No {} left.'.format(item.name)
+
         # Get current day start
         today = datetime.datetime.today()
         yesterday = today - datetime.timedelta(days=1)
@@ -146,11 +150,11 @@ class User(UserMixin, db.Model):
                        minimum_legal_age)
         elif item.is_alcohol and nb_alcoholic_drinks >= \
                 max_alcoholic_drinks_per_day:
-            return '{} {} has reached the limit of {} drinks per night.'.\
+            return '{} {} has reached the limit of {} drinks per night.'.\
                 format(self.first_name, self.last_name,
                        max_alcoholic_drinks_per_day)
         elif self.balance < item.price:
-            return "{} {} doesn't have enough funds to buy {}.".\
+            return "{} {} doesn't have enough funds to buy {}.".\
                 format(self.first_name, self.last_name, item.name)
         else:
             return True

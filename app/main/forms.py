@@ -124,14 +124,17 @@ class AddItemForm(FlaskForm):
 class SearchForm(FlaskForm):
     """User search form."""
 
+    class Meta:
+        """Search form doesn't need CSRF."""
+
+        csrf = False
+
     q = StringField('Search')
 
     def __init__(self, *args, **kwargs):
-        """Store GET arguments and CSRF status."""
+        """Store GET arguments."""
         if 'formdata' not in kwargs:
             kwargs['formdata'] = request.args
-        if 'csrf_enabled' not in kwargs:
-            kwargs['csrf_enabled'] = False
         super(SearchForm, self).__init__(*args, **kwargs)
 
 

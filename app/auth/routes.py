@@ -115,10 +115,10 @@ def register():
 
         # Set account type
         is_customer = form.account_type.data == 'customer' or \
+            form.account_type.data == 'observer' or \
             form.account_type.data == 'bartender' or \
             form.account_type.data == 'admin'
         is_observer = form.account_type.data == 'observer' or \
-            form.account_type.data == 'customer' or \
             form.account_type.data == 'bartender' or \
             form.account_type.data == 'admin'
         is_bartender = form.account_type.data == 'bartender' or \
