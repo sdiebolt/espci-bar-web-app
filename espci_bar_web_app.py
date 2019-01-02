@@ -1,8 +1,14 @@
-"""Flask app, run by gunicorn."""
+# -*- coding: utf-8 -*-
+"""Create an application instance."""
+from flask.helpers import get_debug_flag
+
 from app import create_app, db
 from app.models import User, Transaction, Item, GlobalSetting
+from config import ProductionConfig, DevelopmentConfig
 
-app = create_app()
+CONFIG = DevelopmentConfig if get_debug_flag() else ProductionConfig
+
+app = create_app(CONFIG)
 
 
 @app.shell_context_processor

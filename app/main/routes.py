@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """View functions for the main routes."""
 
 import datetime
@@ -78,7 +79,6 @@ def get_yearly_transactions():
     months_labels = ['%.2d' % m[1] + '/'+str(m[0]) for m in
                      list(month_year_iter(previous_month+1, previous_year,
                                           current_month+1, current_year))]
-    print(months_labels)
 
     return jsonify({'paid_per_month': paid_per_month,
                     'topped_per_month': topped_per_month,

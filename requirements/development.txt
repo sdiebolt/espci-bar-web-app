@@ -1,0 +1,8 @@
+# Everything the developer needs in addition to the production requirements
+-r production.txt
+
+# Testing
+coverage
+coveralls
+pytest
+pytest-cov

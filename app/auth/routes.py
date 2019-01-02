@@ -1,5 +1,5 @@
+# -*- coding: utf-8 -*-
 """View functions for the authentication routes."""
-
 import unidecode
 import secrets
 import os
@@ -10,10 +10,8 @@ from flask_login import login_user, logout_user, current_user, \
     login_required, fresh_login_required
 from app import db, login
 from app.auth import bp
-from app.auth.forms import LoginForm, RegistrationForm, \
-    ResetPasswordRequestForm, ResetPasswordForm
+from app.auth.forms import LoginForm, RegistrationForm
 from app.models import User
-from app.auth.email import send_password_reset_email
 
 
 def gen_password(length=8,
@@ -156,39 +154,3 @@ def register():
         return redirect(url_for('main.dashboard'))
     return render_template('auth/register.html.j2', title='Register',
                            form=form)
-
-
-@bp.route('/reset_password_request', methods=['GET', 'POST'])
-def reset_password_request():
-    """Render the reset password request page."""
-    if current_user.is_authenticated:
-        flash("You can't access this page while being logged in.", 'danger')
-        return redirect(url_for('main.dashboard'))
-    form = ResetPasswordRequestForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
-        if user:
-            send_password_reset_email(user)
-        flash('Check your email for the instructions to reset your password.',
-              'primary')
-        return redirect(url_for('auth.login'))
-    return render_template('auth/reset_password_request.html.j2',
-                           title='Reset Password', form=form)
-
-
-@bp.route('/reset_password/<token>', methods=['GET', 'POST'])
-def reset_password(token):
-    """Render the reset password page."""
-    if current_user.is_authenticated:
-        flash("You can't access this page while being logged in.", 'danger')
-        return redirect(url_for('main.dashboard'))
-    user = User.verify_reset_password_token(token)
-    if not user:
-        return redirect(url_for('main.dashboard'))
-    form = ResetPasswordForm()
-    if form.validate_on_submit():
-        user.set_password(form.password.data)
-        db.session.commit()
-        flash('Your password has been reset.', 'primary')
-        return redirect(url_for('auth.login'))
-    return render_template('auth/reset_password.html.j2', form=form)

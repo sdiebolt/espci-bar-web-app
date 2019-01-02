@@ -1,11 +1,10 @@
+# -*- coding: utf-8 -*-
 """Forms for the authentication blueprint."""
-
 from flask_wtf import FlaskForm
 import datetime
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, \
     IntegerField, DateField, SelectField
-from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, \
-    optional
+from wtforms.validators import ValidationError, DataRequired, Email, optional
 from app.models import User
 
 
@@ -52,19 +51,3 @@ class RegistrationForm(FlaskForm):
         if grad_class.data is not None and grad_class.data < 0:
             raise ValidationError('Please enter a valid graduating class or '
                                   'nothing if non student.')
-
-
-class ResetPasswordRequestForm(FlaskForm):
-    """Reset password request form."""
-
-    email = StringField('Email', validators=[DataRequired(), Email()])
-    submit = SubmitField('Request password reset')
-
-
-class ResetPasswordForm(FlaskForm):
-    """Reset password form."""
-
-    password = PasswordField('Password', validators=[DataRequired()])
-    password2 = PasswordField('Repeat password', validators=[DataRequired(),
-                              EqualTo('password')])
-    submit = SubmitField('Request password reset')

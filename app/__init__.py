@@ -1,19 +1,15 @@
-"""Flask application init file.
-
-Creates the app instance to eliminate the need of a global app variable.
-"""
-
+# -*- coding: utf-8 -*-
+"""Main application package."""
 import logging
-from logging.handlers import SMTPHandler, RotatingFileHandler
+from logging.handlers import RotatingFileHandler
 import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
-from flask_mail import Mail
 from flask_moment import Moment
 from flask_whooshee import Whooshee
-from config import Config
+from config import ProductionConfig
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -21,12 +17,11 @@ login = LoginManager()
 login.login_view = 'auth.login'
 login.login_message = 'Please log in to access this page.'
 login.login_message_category = 'warning'
-mail = Mail()
 moment = Moment()
 whooshee = Whooshee()
 
 
-def create_app(config_class=Config):
+def create_app(config_class=ProductionConfig):
     """Create a Flask application instance."""
     app = Flask(__name__)
     app.config.from_object(config_class)
@@ -34,7 +29,6 @@ def create_app(config_class=Config):
     db.init_app(app)
     migrate.init_app(app, db)
     login.init_app(app)
-    mail.init_app(app)
     moment.init_app(app)
     whooshee.init_app(app)
 
@@ -69,21 +63,6 @@ def create_app(config_class=Config):
 
     # Flask logs
     if not app.debug and not app.testing:
-        if app.config['MAIL_SERVER']:
-            auth = None
-            if app.config['MAIL_USERNAME'] or app.config['MAIL_PASSWORD']:
-                auth = (app.config['MAIL_USERNAME'],
-                        app.config['MAIL_PASSWORD'])
-            secure = None
-            if app.config['MAIL_USE_TLS']:
-                secure = ()
-            mail_handler = SMTPHandler(
-                mailhost=(app.config['MAIL_SERVER'], app.config['MAIL_PORT']),
-                fromaddr='noreply@' + app.config['MAIL_SERVER'],
-                toaddrs=app.config['ADMINS'], subject='ESPCI Bar Failure',
-                credentials=auth, secure=secure)
-            mail_handler.setLevel(logging.ERROR)
-            app.logger.addHandler(mail_handler)
         if app.config['LOG_TO_STDOUT']:
             stream_handler = logging.StreamHandler()
             stream_handler.setLevel(logging.INFO)

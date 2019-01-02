@@ -1,14 +1,13 @@
+# -*- coding: utf-8 -*-
 """Flask app models."""
 
 import os.path
 import datetime
-from time import time
-from flask import current_app, url_for
+from flask import url_for
 from flask_login import UserMixin
 from sqlalchemy.sql.expression import and_
 from werkzeug.security import generate_password_hash, check_password_hash
 import hashlib
-import jwt
 import qrcode
 from app import db, login, whooshee
 
@@ -107,13 +106,6 @@ class User(UserMixin, db.Model):
             return qr_filename
         return None
 
-    def get_reset_password_token(self, expires_in=600):
-        """Return the reset password token."""
-        return jwt.encode(
-            {'reset_password': self.id, 'exp': time() + expires_in},
-            current_app.config['SECRET_KEY'], algorithm='HS256').\
-            decode('utf-8')
-
     def can_buy(self, item):
         """Return the user's right to buy the item."""
         if not item:
@@ -163,16 +155,6 @@ class User(UserMixin, db.Model):
                 format(self.first_name, self.last_name, item.name)
         else:
             return True
-
-    @staticmethod
-    def verify_reset_password_token(token):
-        """Verify reset password token validity."""
-        try:
-            id = jwt.decode(token, current_app.config['SECRET_KEY'],
-                            algorithm=['HS256'])['reset_password']
-        except Exception:
-            return
-        return User.query.get(id)
 
 
 @login.user_loader

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Forms for the main blueprint."""
 
 import safe

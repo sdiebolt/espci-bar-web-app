@@ -1,4 +1,5 @@
-"""Authentication blueprint init file."""
+# -*- coding: utf-8 -*-
+"""Authentication blueprint package."""
 from flask import Blueprint
 
 bp = Blueprint('auth', __name__)
