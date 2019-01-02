@@ -1,15 +1,36 @@
 # Config file for automatic testing at travis-ci.org
 language: python
+
 python:
   - 3.4
   - 3.5
   - 3.6
+
+services:
+  - mysql
+
+env:
+  global:
+    - FLASK_APP="$TRAVIS_BUILD_DIR/espci_bar_web_app.py"
+    - FLASK_DEBUG=1
+    - SECRET_KEY='notsosecret'
+    - DATABASE_URL=mysql+pymysql://user:password@localhost:3306/test
+    - USERS_PER_PAGE=12
+    - ITEMS_PER_PAGE=10
+    - CURRENT_GRAD_CLASS=137
+    - MAX_DAILY_ALCOHOLIC_DRINKS_PER_USER=4
+    - MINIMUM_LEGAL_AGE=18
+    - QUICK_ACCESS_ITEM_ID=1
+
 install:
   - pip install -r requirements/development.txt
+
 before_script:
-  - export FLASK_APP="$TRAVIS_BUILD_DIR/espci_bar_web_app.py"
-  - export FLASK_DEBUG=1
-  - export SECRET_KEY='notsosecret'
+  - mysql -u root -e 'create database test character set utf8 collate utf8_bin;'
+  - mysql -u root -e "create user 'user'@'localhost' identified by 'password';"
+  - mysql -u root -e "grant all privileges on test.* to 'user'@'localhost';"
+  - mysql -u root -e 'flush privileges;'
+  - flask db upgrade
 
 script:
   - py.test --cov=app tests/

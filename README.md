@@ -27,20 +27,12 @@ $ source venv/bin/activate
 SECRET_KEY = yoursecretkey
 DATABASE_URL = mysql+pymysql://user:password@localhost:3306/bar_webapp
 
-SESSION_TYPE = sqlalchemy
-
-MAIL_SERVER = localhost
-MAIL_PORT = 25
-MAIL_USE_TLS = 1
-
 USERS_PER_PAGE = 12
 ITEMS_PER_PAGE = 10
 
 CURRENT_GRAD_CLASS = 137
 
-MINUTES_BEFORE_NEXT_DRINK = 30
 MAX_ALCOHOLIC_DRINKS_PER_DAY = 4
-DAYS_BEFORE_INACTIVE = 30
 MINIMUM_LEGAL_AGE = 18
 QUICK_ACCESS_ITEM_ID = 1
 ```
@@ -52,9 +44,9 @@ QUICK_ACCESS_ITEM_ID = 1
 
 4. Create the MySQL database:
 ```
-mysql> create database bar character set utf8 collate utf8_bin;
-mysql> create user 'user'@'bar_webapp' identified by '<db-password>';
-mysql> grant all privileges on user.* to 'bar_webapp'@'localhost';
+mysql> create database bar_webapp character set utf8 collate utf8_bin;
+mysql> create user 'user'@'localhost' identified by '<db-password>';
+mysql> grant all privileges on bar_webapp.* to 'user'@'localhost';
 mysql> flush privileges;
 mysql> quit;
 ```
