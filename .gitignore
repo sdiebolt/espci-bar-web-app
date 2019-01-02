@@ -129,7 +129,7 @@ whooshee/
 pdf
 latex
 
-app.db
+*.db
 *.log*
 logs/
 pep8.py.fixflak8

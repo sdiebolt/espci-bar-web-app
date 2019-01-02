@@ -14,6 +14,8 @@ class Config(object):
     if not SECRET_KEY:
         raise ValueError("No secret key set for Flask application")
 
+    PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
+
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     LOG_TO_STDOUT = os.environ.get('LOG_TO_STDOUT')
@@ -43,7 +45,9 @@ class DevelopmentConfig(Config):
 
     ENV = 'development'
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
+    DB_NAME = 'dev.db'
+    DB_PATH = os.path.join(Config.PROJECT_ROOT, DB_NAME)
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///{0}'.format(DB_PATH)
 
 
 class TestingConfig(Config):
@@ -51,4 +55,6 @@ class TestingConfig(Config):
 
     TESTING = True
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = 'sqlite://'
+    DB_NAME = 'testing.db'
+    DB_PATH = os.path.join(Config.PROJECT_ROOT, DB_NAME)
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///{0}'.format(DB_PATH)
