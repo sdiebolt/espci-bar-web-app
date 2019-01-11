@@ -67,7 +67,7 @@ def db(app):
 
 
 @pytest.fixture
-def user(app):
+def user(db):
     """Return a user creation function for the tests."""
     def make_user(username, account_type='customer'):
         # Create user
@@ -147,3 +147,31 @@ def item(app):
         return item
 
     return make_item
+
+
+@pytest.fixture
+def non_alcohol_item(db, item):
+    """Yield a non alcohol item for the tests."""
+    i = item(name='non_alcohol')
+
+    db.session.add(i)
+    db.session.commit()
+
+    yield i
+
+    db.session.delete(i)
+    db.session.commit()
+
+
+@pytest.fixture
+def alcohol_item(db, item):
+    """Yield an alcohol item for the tests."""
+    i = item(name='alcohol', is_alcohol=True)
+
+    db.session.add(i)
+    db.session.commit()
+
+    yield i
+
+    db.session.delete(i)
+    db.session.commit()

@@ -3,11 +3,11 @@
 # ESPCI Bar Web App
 
 [![Build Status](https://travis-ci.org/Stryars/espci-bar-web-app.svg?branch=master)](https://travis-ci.org/Stryars/espci-bar-web-app)
-[![Coverage Status](https://coveralls.io/repos/github/Stryars/espci-bar-web-app/badge.svg)](https://coveralls.io/github/Stryars/espci-bar-web-app)
+[![Coverage Status](https://coveralls.io/repos/github/Stryars/espci-bar-web-app/badge.svg?branch=master)](https://coveralls.io/github/Stryars/espci-bar-web-app?branch=master)
 [![Requirements Status](https://requires.io/github/Stryars/espci-bar-web-app/requirements.svg?branch=master)](https://requires.io/github/Stryars/espci-bar-web-app/requirements/?branch=master)
 [![GitHub license](https://img.shields.io/badge/License-MIT-green.svg)](https://raw.githubusercontent.com/Stryars/espci-bar-web-app/master/LICENSE.md)
 
-This is the final version of the ESPCI student bar web app, still in development. Written using Python Flask.
+This is the ESPCI student bar web app, still in development. Written using Python Flask.
 
 ### Quickstart
 

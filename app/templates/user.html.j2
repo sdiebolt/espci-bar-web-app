@@ -5,6 +5,40 @@
   <div class="card mt-3 shadow {% if not user.deposit %}border-secondary{% elif user.balance <= 0 %}border-danger{% elif user.balance <= 5 %}border-warning{% else %}border-primary{% endif %}">
     <div class="card-header">
       <h3 class="card-title {% if not user.deposit %}text-secondary{% elif user.balance <= 0 %}text-danger{% elif user.balance <= 5 %}text-warning{% else %}text-primary{% endif %}">{{ user.first_name }}{% if current_user.is_bartender and user.nickname %} "{{ user.nickname }}"{% endif %} {{ user.last_name }}</h3>
+      {% if current_user.is_bartender %}
+      <hr>
+      <div class="container">
+        <div class="btn-toolbar justify-content-between" role="toolbar" aria-label="User button toolbar">
+          {% if user.deposit %}
+          <div class="btn-group" role="group" aria-label="User actions">
+            {% include '_pay.html.j2' %}
+
+            <!-- Top up modal button -->
+            <button type="button" class="btn user-card-btn btn {% if user.balance <= 0 %}btn-danger{% elif user.balance <= 5 %}btn-warning{% else %}btn-primary{% endif %}" data-toggle="modal" data-target="#top-up-modal">
+              <i class="material-icons icon align-middle">credit_card</i><span class="text">Top up</span>
+            </button>
+
+            {% include '_quick_access_item.html.j2' %}
+          </div>
+          {% else %}
+          <div class="btn-group" role="group" aria-label="Deposit">
+            {% include '_deposit.html.j2' %}
+          </div>
+          {% endif %}
+
+          {% if current_user.is_admin %}
+          <div class="btn-group">
+            <a class="btn btn-warning" href="{{ url_for('main.edit_profile', username=user.username) }}" role="button">
+              <i class="material-icons align-middle">edit</i>
+            </a>
+            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete-user-modal">
+              <i class="material-icons align-middle">delete</i>
+            </button>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
     </div>
 
     <div class="card-body">
@@ -69,10 +103,10 @@
               <thead>
                 <tr>
                   <th>#</th>
-                  <th>Date</th>
                   <th>Bartender</th>
                   <th>Type</th>
                   <th>Balance</th>
+                  <th>Date</th>
                   {% if current_user.is_bartender %}
                   <th>Revert</th>
                   {% endif %}
@@ -83,10 +117,10 @@
                 {% for transaction in transactions.items %}
                 <tr {% if transaction.is_reverted or 'Revert' in transaction.type %}class="table-danger"{% endif %}>
                   <th class="align-middle" {% if transaction.is_reverted %}style="text-decoration: line-through;"{% endif %}>{{ transaction.id }}</th>
-                  <td class="align-middle text-nowrap" {% if transaction.is_reverted %}style="text-decoration: line-through;"{% endif %}>{{ moment(transaction.date).format('lll') }}</td>
                   <td class="align-middle" {% if transaction.is_reverted %}style="text-decoration: line-through;"{% endif %}>{{ transaction.barman }}</td>
                   <td class="align-middle text-nowrap" {% if transaction.is_reverted %}style="text-decoration: line-through;"{% endif %}>{{ transaction.type }}</td>
                   <td class="align-middle" {% if transaction.is_reverted %}style="text-decoration: line-through;"{% endif %}>{% if transaction.balance_change %}{{ '%0.2f' | format(transaction.balance_change) }}€{% endif %}</td>
+                  <td class="align-middle text-nowrap" {% if transaction.is_reverted %}style="text-decoration: line-through;"{% endif %}>{{ moment(transaction.date).format('lll') }}</td>
                   {% if current_user.is_bartender %}
                   <td class="align-middle">
                     <div class="btn-group" role="group" aria-label="Revert transaction">
@@ -120,39 +154,6 @@
       </div>
     </div>
 
-    {% if current_user.is_bartender %}
-    <div class="card-footer">
-      <div class="btn-toolbar justify-content-between" role="toolbar" aria-label="User button toolbar">
-        {% if user.deposit %}
-        <div class="btn-group" role="group" aria-label="User actions">
-          {% include '_pay.html.j2' %}
-
-          <!-- Top up modal button -->
-          <button type="button" class="btn user-card-btn btn {% if user.balance <= 0 %}btn-danger{% elif user.balance <= 5 %}btn-warning{% else %}btn-primary{% endif %}" data-toggle="modal" data-target="#top-up-modal">
-            <i class="material-icons icon align-middle">credit_card</i><span class="text">Top up</span>
-          </button>
-
-          {% include '_quick_access_item.html.j2' %}
-        </div>
-        {% else %}
-        <div class="btn-group" role="group" aria-label="Deposit">
-          {% include '_deposit.html.j2' %}
-        </div>
-        {% endif %}
-
-        {% if current_user.is_admin %}
-        <div class="btn-group">
-          <a class="btn btn-warning" href="{{ url_for('main.edit_profile', username=user.username) }}" role="button">
-            <i class="material-icons align-middle">edit</i>
-          </a>
-          <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete-user-modal">
-            <i class="material-icons align-middle">delete</i>
-          </button>
-        </div>
-        {% endif %}
-      </div>
-    </div>
-    {% endif %}
   </div>
 </div>
 {% endblock %}

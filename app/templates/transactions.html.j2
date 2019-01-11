@@ -19,11 +19,11 @@
     <thead>
       <tr>
         <th>#</th>
-        <th>Date</th>
         <th>Bartender</th>
         <th>Client</th>
         <th>Type</th>
         <th>Balance</th>
+        <th>Date</th>
         <th>Revert</th>
       </tr>
     </thead>
@@ -32,11 +32,11 @@
       {% for transaction in transactions.items %}
       <tr {% if transaction.is_reverted or 'Revert' in transaction.type %}class="table-danger"{% endif %}>
         <th class="align-middle" {% if transaction.is_reverted %}style="text-decoration: line-through;"{% endif %}>{{ transaction.id }}</th>
-        <td class="align-middle text-nowrap" {% if transaction.is_reverted %}style="text-decoration: line-through;"{% endif %}>{{ moment(transaction.date).format('lll') }}</td>
         <td class="align-middle" {% if transaction.is_reverted %}style="text-decoration: line-through;"{% endif %}>{{ transaction.barman }}</td>
         <td class="align-middle" {% if transaction.is_reverted %}style="text-decoration: line-through;"{% endif %}>{{ transaction.client.username }}</td>
         <td class="align-middle text-nowrap" {% if transaction.is_reverted %}style="text-decoration: line-through;"{% endif %}>{{ transaction.type }}</td>
         <td class="align-middle" {% if transaction.is_reverted %}style="text-decoration: line-through;"{% endif %}>{% if transaction.balance_change %}{{ '%0.2f' | format(transaction.balance_change) }}€{% endif %}</td>
+        <td class="align-middle text-nowrap" {% if transaction.is_reverted %}style="text-decoration: line-through;"{% endif %}>{{ moment(transaction.date).format('lll') }}</td>
         <td class="align-middle">
           <div class="btn-group" role="group" aria-label="Revert transaction">
             <button type="button" class="btn btn-danger{% if transaction.is_reverted or 'Revert' in transaction.type %} disabled{% endif %}" data-toggle="modal" data-target="#revert-transaction-modal" data-name="{{ transaction.id }}" data-url="{{ url_for('main.revert_transaction', transaction_id=transaction.id) }}">
@@ -52,7 +52,7 @@
 
 <nav aria-label="Page navigation">
   <ul class="pagination justify-content-center">
-    {%- for page in transactions.iter_pages() %}
+    {%- for page in transactions.iter_pages(left_edge=1, left_current=1, right_current=2, right_edge=1) %}
     <li class="page-item{% if page == transactions.page %} active{% endif %}{%if not page %} disabled{% endif %}">
       <a class="page-link" href="{{ url_for('main.transactions', page=page) }}">
         {% if page %}
