@@ -18,7 +18,7 @@ itsdangerous==1.1.0
 Jinja2==2.10
 Mako==1.0.7
 MarkupSafe==1.1.0
-Pillow==5.4.0
+Pillow==5.4.1
 pycparser==2.19
 PyMySQL==0.9.3
 python-dateutil==2.7.5
