@@ -34,7 +34,7 @@ class RegistrationForm(FlaskForm):
 
     account_type = SelectField(
         'Account type',
-        choices=[('observer', 'Observer'), ('customer', 'Customer'),
+        choices=[('customer', 'Customer'), ('observer', 'Observer'),
                  ('bartender', 'Bartender'), ('admin', 'Administrator')])
 
     submit = SubmitField('Register')
