@@ -18,7 +18,7 @@ from app.main import bp
 def before_request():
     """Create the search form before each request."""
     if not current_user.is_anonymous:
-        if current_user.is_bartender:
+        if current_user.is_admin or current_user.is_bartender:
             g.search_form = SearchForm()
 
 
@@ -35,7 +35,8 @@ def month_year_iter(start_month, start_year, end_month, end_year):
 @login_required
 def get_yearly_transactions():
     """Return transaction from last 12 months."""
-    if not (current_user.is_bartender or current_user.is_observer):
+    if not (current_user.is_admin or current_user.is_bartender or
+            current_user.is_observer):
         return redirect(url_for('main.user', username=current_user.username))
 
     # Get current day, month, year
@@ -134,7 +135,8 @@ def dashboard():
     - For customers, it redirects to the user profile.
     - For anonymous users, it redirects to the login page.
     """
-    if not (current_user.is_bartender or current_user.is_observer):
+    if not (current_user.is_admin or current_user.is_bartender or
+            current_user.is_observer):
         return redirect(url_for('main.user', username=current_user.username))
 
     # Get current day start
@@ -213,7 +215,7 @@ def dashboard():
 @login_required
 def search():
     """Render search page."""
-    if not current_user.is_bartender:
+    if not (current_user.is_admin or current_user.is_bartender):
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.dashboard'))
     if not g.search_form.validate():
@@ -270,7 +272,7 @@ def search():
 @login_required
 def get_user_products():
     """Return the list of products that a user can buy."""
-    if not current_user.is_bartender:
+    if not (current_user.is_admin or current_user.is_bartender):
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.dashboard'))
 
@@ -300,7 +302,8 @@ def user(username):
     Keyword arguments:
     username -- the user's username
     """
-    if current_user.username != username and (not current_user.is_bartender):
+    if not (current_user.username == username or current_user.is_admin or
+            current_user.is_bartender):
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.dashboard'))
 
@@ -361,15 +364,9 @@ def edit_profile(username):
         user.email = form.email.data
 
         # Set account type
-        user.is_customer = form.account_type.data == 'customer' or \
-            form.account_type.data == 'observer' or \
-            form.account_type.data == 'bartender' or \
-            form.account_type.data == 'admin'
-        user.is_observer = form.account_type.data == 'observer' or \
-            form.account_type.data == 'bartender' or \
-            form.account_type.data == 'admin'
-        user.is_bartender = form.account_type.data == 'bartender' or \
-            form.account_type.data == 'admin'
+        user.is_customer = form.account_type.data == 'customer'
+        user.is_observer = form.account_type.data == 'observer'
+        user.is_bartender = form.account_type.data == 'bartender'
         user.is_admin = form.account_type.data == 'admin'
 
         if (form.password.data != ''):
@@ -399,7 +396,7 @@ def edit_profile(username):
 @login_required
 def deposit():
     """Set a user deposit state."""
-    if not current_user.is_bartender:
+    if not (current_user.is_admin or current_user.is_bartender):
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.dashboard'))
 
@@ -437,7 +434,7 @@ def delete_user():
 @login_required
 def transactions():
     """Render the transactions page."""
-    if not current_user.is_bartender:
+    if not (current_user.is_admin or current_user.is_bartender):
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.dashboard'))
 
@@ -461,7 +458,7 @@ def transactions():
 @login_required
 def revert_transaction():
     """Revert a transaction."""
-    if not current_user.is_bartender:
+    if not (current_user.is_admin or current_user.is_bartender):
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.dashboard'))
 
@@ -510,7 +507,7 @@ def revert_transaction():
 @login_required
 def inventory():
     """Render the inventory page."""
-    if not current_user.is_bartender:
+    if not (current_user.is_admin or current_user.is_bartender):
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.dashboard'))
 
@@ -541,7 +538,7 @@ def inventory():
 @login_required
 def set_quick_access_item():
     """Set the quick access item."""
-    if not current_user.is_bartender:
+    if not (current_user.is_admin or current_user.is_bartender):
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.dashboard'))
 
@@ -566,7 +563,7 @@ def set_quick_access_item():
 @login_required
 def add_item():
     """Add an item to the inventory."""
-    if not current_user.is_bartender:
+    if not (current_user.is_admin or current_user.is_bartender):
         flash("You don't have the rights to acces this page.", 'danger')
         return redirect(url_for('main.dashboard'))
 
@@ -594,7 +591,7 @@ def edit_item(item_name):
     Keyword arguments:
     item_name -- the item's name
     """
-    if not current_user.is_bartender:
+    if not (current_user.is_admin or current_user.is_bartender):
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.dashboard'))
 
@@ -630,7 +627,7 @@ def edit_item(item_name):
 @login_required
 def delete_item():
     """Delete an item from the inventory."""
-    if not current_user.is_bartender:
+    if not (current_user.is_admin or current_user.is_bartender):
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.dashboard'))
 
@@ -647,7 +644,7 @@ def delete_item():
 @login_required
 def top_up():
     """Top up the user's balance and redirect to the last page."""
-    if not current_user.is_bartender:
+    if not (current_user.is_admin or current_user.is_bartender):
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.dashboard'))
 
@@ -680,7 +677,7 @@ def top_up():
 @login_required
 def pay():
     """Substract the item price to the user's balance."""
-    if not current_user.is_bartender:
+    if not (current_user.is_admin or current_user.is_bartender):
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.dashboard'))
 
@@ -729,7 +726,7 @@ def pay():
 @login_required
 def scanqrcode():
     """Render the QR code scanner page."""
-    if not current_user.is_bartender:
+    if not (current_user.is_admin or current_user.is_bartender):
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.dashboard'))
 
@@ -740,7 +737,7 @@ def scanqrcode():
 @login_required
 def get_user_from_qr():
     """Redirect to the user profile corresponding to the QR code."""
-    if not current_user.is_bartender:
+    if not (current_user.is_admin or current_user.is_bartender):
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.dashboard'))
 
@@ -761,7 +758,8 @@ def qrcode(username):
     Keyword arguments:
     username -- the user's username
     """
-    if current_user.username != username and (not current_user.is_bartender):
+    if not (current_user.username == username or current_user.is_admin or
+            current_user.is_bartender):
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.dashboard'))
 

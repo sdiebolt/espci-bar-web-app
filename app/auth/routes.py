@@ -76,7 +76,12 @@ def login():
         login_user(user, remember=form.remember_me.data)
         next_page = request.args.get('next')
         if not next_page or url_parse(next_page).netloc != '':
-            next_page = url_for('main.dashboard')
+            if current_user.is_observer or current_user.is_bartender or\
+                    current_user.is_admin:
+                next_page = url_for('main.dashboard')
+            else:
+                next_page = url_for('main.user',
+                                    username=current_user.username)
         flash('You were successfully logged in.', 'primary')
         return redirect(next_page)
     return render_template('auth/login.html.j2', title='Sign In', form=form)
@@ -95,7 +100,7 @@ def logout():
 @fresh_login_required
 def register():
     """Render the register page."""
-    if not current_user.is_bartender:
+    if not (current_user.is_bartender or current_user.is_admin):
         flash("You don't have the rights to access this page.", 'danger')
         return redirect(url_for('main.dashboard'))
 
@@ -114,15 +119,9 @@ def register():
         password = gen_password()
 
         # Set account type
-        is_customer = form.account_type.data == 'customer' or \
-            form.account_type.data == 'observer' or \
-            form.account_type.data == 'bartender' or \
-            form.account_type.data == 'admin'
-        is_observer = form.account_type.data == 'observer' or \
-            form.account_type.data == 'bartender' or \
-            form.account_type.data == 'admin'
-        is_bartender = form.account_type.data == 'bartender' or \
-            form.account_type.data == 'admin'
+        is_customer = form.account_type.data == 'customer'
+        is_observer = form.account_type.data == 'observer'
+        is_bartender = form.account_type.data == 'bartender'
         is_admin = form.account_type.data == 'admin'
 
         # Generate pdf

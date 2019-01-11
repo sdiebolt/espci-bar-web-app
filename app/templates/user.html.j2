@@ -4,8 +4,8 @@
 <div class="container">
   <div class="card mt-3 shadow {% if not user.deposit %}border-secondary{% elif user.balance <= 0 %}border-danger{% elif user.balance <= 5 %}border-warning{% else %}border-primary{% endif %}">
     <div class="card-header">
-      <h3 class="card-title {% if not user.deposit %}text-secondary{% elif user.balance <= 0 %}text-danger{% elif user.balance <= 5 %}text-warning{% else %}text-primary{% endif %}">{{ user.first_name }}{% if current_user.is_bartender and user.nickname %} "{{ user.nickname }}"{% endif %} {{ user.last_name }}</h3>
-      {% if current_user.is_bartender %}
+      <h3 class="card-title {% if not user.deposit %}text-secondary{% elif user.balance <= 0 %}text-danger{% elif user.balance <= 5 %}text-warning{% else %}text-primary{% endif %}">{{ user.first_name }}{% if (current_user.is_admin or current_user.is_bartender) and user.nickname %} "{{ user.nickname }}"{% endif %} {{ user.last_name }}</h3>
+      {% if current_user.is_admin or current_user.is_bartender %}
       <hr>
       <div class="btn-toolbar justify-content-between" role="toolbar" aria-label="User button toolbar">
         {% if user.deposit %}
@@ -105,7 +105,7 @@
                   <th>Type</th>
                   <th>Balance</th>
                   <th>Date</th>
-                  {% if current_user.is_bartender %}
+                  {% if current_user.is_admin or current_user.is_bartender %}
                   <th>Revert</th>
                   {% endif %}
                 </tr>
@@ -119,7 +119,7 @@
                   <td class="align-middle text-nowrap" {% if transaction.is_reverted %}style="text-decoration: line-through;"{% endif %}>{{ transaction.type }}</td>
                   <td class="align-middle" {% if transaction.is_reverted %}style="text-decoration: line-through;"{% endif %}>{% if transaction.balance_change %}{{ '%0.2f' | format(transaction.balance_change) }}€{% endif %}</td>
                   <td class="align-middle text-nowrap" {% if transaction.is_reverted %}style="text-decoration: line-through;"{% endif %}>{{ moment(transaction.date).format('lll') }}</td>
-                  {% if current_user.is_bartender %}
+                  {% if current_user.is_admin or current_user.is_bartender %}
                   <td class="align-middle">
                     <div class="btn-group" role="group" aria-label="Revert transaction">
                       <button type="button" class="btn btn-danger{% if transaction.is_reverted or 'Revert' in transaction.type %} disabled{% endif %}" data-toggle="modal" data-target="#revert-transaction-modal" data-name="{{ transaction.id }}" data-url="{{ url_for('main.revert_transaction', transaction_id=transaction.id) }}">
@@ -157,7 +157,7 @@
 {% endblock %}
 
 {% block modals %}
-{% if current_user.is_bartender %}
+{% if current_user.is_admin or current_user.is_bartender %}
 {{ super () }}
 
 <!-- User deletion modal -->
@@ -230,7 +230,7 @@
 
 {% block scripts %}
 {{ super() }}
-{% if current_user.is_bartender %}
+{% if current_user.is_admin or current_user.is_bartender %}
 
 <script>
 // Populate pay dropdown
