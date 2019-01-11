@@ -34,7 +34,7 @@
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-main" aria-controls="navbar-main" aria-expanded="false" aria-label="Toggle navigation">
         <i class="material-icons align-middle">menu</i>
       </button>
-      {% if current_user.is_observer %}
+      {% if current_user.is_admin or current_user.is_bartender or current_user.is_observer %}
       <div class="collapse navbar-collapse navbar-main">
         <ul class="navbar-nav mr-auto">
           <li class="nav-item{% if (request.path == '/dashboard' or request.path == '/') %} active{% endif %}">
