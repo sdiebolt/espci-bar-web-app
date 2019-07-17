@@ -15,7 +15,7 @@ flask-whooshee==0.6.0
 Flask-WTF==0.14.2
 idna==2.8
 itsdangerous==1.1.0
-Jinja2==2.10
+Jinja2>=2.10.1
 Mako==1.0.7
 MarkupSafe==1.1.0
 Pillow==5.4.1
