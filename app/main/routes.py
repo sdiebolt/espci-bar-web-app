@@ -172,30 +172,17 @@ def dashboard():
         filter_by(is_reverted=False).all()
     daily_revenue = sum([abs(t.balance_change) for t in daily_transactions])
 
-    # Get money spent and topped up this month
-    paid_this_month = []
-    topped_this_month = []
-    for day in range(1, monthrange(current_year, current_month)[1] + 1):
-        transactions_paid_m = Transaction.query.\
-            filter(
-                and_(extract('day', Transaction.date) == day,
-                     and_(extract('month', Transaction.date) == current_month,
-                          extract('year', Transaction.date) == current_year))
-                  ).filter(Transaction.type.like('Pay%')).\
-            filter_by(is_reverted=False).all()
-        transactions_topped_m = Transaction.query.\
-            filter(
-                and_(extract('day', Transaction.date) == day,
-                     and_(extract('month', Transaction.date) == current_month,
-                          extract('year', Transaction.date) == current_year))
-                  ).filter(Transaction.type.like('Top up')).\
-            filter_by(is_reverted=False).all()
-        paid_this_month.append(0)
-        for t in transactions_paid_m:
-            paid_this_month[-1] -= t.balance_change
-        topped_this_month.append(0)
-        for t in transactions_topped_m:
-            topped_this_month[-1] += t.balance_change
+    # Compute number of clients this month
+    clients_this_month = [len(set([t.client_id for t in
+        Transaction.query.filter(and_(extract('day', Transaction.date) == day,
+            and_(extract('month', Transaction.date) == current_month,
+                extract('year', Transaction.date) == current_year))).filter(Transaction.type.like('Pay%')).filter_by(is_reverted=False).all()])) for day in range(1, 32)]
+
+
+    clients_alcohol_this_month = [len(set([t.client_id for t in
+        Transaction.query.filter(and_(extract('day', Transaction.date) == day,
+            and_(extract('month', Transaction.date) == current_month, extract('year',
+                Transaction.date) == current_year))).filter(Transaction.type.like('Pay%')).filter(Transaction.item.has(is_alcohol=True)).filter_by(is_reverted=False).all()])) for day in range(1, 32)]
 
     # Generate days labels
     days_labels = ['%.2d' % current_month + '/' + '%.2d' % day for day in
@@ -203,8 +190,8 @@ def dashboard():
 
     return render_template('dashboard.html.j2',
                            title='Dashboard',
-                           paid_this_month=paid_this_month,
-                           topped_this_month=topped_this_month,
+                           clients_this_month=clients_this_month,
+                           clients_alcohol_this_month=clients_alcohol_this_month,
                            days_labels=days_labels,
                            nb_daily_clients=nb_daily_clients,
                            alcohol_qty=alcohol_qty,

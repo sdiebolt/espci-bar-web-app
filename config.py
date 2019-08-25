@@ -29,6 +29,9 @@ class Config(object):
     MINIMUM_LEGAL_AGE = int(os.environ.get('MINIMUM_LEGAL_AGE'))
     QUICK_ACCESS_ITEM_ID = int(os.environ.get('QUICK_ACCESS_ITEM_ID'))
 
+    # Whooshee configuration
+    WHOOSHEE_MIN_STRING_LEN = int(os.environ.get('WHOOSHEE_MIN_STRING_LEN'))
+
 
 class ProductionConfig(Config):
     """Production configuration."""

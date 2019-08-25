@@ -11,7 +11,8 @@ import qrcode
 from app import db, login, whooshee
 
 
-@whooshee.register_model('username', 'first_name', 'last_name', 'nickname')
+@whooshee.register_model('username', 'first_name', 'last_name', 'nickname',
+                         'grad_class')
 class User(UserMixin, db.Model):
     """User model."""
 
