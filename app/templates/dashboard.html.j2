@@ -44,18 +44,6 @@
 </div>
 
 <div class="card border-primary">
-  <div class="card-header">
-    <!-- <h4 class="card-title text-primary">Monthly transactions</h4> -->
-    <ul class="nav nav-pills">
-      <li class="nav-item">
-        <a class="nav-link active" id="monthly-clients" href="#">Monthly
-          clients</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" id="yearly-clients" href="#">Yearly clients</a>
-      </li>
-    </ul>
-  </div>
   <div class="card-body">
     <canvas id="transactions-chart" width="600" height="400" aria-label="transactions-chart" role="img"></canvas>
   </div>
@@ -116,12 +104,7 @@ var transactionsChart = new Chart(ctx, {
     maintainAspectRatio: false,
     tooltips: {
       mode: 'index',
-      intersect: false,
-      callbacks: {
-        label: function(tooltipItems, data) {
-          return '€' + tooltipItems.yLabel;
-        }
-      }
+      intersect: false
     },
     hover: {
       mode: 'nearest',
@@ -144,39 +127,6 @@ var transactionsChart = new Chart(ctx, {
       }]
     }
   }
-});
-
-$("#monthly-clients").on("click", function() {
-  updateChart(transactionsChart, chartDataMonth, 'Day');
-  document.getElementById('yearly-clients').classList.remove('active');
-  document.getElementById('monthly-clients').classList.add('active');
-});
-
-$("#yearly-clients").on("click", function() {
-  $.get('{{ url_for('main.get_yearly_transactions') }}', {
-  }).done(function(response) {
-    var chartDataYear = {
-      labels: response['months_labels'],
-      datasets: [{
-          label: 'Clients total',
-          fill: false,
-          backgroundColor: "#dc3545",
-          borderColor: "#dc3545",
-          data: response['clients_per_month'].map(function(each_element){return Number(each_element.toFixed(2))}),
-      },
-      {
-          label: 'Alcohol',
-          fill: false,
-          backgroundColor: "#007bff",
-          borderColor: "#007bff",
-          data: response['clients_alcohol_per_month'].map(function(each_element){return Number(each_element.toFixed(2))}),
-      }]
-    };
-
-    updateChart(transactionsChart, chartDataYear, 'Month');
-    document.getElementById('monthly-clients').classList.remove('active');
-    document.getElementById('yearly-clients').classList.add('active');
-  });
 });
 </script>
 {% endblock %}
